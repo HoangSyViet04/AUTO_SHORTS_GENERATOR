@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Shorts Studio</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-frame">
+      <aside class="rail" aria-label="Điều hướng">
+        <div class="logo">
+          <span>AS</span>
+        </div>
+        <nav>
+          <button class="rail-button active" data-target="studio" title="Studio">⌘</button>
+          <button class="rail-button" data-target="options" title="Options">⚙</button>
+          <button class="rail-button" data-target="outputs" title="Output">⇩</button>
+          <button class="rail-button" data-target="logs" title="Logs">☷</button>
+        </nav>
+      </aside>
+
+      <main class="workspace">
+        <header class="command-bar">
+          <div>
+            <p class="kicker">Auto Shorts Studio</p>
+            <h1>Dịch phụ đề & lồng tiếng video Trung sang Việt</h1>
+          </div>
+          <div class="command-actions">
+            <span id="geminiStatus" class="health-chip">Gemini</span>
+            <span id="ttsStatus" class="health-chip">TTS</span>
+            <button id="refreshBtn" class="button secondary">Làm mới</button>
+          </div>
+        </header>
+
+        <section id="studio" class="studio-grid">
+          <section class="panel source-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-index">01</span>
+                <h2>Video nguồn</h2>
+              </div>
+              <label class="button upload">
+                <input id="uploadInput" type="file" accept=".mp4,.mkv" />
+                Upload
+              </label>
+            </div>
+            <div id="videoList" class="video-stack"></div>
+          </section>
+
+          <section class="panel run-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-index">02</span>
+                <h2>Pipeline</h2>
+              </div>
+              <span id="jobStatus" class="run-status">Sẵn sàng</span>
+            </div>
+
+            <div class="selected-card">
+              <div>
+                <span class="muted-label">Đang chọn</span>
+                <strong id="selectedVideoName">Chưa chọn video</strong>
+              </div>
+              <button id="runBtn" class="button primary" disabled>Chạy pipeline</button>
+            </div>
+
+            <div class="flow-canvas" aria-label="Pipeline steps">
+              <article class="flow-node" data-step="video">
+                <span class="node-icon">▣</span>
+                <h3>Import</h3>
+                <p>Copy video gốc</p>
+              </article>
+              <span class="connector"></span>
+              <article class="flow-node" data-step="stt">
+                <span class="node-icon">≋</span>
+                <h3>Whisper</h3>
+                <p>SRT tiếng Trung</p>
+              </article>
+              <span class="connector"></span>
+              <article class="flow-node" data-step="translate">
+                <span class="node-icon">✦</span>
+                <h3>Gemini</h3>
+                <p>Dịch tự nhiên</p>
+              </article>
+              <span class="connector"></span>
+              <article class="flow-node" data-step="tts">
+                <span class="node-icon">♪</span>
+                <h3>Adam TTS</h3>
+                <p>Audio theo caption</p>
+              </article>
+              <span class="connector"></span>
+              <article class="flow-node" data-step="done">
+                <span class="node-icon">✓</span>
+                <h3>Output</h3>
+                <p>Sẵn sàng tải</p>
+              </article>
+            </div>
+
+            <div class="quick-stats">
+              <div>
+                <small>Video nguồn</small>
+                <strong id="videoCount">0</strong>
+              </div>
+              <div>
+                <small>Hoàn thành</small>
+                <strong id="doneCount">0</strong>
+              </div>
+              <div>
+                <small>Output dir</small>
+                <strong id="outputDir">output_results</strong>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="content-grid">
+          <section id="options" class="panel options-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-index">03</span>
+                <h2>Options</h2>
+              </div>
+              <button id="saveOptionsBtn" class="button secondary">Lưu .env</button>
+            </div>
+
+            <form id="optionsForm" class="options-form">
+              <label>
+                <span>Whisper model</span>
+                <select name="whisperModel">
+                  <option value="base">base</option>
+                  <option value="small">small</option>
+                  <option value="medium">medium</option>
+                </select>
+              </label>
+              <label>
+                <span>Device</span>
+                <select name="whisperDevice">
+                  <option value="cpu">cpu</option>
+                  <option value="cuda">cuda</option>
+                  <option value="auto">auto</option>
+                </select>
+              </label>
+              <label>
+                <span>Compute type</span>
+                <select name="whisperComputeType">
+                  <option value="int8">int8</option>
+                  <option value="int8_float16">int8_float16</option>
+                  <option value="float16">float16</option>
+                  <option value="float32">float32</option>
+                </select>
+              </label>
+              <label>
+                <span>Fallback models</span>
+                <input name="whisperFallbackModels" placeholder="small,base" />
+              </label>
+              <label>
+                <span>Gemini model</span>
+                <input name="geminiModel" placeholder="gemini-3.5-flash" />
+              </label>
+              <label>
+                <span>TTS voice ID</span>
+                <input name="ttsVoiceId" placeholder="pNInz6obpgDQGcFmaJgB" />
+              </label>
+              <label class="wide">
+                <span>TTS API URL</span>
+                <input name="ttsApiUrl" placeholder="https://api.elevenlabs.io/..." />
+              </label>
+              <label>
+                <span>TTS model ID</span>
+                <input name="ttsModelId" placeholder="eleven_flash_v2_5" />
+              </label>
+              <label>
+                <span>Timeout seconds</span>
+                <input name="ttsTimeoutSeconds" type="number" min="1" step="1" />
+              </label>
+              <label>
+                <span>Max retries</span>
+                <input name="ttsMaxRetries" type="number" min="1" step="1" />
+              </label>
+              <label>
+                <span>Max speedup ratio</span>
+                <input name="maxAudioSpeedupRatio" type="number" min="1" step="0.05" />
+              </label>
+            </form>
+          </section>
+
+          <section id="outputs" class="panel output-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-index">04</span>
+                <h2>Output</h2>
+              </div>
+              <span id="outputStatus" class="run-status">Đang chờ</span>
+            </div>
+            <div id="outputList" class="output-list"></div>
+          </section>
+        </section>
+
+        <section id="logs" class="panel log-panel">
+          <div class="section-title">
+            <div>
+              <span class="section-index">05</span>
+              <h2>Logs realtime</h2>
+            </div>
+            <button id="clearLogsBtn" class="button secondary">Xóa log hiển thị</button>
+          </div>
+          <pre id="logBox">Chưa có log.</pre>
+        </section>
+      </main>
+    </div>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
