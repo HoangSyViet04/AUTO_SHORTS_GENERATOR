@@ -4,44 +4,58 @@ const state = {
   selected: null,
   job: null,
   keepLogs: true,
+  lastJobRunning: null,
+  lastRenderedAudioUrl: "",
 };
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
 const ui = {
-  geminiStatus: $("#geminiStatus"),
-  ttsStatus: $("#ttsStatus"),
-  refreshBtn: $("#refreshBtn"),
   uploadInput: $("#uploadInput"),
-  videoList: $("#videoList"),
-  selectedVideoName: $("#selectedVideoName"),
-  runBtn: $("#runBtn"),
-  jobStatus: $("#jobStatus"),
-  videoCount: $("#videoCount"),
-  doneCount: $("#doneCount"),
-  outputDir: $("#outputDir"),
-  outputStatus: $("#outputStatus"),
   outputList: $("#outputList"),
-  optionsForm: $("#optionsForm"),
+  outputStatus: $("#outputStatus"),
+  runBtn: $("#runBtn"),
+  refreshBtn: $("#refreshBtn"),
   saveOptionsBtn: $("#saveOptionsBtn"),
+  clearSelectionBtn: $("#clearSelectionBtn"),
+  copyCampaignBtn: $("#copyCampaignBtn"),
+  copyShopeeBtn: $("#copyShopeeBtn"),
   clearLogsBtn: $("#clearLogsBtn"),
+  optionsForm: $("#optionsForm"),
   logBox: $("#logBox"),
+  openOutputBtn: $("#openOutputBtn"),
+  dropZone: $("#dropZone"),
+  subtitlePreview: $("#subtitlePreview"),
+  campaignPreview: $("#campaignPreview"),
+  shopeePreview: $("#shopeePreview"),
+  audioPreview: $("#audioPreview"),
+  videoSelect: $("#videoSelect"),
+  capcutBtn: $("#capcutBtn"),
 };
 
-function bytes(value) {
+const workflowSteps = ["import", "srt", "gemini", "tts", "capcut"];
+const workflowLabels = {
+  ready: "Chờ xử lý",
+  running: "Đang xử lý...",
+  done: "Hoàn thành",
+  capcutReady: "Sẵn sàng mở",
+  error: "Có lỗi",
+};
+
+function formatBytes(bytes) {
   const units = ["B", "KB", "MB", "GB"];
-  let size = Number(value || 0);
+  let value = Number(bytes || 0);
   let index = 0;
-  while (size >= 1024 && index < units.length - 1) {
-    size /= 1024;
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024;
     index += 1;
   }
-  return index === 0 ? `${size} ${units[index]}` : `${size.toFixed(1)} ${units[index]}`;
+  return index === 0 ? `${value} ${units[index]}` : `${value.toFixed(1)} ${units[index]}`;
 }
 
-function dateTime(value) {
-  if (!value) return "";
+function formatDate(value) {
+  if (!value) return "-";
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
     month: "2-digit",
@@ -53,37 +67,64 @@ function dateTime(value) {
 
 async function api(url, options = {}) {
   const response = await fetch(url, options);
-  const contentType = response.headers.get("content-type") || "";
-  const payload = contentType.includes("application/json") ? await response.json() : await response.text();
+  const type = response.headers.get("content-type") || "";
+  const payload = type.includes("application/json") ? await response.json() : await response.text();
   if (!response.ok) {
     throw new Error(typeof payload === "string" ? payload : payload.detail || `HTTP ${response.status}`);
   }
   return payload;
 }
 
-function chip(element, ok, okText, badText) {
-  element.textContent = ok ? okText : badText;
-  element.classList.toggle("ok", ok);
-  element.classList.toggle("bad", !ok);
+function showView(name) {
+  $$(".view").forEach((view) => view.classList.remove("active"));
+  $(`#${name}View`)?.classList.add("active");
+  $$(".nav-item[data-view]").forEach((item) => item.classList.toggle("active", item.dataset.view === name));
 }
 
-function markStep(stepName) {
-  const order = ["video", "stt", "translate", "tts", "done"];
-  const currentIndex = order.indexOf(stepName);
-  $$(".flow-node").forEach((node) => {
-    const index = order.indexOf(node.dataset.step);
-    node.classList.toggle("active", index === currentIndex);
-    node.classList.toggle("done", currentIndex >= 0 && index < currentIndex);
+function setWorkflowState(currentStep = "import", mode = "ready") {
+  const currentIndex = workflowSteps.indexOf(currentStep);
+  $$(".workflow-card").forEach((card) => {
+    const step = card.dataset.step;
+    const index = workflowSteps.indexOf(step);
+    const status = card.querySelector(".step-status");
+    card.classList.remove("done", "active", "error");
+
+    if (mode === "error" && index === currentIndex) {
+      card.classList.add("error");
+      if (status) status.textContent = workflowLabels.error;
+      return;
+    }
+
+    if (mode === "complete") {
+      if (step === "capcut") {
+        card.classList.add("active");
+        if (status) status.textContent = workflowLabels.capcutReady;
+      } else {
+        card.classList.add("done");
+        if (status) status.textContent = workflowLabels.done;
+      }
+      return;
+    }
+
+    if (index < currentIndex) {
+      card.classList.add("done");
+      if (status) status.textContent = workflowLabels.done;
+    } else if (index === currentIndex) {
+      card.classList.add("active");
+      if (status) status.textContent = mode === "running" ? workflowLabels.running : workflowLabels.ready;
+    } else if (status) {
+      status.textContent = workflowLabels.ready;
+    }
   });
 }
 
-function inferStep(logs) {
-  const joined = logs.join("\n");
-  if (joined.includes("Da luu audio long tieng") || joined.includes("Hoan tat")) return "done";
-  if (joined.includes("Dang tao audio caption")) return "tts";
-  if (joined.includes("Dang dich subtitle") || joined.includes("Dang dich SRT")) return "translate";
-  if (joined.includes("Whisper") || joined.includes("subtitle tieng Trung")) return "stt";
-  return "video";
+function inferWorkflowStep(logs = []) {
+  const text = logs.join("\n");
+  if (text.includes("Dang tao audio caption") || text.includes("Da luu sub Viet")) return "tts";
+  if (text.includes("Dang dich") || text.includes("Da luu sub Trung")) return "gemini";
+  if (text.includes("Whisper") || text.includes("trich xuat subtitle")) return "srt";
+  if (text.includes("Da copy video goc") || text.includes("Bat dau xu ly")) return "import";
+  return "import";
 }
 
 function setFormValue(name, value) {
@@ -92,134 +133,205 @@ function setFormValue(name, value) {
   field.value = Array.isArray(value) ? value.join(",") : value ?? "";
 }
 
-function renderConfig() {
-  const config = state.config;
-  if (!config) return;
-
-  chip(ui.geminiStatus, config.api.gemini, "Gemini OK", "Thiếu Gemini");
-  chip(ui.ttsStatus, config.api.tts, "TTS OK", "Thiếu TTS");
-  ui.outputDir.textContent = config.paths.output;
-
-  const settings = config.settings;
+function applyConfigToForm() {
+  const settings = state.config?.settings;
+  if (!settings) return;
   setFormValue("whisperModel", settings.whisperModel);
   setFormValue("whisperDevice", settings.whisperDevice);
   setFormValue("whisperComputeType", settings.whisperComputeType);
   setFormValue("whisperFallbackModels", settings.whisperFallbackModels);
   setFormValue("geminiModel", settings.geminiModel);
+  setFormValue("geminiRewritePrompt", settings.geminiRewritePrompt);
+  setFormValue("geminiPostPrompt", settings.geminiPostPrompt);
+  setFormValue("shopeeProductPrompt", settings.shopeeProductPrompt);
   setFormValue("ttsApiUrl", settings.ttsApiUrl);
   setFormValue("ttsVoiceId", settings.ttsVoiceId);
   setFormValue("ttsModelId", settings.ttsModelId);
   setFormValue("ttsTimeoutSeconds", settings.ttsTimeoutSeconds);
   setFormValue("ttsMaxRetries", settings.ttsMaxRetries);
   setFormValue("maxAudioSpeedupRatio", settings.maxAudioSpeedupRatio);
+  setFormValue("capcutPath", settings.capcutPath);
+  setFormValue("capcutProjectDir", settings.capcutProjectDir);
 }
 
-function renderVideos() {
-  ui.videoCount.textContent = state.videos.length;
-  ui.doneCount.textContent = state.videos.filter((video) => video.status === "done").length;
+function selectedOutput(name) {
+  return state.selected?.outputs?.find((file) => file.name === name);
+}
 
-  if (!state.videos.length) {
-    state.selected = null;
-    ui.selectedVideoName.textContent = "Chưa chọn video";
-    ui.videoList.innerHTML = `<div class="empty">Upload video .mp4 hoặc .mkv để bắt đầu.</div>`;
-    ui.runBtn.disabled = true;
-    renderOutputs();
+function outputByExtension(extension) {
+  return state.selected?.outputs?.find((file) => file.name.toLowerCase().endsWith(extension));
+}
+
+async function copyBoxText(previewElement, buttonElement) {
+  const text = previewElement.textContent.trim();
+  if (!text || buttonElement.disabled) return;
+  await navigator.clipboard.writeText(text);
+  buttonElement.textContent = "Đã copy";
+  setTimeout(() => {
+    buttonElement.textContent = "Copy";
+  }, 1200);
+}
+
+async function renderPreviews() {
+  if (!state.selected) {
+    if (state.lastRenderedAudioUrl) {
+      ui.audioPreview.innerHTML = "Chua co audio preview.";
+      state.lastRenderedAudioUrl = "";
+    }
+    ui.subtitlePreview.textContent = "Chọn video để xem SRT.";
+    ui.campaignPreview.textContent = "Chọn video đã chạy xong để xem caption đăng bài.";
+    ui.shopeePreview.textContent = "Chọn video đã chạy xong để xem gợi ý comment.";
+    ui.copyCampaignBtn.disabled = true;
+    ui.copyShopeeBtn.disabled = true;
     return;
   }
 
-  if (!state.selected || !state.videos.some((video) => video.name === state.selected.name)) {
-    state.selected = state.videos[0];
+  const subtitle = selectedOutput("sub_viet.srt");
+  const campaign = selectedOutput("chien_dich_dang_bai.txt");
+  const shopee = selectedOutput("shopee_links.txt");
+  const audio = selectedOutput("giong_doc_viet.mp3");
+  const audioUrl = audio?.url || "";
+
+  if (state.lastRenderedAudioUrl !== audioUrl) {
+    ui.audioPreview.innerHTML = audio
+      ? `<audio controls src="${audio.url}"></audio>`
+      : "Chua co audio preview.";
+    state.lastRenderedAudioUrl = audioUrl;
   }
 
-  ui.videoList.innerHTML = state.videos
-    .map((video) => {
-      const selected = state.selected?.name === video.name;
-      const done = video.status === "done";
-      return `
-        <button class="video-card ${selected ? "selected" : ""}" data-name="${video.name}">
-          <span class="file-mark">MP4</span>
-          <span>
-            <strong>${video.name}</strong>
-            <small>${bytes(video.size)} · ${dateTime(video.modified)}</small>
-          </span>
-          <span class="state-badge ${done ? "done" : ""}">${done ? "Đủ file" : "Chờ chạy"}</span>
-        </button>
-      `;
-    })
-    .join("");
+  if (subtitle) {
+    try {
+      const text = await fetch(subtitle.url).then((response) => response.text());
+      ui.subtitlePreview.textContent = text.split("\n\n").slice(0, 4).join("\n\n");
+    } catch {
+      ui.subtitlePreview.textContent = "Khong doc duoc file SRT.";
+    }
+  } else {
+    ui.subtitlePreview.textContent = "Chua co file SRT.";
+  }
 
-  $$(".video-card").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.selected = state.videos.find((video) => video.name === button.dataset.name);
-      renderVideos();
-    });
-  });
+  if (campaign) {
+    try {
+      ui.campaignPreview.textContent = await fetch(campaign.url).then((response) => response.text());
+      ui.copyCampaignBtn.disabled = false;
+    } catch {
+      ui.campaignPreview.textContent = "Không đọc được file caption.";
+      ui.copyCampaignBtn.disabled = true;
+    }
+  } else {
+    ui.campaignPreview.textContent = "Chưa có caption. Chạy pipeline để tạo caption và hashtag.";
+    ui.copyCampaignBtn.disabled = true;
+  }
 
-  ui.selectedVideoName.textContent = state.selected.name;
-  ui.runBtn.disabled = Boolean(state.job?.running);
-  renderOutputs();
+  if (shopee) {
+    try {
+      ui.shopeePreview.textContent = await fetch(shopee.url).then((response) => response.text());
+      ui.copyShopeeBtn.disabled = false;
+    } catch {
+      ui.shopeePreview.textContent = "Không đọc được file gợi ý comment.";
+      ui.copyShopeeBtn.disabled = true;
+    }
+  } else {
+    ui.shopeePreview.textContent = "Chưa có gợi ý comment. Chạy pipeline để tạo nội dung.";
+    ui.copyShopeeBtn.disabled = true;
+  }
 }
 
 function renderOutputs() {
-  const selected = state.selected;
-  if (!selected) {
+  const video = state.selected;
+  if (!video) {
     ui.outputStatus.textContent = "Đang chờ";
-    ui.outputStatus.className = "run-status";
-    ui.outputList.innerHTML = `<div class="empty">Chọn video để xem output.</div>`;
+    ui.outputList.innerHTML = `<div class="empty">Upload hoặc chọn video để xem output.</div>`;
+    ui.runBtn.disabled = true;
+    ui.capcutBtn.disabled = true;
+    setWorkflowState("import", "ready");
+    renderPreviews();
     return;
   }
 
-  const complete = selected.complete.video && selected.complete.subtitle && selected.complete.audio;
-  ui.outputStatus.textContent = complete ? "Hoàn thành" : "Chưa đủ";
-  ui.outputStatus.className = `run-status ${complete ? "ok" : "bad"}`;
+  const complete = video.complete.video && video.complete.subtitle && video.complete.audio && video.complete.logo;
+  const readyCount = ["video", "subtitle", "audio", "logo"].filter((key) => video.complete[key]).length;
+  ui.outputStatus.textContent = complete ? "4/4 file đã sẵn sàng" : `${readyCount}/4 file đã sẵn sàng`;
+  setWorkflowState(complete ? "capcut" : "import", complete ? "complete" : "ready");
+  ui.runBtn.disabled = Boolean(state.job?.running);
+  ui.capcutBtn.disabled = !complete || Boolean(state.job?.running);
 
-  if (!selected.outputs.length) {
-    ui.outputList.innerHTML = `<div class="empty">Chưa có output cho video này.</div>`;
+  if (!video.outputs.length) {
+    ui.outputList.innerHTML = `<div class="empty">Video này chưa có output. Bấm Run all để chạy.</div>`;
+    renderPreviews();
     return;
   }
 
-  ui.outputList.innerHTML = selected.outputs
+  const outputPriority = { "video_goc": 1, "sub_viet.srt": 2, "giong_doc_viet.mp3": 3, "logo.png": 4, "chien_dich_dang_bai.txt": 5, "shopee_links.txt": 6 };
+  const sortedOutputs = [...video.outputs].sort((left, right) => {
+    const leftKey = Object.keys(outputPriority).find((key) => left.name.toLowerCase().startsWith(key));
+    const rightKey = Object.keys(outputPriority).find((key) => right.name.toLowerCase().startsWith(key));
+    return (outputPriority[leftKey] || 99) - (outputPriority[rightKey] || 99) || left.name.localeCompare(right.name);
+  });
+
+  ui.outputList.innerHTML = sortedOutputs
     .map((file) => {
-      const isAudio = file.name.endsWith(".mp3");
-      const isSubtitle = file.name.endsWith(".srt");
-      const mark = isAudio ? "MP3" : isSubtitle ? "SRT" : "MP4";
-      const color = isAudio ? "yellow" : isSubtitle ? "green" : "";
+      const lower = file.name.toLowerCase();
+      const label = lower.endsWith(".srt") ? "SRT" : lower.endsWith(".mp3") ? "MP3" : lower.endsWith(".png") ? "PNG" : lower.endsWith(".txt") ? "TXT" : "MP4";
       return `
-        <div class="output-card">
-          <span class="file-mark ${color}">${mark}</span>
+        <div class="file-row ${lower.endsWith(".png") ? "logo-file" : ""}">
+          <span class="file-icon">${label}</span>
           <span>
             <strong>${file.name}</strong>
-            <small>${bytes(file.size)}</small>
+            <small>${formatBytes(file.size)}</small>
           </span>
-          <a class="state-badge done" href="${file.url}" target="_blank" rel="noreferrer">Mở</a>
+          <a class="outline-button" href="${file.url}" target="_blank" rel="noreferrer">Xem</a>
+          <a class="icon-button" href="${file.url}" download>⇩</a>
         </div>
       `;
     })
     .join("");
+  renderPreviews();
+}
+
+function chooseVideo(video) {
+  state.selected = video;
+  renderOutputs();
+}
+
+function renderVideos() {
+  if (!state.videos.length) {
+    state.selected = null;
+    ui.videoSelect.innerHTML = `<option value="">Chua co video</option>`;
+    renderOutputs();
+    return;
+  }
+  if (state.selected && state.videos.some((video) => video.name === state.selected.name)) {
+    state.selected = state.videos.find((video) => video.name === state.selected.name);
+  } else {
+    state.selected = null;
+  }
+  ui.videoSelect.innerHTML = [
+    `<option value="">Khong chon video</option>`,
+    ...state.videos.map((video) => `<option value="${video.name}">${video.name}</option>`),
+  ].join("");
+  ui.videoSelect.value = state.selected?.name || "";
+  renderOutputs();
 }
 
 function renderJob(job) {
   state.job = job;
-  if (job.running) {
-    ui.jobStatus.textContent = `Đang chạy ${job.currentVideo || ""}`;
-    ui.jobStatus.className = "run-status";
-  } else if (job.error) {
-    ui.jobStatus.textContent = "Có lỗi";
-    ui.jobStatus.className = "run-status bad";
-  } else {
-    ui.jobStatus.textContent = "Sẵn sàng";
-    ui.jobStatus.className = "run-status ok";
-  }
-
-  markStep(inferStep(job.logs || []));
   if (state.keepLogs) {
     ui.logBox.textContent = job.logs?.length ? job.logs.join("\n") : "Chưa có log.";
     ui.logBox.scrollTop = ui.logBox.scrollHeight;
   }
   ui.runBtn.disabled = job.running || !state.selected;
+  ui.capcutBtn.disabled = job.running || !(state.selected?.complete?.video && state.selected?.complete?.subtitle && state.selected?.complete?.audio && state.selected?.complete?.logo);
+  if (job.running) {
+    setWorkflowState(inferWorkflowStep(job.logs || []), "running");
+  } else if (job.error) {
+    setWorkflowState(inferWorkflowStep(job.logs || []), "error");
+  } else if (state.selected?.status === "done") {
+    setWorkflowState("capcut", "complete");
+  }
 }
 
-function formPayload() {
+function optionsPayload() {
   const form = new FormData(ui.optionsForm);
   return {
     whisperModel: form.get("whisperModel"),
@@ -227,18 +339,23 @@ function formPayload() {
     whisperComputeType: form.get("whisperComputeType"),
     whisperFallbackModels: form.get("whisperFallbackModels"),
     geminiModel: form.get("geminiModel"),
+    geminiRewritePrompt: form.get("geminiRewritePrompt"),
+    geminiPostPrompt: form.get("geminiPostPrompt"),
+    shopeeProductPrompt: form.get("shopeeProductPrompt"),
     ttsApiUrl: form.get("ttsApiUrl"),
     ttsVoiceId: form.get("ttsVoiceId"),
     ttsModelId: form.get("ttsModelId"),
     ttsTimeoutSeconds: Number(form.get("ttsTimeoutSeconds")),
     ttsMaxRetries: Number(form.get("ttsMaxRetries")),
     maxAudioSpeedupRatio: Number(form.get("maxAudioSpeedupRatio")),
+    capcutPath: form.get("capcutPath"),
+    capcutProjectDir: form.get("capcutProjectDir"),
   };
 }
 
 async function loadConfig() {
   state.config = await api("/api/config");
-  renderConfig();
+  applyConfigToForm();
 }
 
 async function loadVideos() {
@@ -249,9 +366,25 @@ async function loadVideos() {
 
 async function loadJob() {
   const job = await api("/api/job");
+  const wasRunning = state.lastJobRunning === true;
   renderJob(job);
-  if (!job.running) {
+  if (wasRunning && !job.running) {
     await loadVideos();
+  }
+  state.lastJobRunning = job.running;
+}
+
+async function uploadVideo(file) {
+  if (!file) return;
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    await api("/api/upload", { method: "POST", body: form });
+    await loadVideos();
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    ui.uploadInput.value = "";
   }
 }
 
@@ -261,13 +394,13 @@ async function saveOptions() {
     state.config = await api("/api/config", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formPayload()),
+      body: JSON.stringify(optionsPayload()),
     });
-    renderConfig();
+    applyConfigToForm();
     ui.saveOptionsBtn.textContent = "Đã lưu";
-    window.setTimeout(() => {
-      ui.saveOptionsBtn.textContent = "Lưu .env";
-    }, 1400);
+    setTimeout(() => {
+      ui.saveOptionsBtn.textContent = "Lưu cài đặt";
+    }, 1200);
   } catch (error) {
     alert(error.message);
   } finally {
@@ -275,26 +408,11 @@ async function saveOptions() {
   }
 }
 
-async function uploadVideo(file) {
-  if (!file) return;
-  const form = new FormData();
-  form.append("file", file);
-  ui.uploadInput.disabled = true;
-  try {
-    await api("/api/upload", { method: "POST", body: form });
-    await loadVideos();
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    ui.uploadInput.value = "";
-    ui.uploadInput.disabled = false;
-  }
-}
-
 async function runPipeline() {
   if (!state.selected) return;
   state.keepLogs = true;
   ui.logBox.textContent = "Đang khởi động pipeline...";
+  setWorkflowState("import", "running");
   try {
     const job = await api("/api/run", {
       method: "POST",
@@ -307,6 +425,34 @@ async function runPipeline() {
   }
 }
 
+async function openOutput() {
+  try {
+    await api("/api/open-output", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project: state.selected?.stem }),
+    });
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+async function openCapCut() {
+  try {
+    const result = await api("/api/open-capcut", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project: state.selected?.stem }),
+    });
+    if (result.message) {
+      alert(result.message);
+    }
+    setWorkflowState("capcut", "complete");
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
 function wireEvents() {
   ui.refreshBtn.addEventListener("click", async () => {
     await loadConfig();
@@ -314,19 +460,60 @@ function wireEvents() {
     await loadJob();
   });
   ui.uploadInput.addEventListener("change", (event) => uploadVideo(event.target.files?.[0]));
+  ui.dropZone.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    ui.dropZone.classList.add("drag-over");
+  });
+  ui.dropZone.addEventListener("dragleave", () => {
+    ui.dropZone.classList.remove("drag-over");
+  });
+  ui.dropZone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    ui.dropZone.classList.remove("drag-over");
+    uploadVideo(event.dataTransfer.files?.[0]);
+  });
+  ui.openOutputBtn.addEventListener("click", openOutput);
+  ui.clearSelectionBtn.addEventListener("click", () => {
+    chooseVideo(null);
+    ui.videoSelect.value = "";
+  });
+  ui.copyCampaignBtn.addEventListener("click", async () => {
+    await copyBoxText(ui.campaignPreview, ui.copyCampaignBtn);
+  });
+  ui.copyShopeeBtn.addEventListener("click", async () => {
+    await copyBoxText(ui.shopeePreview, ui.copyShopeeBtn);
+  });
+  ui.videoSelect.addEventListener("change", () => {
+    const video = state.videos.find((item) => item.name === ui.videoSelect.value);
+    chooseVideo(video || null);
+  });
   ui.runBtn.addEventListener("click", runPipeline);
   ui.saveOptionsBtn.addEventListener("click", saveOptions);
   ui.clearLogsBtn.addEventListener("click", () => {
     state.keepLogs = false;
-    ui.logBox.textContent = "Đã xóa log hiển thị. Log nền vẫn tiếp tục chạy.";
+    ui.logBox.textContent = "Đã xóa log hiển thị. Job nền vẫn tiếp tục nếu đang chạy.";
   });
-  $$(".rail-button").forEach((button) => {
+  $$("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
-      $$(".rail-button").forEach((item) => item.classList.remove("active"));
-      button.classList.add("active");
-      $(`#${button.dataset.target}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
+      showView(button.dataset.view);
+      if (button.dataset.focus) {
+        setTimeout(() => $(`#${button.dataset.focus}`)?.scrollIntoView({ behavior: "smooth" }), 50);
+      }
     });
   });
+  $$("[data-jump]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showView("overview");
+      setTimeout(() => $(`#${button.dataset.jump}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+    });
+  });
+  $$(".voice-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      $$(".voice-option").forEach((item) => item.classList.remove("active"));
+      button.classList.add("active");
+    });
+  });
+  ui.capcutBtn.addEventListener("click", openCapCut);
 }
 
 async function boot() {
@@ -334,7 +521,7 @@ async function boot() {
   await loadConfig();
   await loadVideos();
   await loadJob();
-  window.setInterval(loadJob, 2500);
+  setInterval(loadJob, 2500);
 }
 
 boot().catch((error) => {

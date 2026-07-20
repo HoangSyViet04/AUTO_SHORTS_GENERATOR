@@ -12,6 +12,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Optional
+from urllib.parse import quote, quote_plus
 
 import requests
 from dotenv import load_dotenv
@@ -21,6 +22,7 @@ load_dotenv(BASE_DIR / ".env", encoding="utf-8-sig", override=True)
 INPUT_DIR = BASE_DIR / "input_videos"
 OUTPUT_DIR = BASE_DIR / "output_results"
 TEMP_DIR = BASE_DIR / "temp" / "translation_pipeline"
+LOGO_SOURCE_PATH = BASE_DIR / "logo.png"
 
 VIDEO_EXTENSIONS = {".mp4", ".mkv"}
 WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "small").strip() or "small"
@@ -34,6 +36,48 @@ WHISPER_FALLBACK_MODELS = [
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip() or "gemini-3.5-flash"
+DEFAULT_GEMINI_REWRITE_PROMPT = """Bạn là biên kịch short video commerce nói tiếng Việt tự nhiên.
+Nhiệm vụ: chuyển SRT tiếng Trung thành SRT tiếng Việt để đọc lồng tiếng, không dịch word-by-word.
+
+Yêu cầu bắt buộc:
+- Giữ nguyên 100% số thứ tự và timestamp của SRT nguồn.
+- Chỉ trả về SRT, không markdown, không giải thích.
+- Mỗi caption ngắn, dễ đọc TTS, nói như người thật.
+- Câu mở đầu phải có hook gây tò mò trong 2 giây đầu.
+- Viết theo mạch: vấn đề → phát hiện → lợi ích → lý do nên xem/mua.
+- Ưu tiên tiếng Việt đời thường, review sản phẩm Douyin/TikTok, có nhịp cảm xúc.
+- Không bịa công dụng y tế, không hứa quá đà, không dùng từ thô.
+- Nếu caption gốc rời rạc, hãy rewrite thành kịch bản liền mạch nhưng vẫn khớp timestamp.
+"""
+DEFAULT_GEMINI_POST_PROMPT = """Tạo nội dung đăng bài từ SRT tiếng Việt.
+Trả về đúng format:
+Caption: 1 câu ngắn gọn, tự nhiên, có 1 keyword SEO sản phẩm.
+Hashtag: 5-8 hashtag liên quan sản phẩm/video.
+Không viết dài, không chia nhiều tiêu đề, không thêm markdown.
+"""
+DEFAULT_SHOPEE_PRODUCT_PROMPT = """Từ SRT tiếng Việt, nhận diện sản phẩm chính trong video để tìm trên Shopee.
+Trả về JSON thuần, không markdown:
+{
+  "product_name": "tên sản phẩm chính bằng tiếng Việt",
+  "keywords": ["keyword mua hàng 1", "keyword mua hàng 2", "keyword mua hàng 3"],
+  "buyer_intent": "nhu cầu mua hàng ngắn gọn"
+}
+Quy tắc:
+- Keyword phải là cụm người Việt sẽ gõ trên Shopee.
+- Ưu tiên keyword có loại sản phẩm + đặc điểm nổi bật.
+- Không bịa thương hiệu nếu video không nói rõ.
+- Tối đa 3 keywords.
+"""
+def multiline_env(name: str, default: str) -> str:
+    return os.getenv(name, default).replace("\\n", "\n").strip()
+
+
+GEMINI_REWRITE_PROMPT = multiline_env("GEMINI_REWRITE_PROMPT", DEFAULT_GEMINI_REWRITE_PROMPT)
+GEMINI_POST_PROMPT = multiline_env("GEMINI_POST_PROMPT", DEFAULT_GEMINI_POST_PROMPT)
+SHOPEE_PRODUCT_PROMPT = multiline_env("SHOPEE_PRODUCT_PROMPT", DEFAULT_SHOPEE_PRODUCT_PROMPT)
+SHOPEE_AFFILIATE_ID = os.getenv("SHOPEE_AFFILIATE_ID", "").strip()
+SHOPEE_SUB_ID_PREFIX = os.getenv("SHOPEE_SUB_ID_PREFIX", "auto-shorts").strip() or "auto-shorts"
+SHOPEE_LINK_LIMIT = int(os.getenv("SHOPEE_LINK_LIMIT", "3"))
 
 VOICE_ID = os.getenv("TTS_VOICE_ID", "pNInz6obpgDQGcFmaJgB").strip()
 API_KEY = (os.getenv("TTS_API_KEY") or os.getenv("ELEVENLABS_API_KEY") or "").strip()
@@ -54,6 +98,12 @@ def reload_settings() -> None:
     global WHISPER_FALLBACK_MODELS
     global GEMINI_API_KEY
     global GEMINI_MODEL_NAME
+    global GEMINI_REWRITE_PROMPT
+    global GEMINI_POST_PROMPT
+    global SHOPEE_PRODUCT_PROMPT
+    global SHOPEE_AFFILIATE_ID
+    global SHOPEE_SUB_ID_PREFIX
+    global SHOPEE_LINK_LIMIT
     global VOICE_ID
     global API_KEY
     global API_URL
@@ -73,6 +123,12 @@ def reload_settings() -> None:
     ]
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
     GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip() or "gemini-3.5-flash"
+    GEMINI_REWRITE_PROMPT = multiline_env("GEMINI_REWRITE_PROMPT", DEFAULT_GEMINI_REWRITE_PROMPT)
+    GEMINI_POST_PROMPT = multiline_env("GEMINI_POST_PROMPT", DEFAULT_GEMINI_POST_PROMPT)
+    SHOPEE_PRODUCT_PROMPT = multiline_env("SHOPEE_PRODUCT_PROMPT", DEFAULT_SHOPEE_PRODUCT_PROMPT)
+    SHOPEE_AFFILIATE_ID = os.getenv("SHOPEE_AFFILIATE_ID", "").strip()
+    SHOPEE_SUB_ID_PREFIX = os.getenv("SHOPEE_SUB_ID_PREFIX", "auto-shorts").strip() or "auto-shorts"
+    SHOPEE_LINK_LIMIT = int(os.getenv("SHOPEE_LINK_LIMIT", "3"))
     VOICE_ID = os.getenv("TTS_VOICE_ID", "pNInz6obpgDQGcFmaJgB").strip()
     API_KEY = (os.getenv("TTS_API_KEY") or os.getenv("ELEVENLABS_API_KEY") or "").strip()
     API_URL = (
@@ -125,6 +181,110 @@ def discover_videos() -> List[Path]:
 def sanitize_folder_name(name: str) -> str:
     safe_name = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "_", name).strip(" .")
     return safe_name or "video"
+
+
+def build_shopee_search_url(keyword: str) -> str:
+    return f"https://shopee.vn/search?keyword={quote_plus(keyword.strip())}"
+
+
+def build_shopee_share_url(target_url: str, sub_id: str) -> str:
+    if not SHOPEE_AFFILIATE_ID:
+        return target_url
+    safe_sub_id = re.sub(r"[^A-Za-z0-9_-]+", "-", sub_id).strip("-")[:80] or SHOPEE_SUB_ID_PREFIX
+    return (
+        "https://s.shopee.vn/an_redir?"
+        f"origin_link={quote(target_url, safe='')}"
+        f"&affiliate_id={quote(SHOPEE_AFFILIATE_ID, safe='')}"
+        f"&sub_id={quote(safe_sub_id, safe='')}"
+    )
+
+
+def format_product_comment_suggestions(product_data: dict[str, object]) -> str:
+    product_name = str(product_data.get("product_name") or "San pham trong video").strip()
+    buyer_intent = str(product_data.get("buyer_intent") or "").strip()
+    raw_keywords = product_data.get("keywords") or []
+    if not isinstance(raw_keywords, list):
+        raw_keywords = [str(raw_keywords)]
+    keywords = []
+    for keyword in raw_keywords:
+        text = str(keyword).strip()
+        if text and text.lower() not in {item.lower() for item in keywords}:
+            keywords.append(text)
+    keywords = keywords[: max(1, SHOPEE_LINK_LIMIT)]
+    if not keywords:
+        keywords = [product_name]
+
+    lines = [
+        "💬 Gợi ý comment sản phẩm",
+        f"Sản phẩm: {product_name}",
+    ]
+    if buyer_intent:
+        lines.append(f"Nhu cầu: {buyer_intent}")
+    lines.extend(
+        [
+            "",
+            "Gợi ý comment:",
+            f"1. Ai cần món này thì mình để link sản phẩm ở phần bình luận nha, dùng khá tiện.",
+            f"2. Mình thấy keyword dễ tìm là: {keywords[0]}. Bạn nào cần thì bấm link mình ghim nhé.",
+            "3. Nếu bạn đang tìm món nhỏ gọn, dễ dùng thì thử xem sản phẩm này, mình để link cho tiện.",
+            "4. Mình để link tham khảo bên dưới, ai cần đúng mẫu thì vào xem trước đánh giá rồi quyết định nhé.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def format_shopee_links(product_data: dict[str, object], video_name: str) -> str:
+    return format_product_comment_suggestions(product_data)
+
+
+def plain_text_from_srt(srt_content: str) -> str:
+    lines = []
+    for line in srt_content.splitlines():
+        text = line.strip()
+        if not text or text.isdigit() or "-->" in text:
+            continue
+        lines.append(text)
+    return " ".join(lines)
+
+
+def fallback_post_campaign(vietnamese_srt_content: str) -> str:
+    summary = plain_text_from_srt(vietnamese_srt_content)[:120].strip() or "sản phẩm tiện ích"
+    keyword = fallback_product_data(vietnamese_srt_content)["keywords"][0]
+    return "\n".join(
+        [
+            f"Caption: Review nhanh {keyword}: {summary}...",
+            f"Hashtag: #{keyword.replace(' ', '')} #review #sanpham #douyin #tiktok #shopee",
+        ]
+    )
+
+
+def fallback_product_data(vietnamese_srt_content: str) -> dict[str, object]:
+    text = plain_text_from_srt(vietnamese_srt_content).lower()
+    stop_words = {
+        "cai", "nay", "kia", "rat", "qua", "minh", "ban", "nhin", "thay", "khong",
+        "duoc", "cho", "voi", "nhung", "video", "san", "pham", "review", "tren",
+    }
+    words = re.findall(r"[a-zA-ZÀ-ỹ0-9]+", text)
+    keywords = []
+    for size in (4, 3, 2):
+        for index in range(0, max(0, len(words) - size + 1)):
+            phrase_words = words[index : index + size]
+            if any(word in stop_words for word in phrase_words[:1]):
+                continue
+            phrase = " ".join(phrase_words).strip()
+            if len(phrase) >= 8 and phrase not in keywords:
+                keywords.append(phrase)
+            if len(keywords) >= SHOPEE_LINK_LIMIT:
+                break
+        if keywords:
+            break
+    if not keywords:
+        keywords = ["sản phẩm tiện ích"]
+    return {
+        "product_name": keywords[0],
+        "keywords": keywords,
+        "buyer_intent": "tìm sản phẩm tương tự trong video",
+    }
 
 
 def milliseconds_to_srt_time(milliseconds: int) -> str:
@@ -345,16 +505,14 @@ class GeminiSrtTranslator:
 
     def translate_srt(self, source_content: str) -> str:
         prompt = (
-            "Ban la dich thuat vien chuyen nghiep cho video TikTok. "
-            "Hay dich noi dung file SRT nay tu tieng Trung sang tieng Viet chuan van phong ban dia, tu nhien. "
-            "BAT BUOC giu nguyen dinh dang file SRT, so thu tu cac doan va toan bo cac moc thoi gian (timestamps). "
-            "Chi tra ve noi dung file SRT sau khi dich, tuyet doi khong them loi giai thich hay boc trong markdown ```srt.\n\n"
+            f"{GEMINI_REWRITE_PROMPT}\n\n"
+            "SRT nguồn:\n"
             f"{source_content}"
         )
 
         last_error = None
         for attempt in range(1, 3):
-            logging.info("Dang dich SRT qua Gemini API (lan %s/2)...", attempt)
+            logging.info("Dang rewrite SRT qua Gemini API (lan %s/2)...", attempt)
             try:
                 response = self.model.generate_content(prompt)
                 translated_text = getattr(response, "text", "") or ""
@@ -363,6 +521,7 @@ class GeminiSrtTranslator:
                 last_error = exc
                 logging.warning("Gemini tra ve chua dat yeu cau: %s", exc)
                 prompt = (
+                    f"{GEMINI_REWRITE_PROMPT}\n\n"
                     "Ket qua truoc sai dinh dang SRT. Hay tra lai DUY NHAT file SRT tieng Viet, "
                     "giu nguyen 100% so thu tu va timestamp nhu nguon sau:\n\n"
                     f"{source_content}"
@@ -370,6 +529,36 @@ class GeminiSrtTranslator:
                 time.sleep(2)
 
         raise PipelineError(f"Khong dich duoc SRT dung dinh dang qua Gemini: {last_error}")
+
+    def create_post_campaign(self, vietnamese_srt_content: str) -> str:
+        prompt = (
+            f"{GEMINI_POST_PROMPT}\n\n"
+            "SRT tiếng Việt để phân tích sản phẩm và insight:\n"
+            f"{vietnamese_srt_content}"
+        )
+        logging.info("Dang tao chien dich dang bai qua Gemini API...")
+        response = self.model.generate_content(prompt)
+        campaign = (getattr(response, "text", "") or "").strip()
+        if not campaign:
+            raise PipelineError("Gemini khong tra ve noi dung chien dich dang bai.")
+        return campaign
+
+    def detect_product(self, vietnamese_srt_content: str) -> dict[str, object]:
+        prompt = (
+            f"{SHOPEE_PRODUCT_PROMPT}\n\n"
+            "SRT tiếng Việt:\n"
+            f"{vietnamese_srt_content}"
+        )
+        logging.info("Dang nhan dien san pham de tao link Shopee...")
+        response = self.model.generate_content(prompt)
+        text = (getattr(response, "text", "") or "").strip()
+        json_match = re.search(r"\{.*\}", text, flags=re.S)
+        if not json_match:
+            raise PipelineError("Gemini khong tra ve JSON san pham hop le.")
+        data = json.loads(json_match.group(0))
+        if not isinstance(data, dict):
+            raise PipelineError("JSON san pham khong hop le.")
+        return data
 
 
 class AdamTtsClient:
@@ -435,6 +624,7 @@ class TimelineDubber:
 
         base_duration_ms = max(video_duration_ms, segments[-1].end_ms)
         final_audio = AudioSegment.silent(duration=base_duration_ms)
+        voice_cursor_ms = 0
 
         for segment in segments:
             text = " ".join(segment.text.split())
@@ -451,7 +641,12 @@ class TimelineDubber:
                 raise PipelineError(f"Khong doc duoc audio TTS tai {segment_path}: {exc}") from exc
 
             segment_audio = self._fit_audio_to_caption(segment_audio, segment.duration_ms, segment.index)
-            final_audio = final_audio.overlay(segment_audio, position=segment.start_ms)
+            position_ms = max(segment.start_ms, voice_cursor_ms)
+            end_ms = position_ms + len(segment_audio)
+            if end_ms > len(final_audio):
+                final_audio += AudioSegment.silent(duration=end_ms - len(final_audio))
+            final_audio = final_audio.overlay(segment_audio, position=position_ms)
+            voice_cursor_ms = end_ms + 80
 
         output_audio_path.parent.mkdir(parents=True, exist_ok=True)
         final_audio.export(output_audio_path, format="mp3")
@@ -472,11 +667,10 @@ class TimelineDubber:
 
         if len(audio) > target_duration_ms:
             logging.warning(
-                "Audio caption %s dai hon slot %.2fs, cat bot de giu timeline.",
+                "Audio caption %s dai hon slot %.2fs, giu nguyen de khong bi cat loi.",
                 caption_index,
                 target_duration_ms / 1000,
             )
-            audio = audio[:target_duration_ms]
 
         return audio
 
@@ -522,10 +716,19 @@ class VideoTranslationPipeline:
         chinese_srt_path = work_dir / "sub_trung.srt"
         vietnamese_srt_path = output_dir / "sub_viet.srt"
         dubbed_audio_path = output_dir / "giong_doc_viet.mp3"
+        post_campaign_path = output_dir / "chien_dich_dang_bai.txt"
+        shopee_links_path = output_dir / "shopee_links.txt"
 
         copied_video_path = output_dir / f"video_goc{video_path.suffix.lower()}"
         shutil.copy2(video_path, copied_video_path)
         logging.info("Da copy video goc: %s", copied_video_path)
+
+        if LOGO_SOURCE_PATH.exists():
+            logo_output_path = output_dir / "logo.png"
+            shutil.copy2(LOGO_SOURCE_PATH, logo_output_path)
+            logging.info("Da copy logo mac dinh: %s", logo_output_path)
+        else:
+            logging.warning("Khong tim thay logo mac dinh tai: %s", LOGO_SOURCE_PATH)
 
         self.extractor.extract_to_srt(video_path, chinese_srt_path)
 
@@ -533,6 +736,23 @@ class VideoTranslationPipeline:
         translated_content = self.translator.translate_srt(chinese_srt_path.read_text(encoding="utf-8"))
         vietnamese_srt_path.write_text(translated_content, encoding="utf-8")
         logging.info("Da luu sub Viet: %s", vietnamese_srt_path)
+
+        try:
+            post_campaign = self.translator.create_post_campaign(translated_content)
+        except Exception as exc:
+            logging.warning("Khong tao duoc chien dich bang Gemini, dung fallback: %s", exc)
+            post_campaign = fallback_post_campaign(translated_content)
+        post_campaign_path.write_text(post_campaign, encoding="utf-8")
+        logging.info("Da luu chien dich dang bai: %s", post_campaign_path)
+
+        try:
+            product_data = self.translator.detect_product(translated_content)
+        except Exception as exc:
+            logging.warning("Khong nhan dien duoc san pham bang Gemini, dung fallback: %s", exc)
+            product_data = fallback_product_data(translated_content)
+        shopee_links = format_shopee_links(product_data, video_path.name)
+        shopee_links_path.write_text(shopee_links, encoding="utf-8")
+        logging.info("Da luu link san pham Shopee: %s", shopee_links_path)
 
         video_duration_ms = get_video_duration_ms(video_path)
         self.dubber.create_dubbed_audio(

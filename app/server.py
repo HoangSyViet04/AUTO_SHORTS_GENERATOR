@@ -4,6 +4,9 @@ import shutil
 import subprocess
 import sys
 import threading
+import os
+import shlex
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -23,12 +26,20 @@ SETTING_ENV_KEYS = {
     "whisperComputeType": "WHISPER_COMPUTE_TYPE",
     "whisperFallbackModels": "WHISPER_FALLBACK_MODELS",
     "geminiModel": "GEMINI_MODEL",
+    "geminiRewritePrompt": "GEMINI_REWRITE_PROMPT",
+    "geminiPostPrompt": "GEMINI_POST_PROMPT",
+    "shopeeProductPrompt": "SHOPEE_PRODUCT_PROMPT",
+    "shopeeAffiliateId": "SHOPEE_AFFILIATE_ID",
+    "shopeeSubIdPrefix": "SHOPEE_SUB_ID_PREFIX",
+    "shopeeLinkLimit": "SHOPEE_LINK_LIMIT",
     "ttsApiUrl": "TTS_API_URL",
     "ttsVoiceId": "TTS_VOICE_ID",
     "ttsModelId": "TTS_MODEL_ID",
     "ttsTimeoutSeconds": "TTS_TIMEOUT_SECONDS",
     "ttsMaxRetries": "TTS_MAX_RETRIES",
     "maxAudioSpeedupRatio": "MAX_AUDIO_SPEEDUP_RATIO",
+    "capcutPath": "CAPCUT_PATH",
+    "capcutProjectDir": "CAPCUT_PROJECT_DIR",
 }
 
 
@@ -67,6 +78,9 @@ def video_payload(path: Path) -> dict[str, Any]:
         "video": any(file.name.startswith("video_goc") for file in output_dir.iterdir()) if output_dir.exists() else False,
         "subtitle": (output_dir / "sub_viet.srt").exists(),
         "audio": (output_dir / "giong_doc_viet.mp3").exists(),
+        "logo": (output_dir / "logo.png").exists(),
+        "campaign": (output_dir / "chien_dich_dang_bai.txt").exists(),
+        "shopee": (output_dir / "shopee_links.txt").exists(),
     }
 
     return {
@@ -76,7 +90,7 @@ def video_payload(path: Path) -> dict[str, Any]:
         "modified": datetime.fromtimestamp(path.stat().st_mtime).isoformat(timespec="seconds"),
         "outputDir": str(output_dir.relative_to(pipeline.BASE_DIR)),
         "complete": complete,
-        "status": "done" if all(complete.values()) else "ready",
+        "status": "done" if complete["video"] and complete["subtitle"] and complete["audio"] and complete["logo"] else "ready",
         "outputs": output_files,
     }
 
@@ -104,6 +118,7 @@ def write_env_settings(values: dict[str, Any]) -> None:
         else:
             text_value = str(value).strip()
         if text_value:
+            text_value = text_value.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\\n")
             updates[env_key] = text_value
 
     if not updates:
@@ -113,7 +128,7 @@ def write_env_settings(values: dict[str, Any]) -> None:
     seen_keys: set[str] = set()
     for index, line in enumerate(lines):
         for env_key, text_value in updates.items():
-            if line.strip().startswith(f"{env_key}="):
+            if re.match(rf"^\s*{re.escape(env_key)}\s*=", line):
                 lines[index] = f"{env_key}={text_value}"
                 seen_keys.add(env_key)
 
@@ -143,8 +158,61 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
         if key in values and int(values[key]) <= 0:
             raise HTTPException(status_code=400, detail=f"{key} phai lon hon 0")
 
+    if "shopeeLinkLimit" in values and int(values["shopeeLinkLimit"]) <= 0:
+        raise HTTPException(status_code=400, detail="SHOPEE_LINK_LIMIT phai lon hon 0")
+
     if "maxAudioSpeedupRatio" in values and float(values["maxAudioSpeedupRatio"]) < 1:
         raise HTTPException(status_code=400, detail="MAX_AUDIO_SPEEDUP_RATIO phai >= 1")
+
+
+def selected_output_dir(project: str | None) -> Path:
+    if project:
+        output_dir = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project)
+        if output_dir.exists():
+            return output_dir
+    latest_dirs = sorted(
+        [path for path in pipeline.OUTPUT_DIR.iterdir() if path.is_dir()],
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+    return latest_dirs[0] if latest_dirs else pipeline.OUTPUT_DIR
+
+
+def open_path(path: Path) -> None:
+    if sys.platform.startswith("win"):
+        os.startfile(str(path))
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", str(path)])
+    else:
+        subprocess.Popen(["xdg-open", str(path)])
+
+
+def split_windows_command(raw_command: str) -> tuple[Path, list[str]]:
+    command = raw_command.strip()
+    if not command:
+        return Path(""), []
+    lower_command = command.lower()
+    exe_index = lower_command.find(".exe")
+    if exe_index >= 0:
+        executable = command[: exe_index + 4].strip().strip('"')
+        rest = command[exe_index + 4 :].strip()
+        return Path(executable), shlex.split(rest, posix=False) if rest else []
+    parts = shlex.split(command, posix=False)
+    if not parts:
+        return Path(""), []
+    return Path(parts[0].strip('"')), parts[1:]
+
+
+def capcut_import_files(output_dir: Path) -> list[Path]:
+    files: list[Path] = []
+    video_files = sorted(output_dir.glob("video_goc.*"))
+    if video_files:
+        files.append(video_files[0])
+    for filename in ("sub_viet.srt", "giong_doc_viet.mp3", "logo.png"):
+        file_path = output_dir / filename
+        if file_path.exists():
+            files.append(file_path)
+    return files
 
 
 def append_job_log(line: str) -> None:
@@ -228,12 +296,20 @@ def config() -> dict[str, Any]:
             "whisperComputeType": pipeline.WHISPER_COMPUTE_TYPE,
             "whisperFallbackModels": pipeline.WHISPER_FALLBACK_MODELS,
             "geminiModel": pipeline.GEMINI_MODEL_NAME,
+            "geminiRewritePrompt": pipeline.GEMINI_REWRITE_PROMPT,
+            "geminiPostPrompt": pipeline.GEMINI_POST_PROMPT,
+            "shopeeProductPrompt": pipeline.SHOPEE_PRODUCT_PROMPT,
+            "shopeeAffiliateId": pipeline.SHOPEE_AFFILIATE_ID,
+            "shopeeSubIdPrefix": pipeline.SHOPEE_SUB_ID_PREFIX,
+            "shopeeLinkLimit": pipeline.SHOPEE_LINK_LIMIT,
             "ttsApiUrl": pipeline.API_URL,
             "ttsVoiceId": pipeline.VOICE_ID,
             "ttsModelId": pipeline.TTS_MODEL_ID,
             "ttsTimeoutSeconds": pipeline.TTS_TIMEOUT_SECONDS,
             "ttsMaxRetries": pipeline.TTS_MAX_RETRIES,
             "maxAudioSpeedupRatio": pipeline.MAX_AUDIO_SPEEDUP_RATIO,
+            "capcutPath": os.getenv("CAPCUT_PATH", "").strip(),
+            "capcutProjectDir": os.getenv("CAPCUT_PROJECT_DIR", "").strip(),
         },
     }
 
@@ -297,6 +373,49 @@ async def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
 @app.get("/api/job")
 def job() -> dict[str, Any]:
     return snapshot_state()
+
+
+@app.post("/api/open-output")
+def open_output(payload: dict[str, Any]) -> dict[str, str]:
+    output_dir = selected_output_dir(payload.get("project"))
+    if not output_dir.exists():
+        raise HTTPException(status_code=404, detail="Khong tim thay thu muc output")
+    try:
+        open_path(output_dir)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Khong mo duoc output: {exc}") from exc
+    return {"status": "opened", "path": str(output_dir)}
+
+
+@app.post("/api/open-capcut")
+def open_capcut(payload: dict[str, Any]) -> dict[str, Any]:
+    output_dir = selected_output_dir(payload.get("project"))
+    capcut_path = os.getenv("CAPCUT_PATH", "").strip()
+    executable_path, capcut_args = split_windows_command(capcut_path)
+    if capcut_path and executable_path.exists():
+        import_files = capcut_import_files(output_dir)
+        if len(import_files) < 4:
+            missing_count = 4 - len(import_files)
+            raise HTTPException(status_code=409, detail=f"Thieu {missing_count} file output de import vao CapCut")
+        try:
+            subprocess.Popen([str(executable_path), *capcut_args, *[str(file_path) for file_path in import_files]], cwd=str(output_dir))
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Khong mo duoc CapCut: {exc}") from exc
+        return {
+            "status": "capcut_opened_with_files",
+            "path": str(executable_path),
+            "files": [str(file_path) for file_path in import_files],
+        }
+
+    try:
+        open_path(output_dir)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Khong mo duoc thu muc output: {exc}") from exc
+    return {
+        "status": "output_opened",
+        "path": str(output_dir),
+        "message": "Chua cau hinh CAPCUT_PATH, da mo thu muc output de import thu cong.",
+    }
 
 
 @app.get("/api/output/{project}/{filename}")
