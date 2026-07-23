@@ -7,6 +7,7 @@ import threading
 import os
 import shlex
 import re
+import requests
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -26,6 +27,9 @@ SETTING_ENV_KEYS = {
     "whisperComputeType": "WHISPER_COMPUTE_TYPE",
     "whisperFallbackModels": "WHISPER_FALLBACK_MODELS",
     "geminiModel": "GEMINI_MODEL",
+    "geminiModelFallbacks": "GEMINI_MODEL_FALLBACKS",
+    "geminiApiKeys": "GEMINI_API_KEYS",
+    "googleTranslateFallback": "GOOGLE_TRANSLATE_FALLBACK",
     "geminiRewritePrompt": "GEMINI_REWRITE_PROMPT",
     "geminiPostPrompt": "GEMINI_POST_PROMPT",
     "shopeeProductPrompt": "SHOPEE_PRODUCT_PROMPT",
@@ -38,6 +42,8 @@ SETTING_ENV_KEYS = {
     "ttsTimeoutSeconds": "TTS_TIMEOUT_SECONDS",
     "ttsMaxRetries": "TTS_MAX_RETRIES",
     "maxAudioSpeedupRatio": "MAX_AUDIO_SPEEDUP_RATIO",
+    "ttsStrictTimeline": "TTS_STRICT_TIMELINE",
+    "ttsSegmentGapMs": "TTS_SEGMENT_GAP_MS",
     "capcutPath": "CAPCUT_PATH",
     "capcutProjectDir": "CAPCUT_PROJECT_DIR",
 }
@@ -157,6 +163,8 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
     for key in ("ttsTimeoutSeconds", "ttsMaxRetries"):
         if key in values and int(values[key]) <= 0:
             raise HTTPException(status_code=400, detail=f"{key} phai lon hon 0")
+    if "ttsSegmentGapMs" in values and int(values["ttsSegmentGapMs"]) < 0:
+        raise HTTPException(status_code=400, detail="TTS_SEGMENT_GAP_MS phai >= 0")
 
     if "shopeeLinkLimit" in values and int(values["shopeeLinkLimit"]) <= 0:
         raise HTTPException(status_code=400, detail="SHOPEE_LINK_LIMIT phai lon hon 0")
@@ -213,6 +221,19 @@ def capcut_import_files(output_dir: Path) -> list[Path]:
         if file_path.exists():
             files.append(file_path)
     return files
+
+
+def tts_output_dir() -> Path:
+    output_dir = pipeline.OUTPUT_DIR / "_tts"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+
+def tts_api_url_for_voice(voice_id: str | None) -> str:
+    voice = (voice_id or pipeline.VOICE_ID).strip()
+    if voice and "elevenlabs.io" in pipeline.API_URL:
+        return f"https://api.elevenlabs.io/v1/text-to-speech/{voice}"
+    return pipeline.API_URL
 
 
 def append_job_log(line: str) -> None:
@@ -288,6 +309,7 @@ def config() -> dict[str, Any]:
         },
         "api": {
             "gemini": bool(pipeline.GEMINI_API_KEY),
+            "geminiKeyCount": len(pipeline.GEMINI_API_KEYS),
             "tts": bool(pipeline.API_KEY),
         },
         "settings": {
@@ -296,6 +318,8 @@ def config() -> dict[str, Any]:
             "whisperComputeType": pipeline.WHISPER_COMPUTE_TYPE,
             "whisperFallbackModels": pipeline.WHISPER_FALLBACK_MODELS,
             "geminiModel": pipeline.GEMINI_MODEL_NAME,
+            "geminiModelFallbacks": pipeline.GEMINI_MODEL_FALLBACKS,
+            "googleTranslateFallback": pipeline.GOOGLE_TRANSLATE_FALLBACK,
             "geminiRewritePrompt": pipeline.GEMINI_REWRITE_PROMPT,
             "geminiPostPrompt": pipeline.GEMINI_POST_PROMPT,
             "shopeeProductPrompt": pipeline.SHOPEE_PRODUCT_PROMPT,
@@ -308,6 +332,8 @@ def config() -> dict[str, Any]:
             "ttsTimeoutSeconds": pipeline.TTS_TIMEOUT_SECONDS,
             "ttsMaxRetries": pipeline.TTS_MAX_RETRIES,
             "maxAudioSpeedupRatio": pipeline.MAX_AUDIO_SPEEDUP_RATIO,
+            "ttsStrictTimeline": pipeline.TTS_STRICT_TIMELINE,
+            "ttsSegmentGapMs": pipeline.TTS_SEGMENT_GAP_MS,
             "capcutPath": os.getenv("CAPCUT_PATH", "").strip(),
             "capcutProjectDir": os.getenv("CAPCUT_PROJECT_DIR", "").strip(),
         },
@@ -370,6 +396,87 @@ async def run_pipeline(payload: dict[str, Any]) -> dict[str, Any]:
     return snapshot_state()
 
 
+@app.get("/api/voices")
+def voices() -> dict[str, Any]:
+    if not pipeline.API_KEY:
+        return {
+            "voices": [
+                {
+                    "id": pipeline.VOICE_ID,
+                    "name": "Adam",
+                    "description": "Giọng mặc định từ cấu hình TTS hiện tại.",
+                    "category": "default",
+                    "previewUrl": "",
+                }
+            ]
+        }
+    if "elevenlabs.io" not in pipeline.API_URL:
+        return {
+            "voices": [
+                {
+                    "id": pipeline.VOICE_ID,
+                    "name": "Voice hiện tại",
+                    "description": "API TTS custom đang được cấu hình.",
+                    "category": "custom",
+                    "previewUrl": "",
+                }
+            ]
+        }
+    try:
+        response = requests.get(
+            "https://api.elevenlabs.io/v1/voices",
+            headers={"xi-api-key": pipeline.API_KEY},
+            timeout=20,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Khong tai duoc voice tu TTS API: {exc}") from exc
+
+    voice_items = []
+    for item in payload.get("voices", []):
+        labels = item.get("labels") or {}
+        voice_items.append(
+            {
+                "id": item.get("voice_id", ""),
+                "name": item.get("name", "Unnamed voice"),
+                "description": item.get("description") or labels.get("description") or labels.get("accent") or "ElevenLabs voice",
+                "category": item.get("category") or "library",
+                "labels": labels,
+                "previewUrl": item.get("preview_url") or "",
+            }
+        )
+    return {"voices": voice_items}
+
+
+@app.post("/api/tts/generate")
+def generate_tts(payload: dict[str, Any]) -> dict[str, Any]:
+    text = str(payload.get("text") or "").strip()
+    voice_id = str(payload.get("voiceId") or pipeline.VOICE_ID).strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Chua nhap van ban de tao audio")
+    if len(text) > 8000:
+        raise HTTPException(status_code=400, detail="Van ban toi da 8000 ky tu")
+    if not pipeline.API_KEY:
+        raise HTTPException(status_code=400, detail="Chua cau hinh TTS_API_KEY/ELEVENLABS_API_KEY")
+
+    output_dir = tts_output_dir()
+    filename = f"tts_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp3"
+    output_path = output_dir / filename
+    try:
+        client = pipeline.AdamTtsClient(api_key=pipeline.API_KEY, api_url=tts_api_url_for_voice(voice_id))
+        client.synthesize_to_file(text, output_path)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Khong tao duoc audio TTS: {exc}") from exc
+    return {
+        "status": "ok",
+        "filename": filename,
+        "url": f"/api/tts-output/{filename}",
+        "size": output_path.stat().st_size,
+        "voiceId": voice_id,
+    }
+
+
 @app.get("/api/job")
 def job() -> dict[str, Any]:
     return snapshot_state()
@@ -425,3 +532,11 @@ def output_file(project: str, filename: str) -> FileResponse:
     if not file_path.exists() or not file_path.is_file():
         raise HTTPException(status_code=404, detail="Khong tim thay file output")
     return FileResponse(file_path, filename=file_path.name)
+
+
+@app.get("/api/tts-output/{filename}")
+def tts_output_file(filename: str) -> FileResponse:
+    file_path = tts_output_dir() / Path(filename).name
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Khong tim thay file audio TTS")
+    return FileResponse(file_path, media_type="audio/mpeg", filename=file_path.name)

@@ -25,6 +25,26 @@ TEMP_DIR = BASE_DIR / "temp" / "translation_pipeline"
 LOGO_SOURCE_PATH = BASE_DIR / "logo.png"
 
 VIDEO_EXTENSIONS = {".mp4", ".mkv"}
+
+
+def split_env_values(value: str) -> List[str]:
+    return [item.strip() for item in re.split(r"[,;\n]+", (value or "").replace("\\n", "\n")) if item.strip()]
+
+
+def unique_values(values: Iterable[str]) -> List[str]:
+    result: List[str] = []
+    for value in values:
+        if value and value not in result:
+            result.append(value)
+    return result
+
+
+def load_gemini_api_keys() -> List[str]:
+    raw_values = [os.getenv("GEMINI_API_KEY", ""), os.getenv("GEMINI_API_KEYS", "")]
+    raw_values.extend(os.getenv(f"GEMINI_API_KEY_{index}", "") for index in range(1, 6))
+    return unique_values(key for raw_value in raw_values for key in split_env_values(raw_value))
+
+
 WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "small").strip() or "small"
 WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "cpu").strip() or "cpu"
 WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "int8").strip() or "int8"
@@ -34,8 +54,14 @@ WHISPER_FALLBACK_MODELS = [
     if model.strip()
 ]
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip() or "gemini-3.5-flash"
+GEMINI_API_KEYS = load_gemini_api_keys()
+GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
+GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+GEMINI_MODEL_FALLBACKS = [
+    model.strip()
+    for model in os.getenv("GEMINI_MODEL_FALLBACKS", "gemini-2.5-flash-lite,gemini-1.5-flash").split(",")
+    if model.strip()
+]
 DEFAULT_GEMINI_REWRITE_PROMPT = """Bạn là biên kịch short video commerce nói tiếng Việt tự nhiên.
 Nhiệm vụ: chuyển SRT tiếng Trung thành SRT tiếng Việt để đọc lồng tiếng, không dịch word-by-word.
 
@@ -78,6 +104,7 @@ SHOPEE_PRODUCT_PROMPT = multiline_env("SHOPEE_PRODUCT_PROMPT", DEFAULT_SHOPEE_PR
 SHOPEE_AFFILIATE_ID = os.getenv("SHOPEE_AFFILIATE_ID", "").strip()
 SHOPEE_SUB_ID_PREFIX = os.getenv("SHOPEE_SUB_ID_PREFIX", "auto-shorts").strip() or "auto-shorts"
 SHOPEE_LINK_LIMIT = int(os.getenv("SHOPEE_LINK_LIMIT", "3"))
+GOOGLE_TRANSLATE_FALLBACK = os.getenv("GOOGLE_TRANSLATE_FALLBACK", "true").strip().lower() in {"1", "true", "yes", "on"}
 
 VOICE_ID = os.getenv("TTS_VOICE_ID", "pNInz6obpgDQGcFmaJgB").strip()
 API_KEY = (os.getenv("TTS_API_KEY") or os.getenv("ELEVENLABS_API_KEY") or "").strip()
@@ -89,6 +116,8 @@ TTS_MODEL_ID = os.getenv("TTS_MODEL_ID", "eleven_flash_v2_5").strip() or "eleven
 TTS_TIMEOUT_SECONDS = int(os.getenv("TTS_TIMEOUT_SECONDS", "90"))
 TTS_MAX_RETRIES = int(os.getenv("TTS_MAX_RETRIES", "3"))
 MAX_AUDIO_SPEEDUP_RATIO = float(os.getenv("MAX_AUDIO_SPEEDUP_RATIO", "1.35"))
+TTS_STRICT_TIMELINE = os.getenv("TTS_STRICT_TIMELINE", "true").strip().lower() in {"1", "true", "yes", "on"}
+TTS_SEGMENT_GAP_MS = int(os.getenv("TTS_SEGMENT_GAP_MS", "30"))
 
 
 def reload_settings() -> None:
@@ -96,14 +125,17 @@ def reload_settings() -> None:
     global WHISPER_DEVICE
     global WHISPER_COMPUTE_TYPE
     global WHISPER_FALLBACK_MODELS
+    global GEMINI_API_KEYS
     global GEMINI_API_KEY
     global GEMINI_MODEL_NAME
+    global GEMINI_MODEL_FALLBACKS
     global GEMINI_REWRITE_PROMPT
     global GEMINI_POST_PROMPT
     global SHOPEE_PRODUCT_PROMPT
     global SHOPEE_AFFILIATE_ID
     global SHOPEE_SUB_ID_PREFIX
     global SHOPEE_LINK_LIMIT
+    global GOOGLE_TRANSLATE_FALLBACK
     global VOICE_ID
     global API_KEY
     global API_URL
@@ -111,6 +143,8 @@ def reload_settings() -> None:
     global TTS_TIMEOUT_SECONDS
     global TTS_MAX_RETRIES
     global MAX_AUDIO_SPEEDUP_RATIO
+    global TTS_STRICT_TIMELINE
+    global TTS_SEGMENT_GAP_MS
 
     load_dotenv(BASE_DIR / ".env", encoding="utf-8-sig", override=True)
     WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "small").strip() or "small"
@@ -121,14 +155,21 @@ def reload_settings() -> None:
         for model in os.getenv("WHISPER_FALLBACK_MODELS", "small,base").split(",")
         if model.strip()
     ]
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-    GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip() or "gemini-3.5-flash"
+    GEMINI_API_KEYS = load_gemini_api_keys()
+    GEMINI_API_KEY = GEMINI_API_KEYS[0] if GEMINI_API_KEYS else ""
+    GEMINI_MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+    GEMINI_MODEL_FALLBACKS = [
+        model.strip()
+        for model in os.getenv("GEMINI_MODEL_FALLBACKS", "gemini-2.5-flash-lite,gemini-1.5-flash").split(",")
+        if model.strip()
+    ]
     GEMINI_REWRITE_PROMPT = multiline_env("GEMINI_REWRITE_PROMPT", DEFAULT_GEMINI_REWRITE_PROMPT)
     GEMINI_POST_PROMPT = multiline_env("GEMINI_POST_PROMPT", DEFAULT_GEMINI_POST_PROMPT)
     SHOPEE_PRODUCT_PROMPT = multiline_env("SHOPEE_PRODUCT_PROMPT", DEFAULT_SHOPEE_PRODUCT_PROMPT)
     SHOPEE_AFFILIATE_ID = os.getenv("SHOPEE_AFFILIATE_ID", "").strip()
     SHOPEE_SUB_ID_PREFIX = os.getenv("SHOPEE_SUB_ID_PREFIX", "auto-shorts").strip() or "auto-shorts"
     SHOPEE_LINK_LIMIT = int(os.getenv("SHOPEE_LINK_LIMIT", "3"))
+    GOOGLE_TRANSLATE_FALLBACK = os.getenv("GOOGLE_TRANSLATE_FALLBACK", "true").strip().lower() in {"1", "true", "yes", "on"}
     VOICE_ID = os.getenv("TTS_VOICE_ID", "pNInz6obpgDQGcFmaJgB").strip()
     API_KEY = (os.getenv("TTS_API_KEY") or os.getenv("ELEVENLABS_API_KEY") or "").strip()
     API_URL = (
@@ -139,6 +180,8 @@ def reload_settings() -> None:
     TTS_TIMEOUT_SECONDS = int(os.getenv("TTS_TIMEOUT_SECONDS", "90"))
     TTS_MAX_RETRIES = int(os.getenv("TTS_MAX_RETRIES", "3"))
     MAX_AUDIO_SPEEDUP_RATIO = float(os.getenv("MAX_AUDIO_SPEEDUP_RATIO", "1.35"))
+    TTS_STRICT_TIMELINE = os.getenv("TTS_STRICT_TIMELINE", "true").strip().lower() in {"1", "true", "yes", "on"}
+    TTS_SEGMENT_GAP_MS = int(os.getenv("TTS_SEGMENT_GAP_MS", "30"))
 
 
 class PipelineError(Exception):
@@ -383,6 +426,50 @@ def validate_translated_srt(source_content: str, translated_content: str) -> str
     return strip_markdown_fence(translated_content) + "\n"
 
 
+def google_translate_text(text: str, source_lang: str = "auto", target_lang: str = "vi") -> str:
+    response = requests.get(
+        "https://translate.googleapis.com/translate_a/single",
+        params={
+            "client": "gtx",
+            "sl": source_lang,
+            "tl": target_lang,
+            "dt": "t",
+            "q": text,
+        },
+        timeout=20,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    translated = "".join(part[0] for part in payload[0] if part and part[0])
+    return translated.strip() or text
+
+
+def translate_srt_with_google_fallback(source_content: str) -> str:
+    segments = parse_srt(source_content)
+    output_segments = []
+    for segment in segments:
+        output_segments.append(
+            SrtSegment(
+                index=segment.index,
+                start_ms=segment.start_ms,
+                end_ms=segment.end_ms,
+                text=google_translate_text(segment.text),
+            )
+        )
+    parts = []
+    for segment in output_segments:
+        parts.append(
+            "\n".join(
+                [
+                    str(segment.index),
+                    f"{milliseconds_to_srt_time(segment.start_ms)} --> {milliseconds_to_srt_time(segment.end_ms)}",
+                    segment.text.strip(),
+                ]
+            )
+        )
+    return validate_translated_srt(source_content, "\n\n".join(parts) + "\n")
+
+
 def get_video_duration_ms(video_path: Path) -> int:
     try:
         result = subprocess.run(
@@ -492,16 +579,47 @@ class ChineseSubtitleExtractor:
 
 
 class GeminiSrtTranslator:
-    def __init__(self, api_key: str, model_name: str):
-        if not api_key:
-            raise PipelineError("Chua cau hinh GEMINI_API_KEY trong .env.")
+    def __init__(self, api_keys: List[str], model_name: str):
+        self.api_keys = unique_values(api_keys)
+        if not self.api_keys:
+            raise PipelineError("Chua cau hinh GEMINI_API_KEY/GEMINI_API_KEYS trong .env.")
         try:
             import google.generativeai as genai
         except ImportError as exc:
             raise PipelineError("Chua cai google-generativeai. Hay chay: pip install -r requirements.txt") from exc
 
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(model_name)
+        self.genai = genai
+        self.model_names = []
+        for candidate in [model_name, *GEMINI_MODEL_FALLBACKS]:
+            if candidate and candidate not in self.model_names:
+                self.model_names.append(candidate)
+
+    def generate_text(self, prompt: str, task_name: str) -> str:
+        last_error = None
+        for key_index, api_key in enumerate(self.api_keys, start=1):
+            self.genai.configure(api_key=api_key)
+            for model_name in self.model_names:
+                logging.info(
+                    "Dang goi Gemini key #%s/%s, model %s cho %s...",
+                    key_index,
+                    len(self.api_keys),
+                    model_name,
+                    task_name,
+                )
+                try:
+                    response = self.genai.GenerativeModel(model_name).generate_content(prompt)
+                    text = (getattr(response, "text", "") or "").strip()
+                    if not text:
+                        raise PipelineError(f"Gemini model {model_name} khong tra ve text.")
+                    return text
+                except Exception as exc:
+                    last_error = exc
+                    logging.warning("Gemini key #%s model %s loi, thu fallback tiep theo: %s", key_index, model_name, exc)
+                    continue
+        raise PipelineError(
+            "Tat ca Gemini API key/model deu loi hoac bi limit. Hay kiem tra GEMINI_API_KEY(S), Google AI project va GEMINI_MODEL. "
+            f"Loi cuoi: {last_error}"
+        )
 
     def translate_srt(self, source_content: str) -> str:
         prompt = (
@@ -514,8 +632,7 @@ class GeminiSrtTranslator:
         for attempt in range(1, 3):
             logging.info("Dang rewrite SRT qua Gemini API (lan %s/2)...", attempt)
             try:
-                response = self.model.generate_content(prompt)
-                translated_text = getattr(response, "text", "") or ""
+                translated_text = self.generate_text(prompt, "rewrite SRT")
                 return validate_translated_srt(source_content, translated_text)
             except Exception as exc:
                 last_error = exc
@@ -528,6 +645,15 @@ class GeminiSrtTranslator:
                 )
                 time.sleep(2)
 
+        if GOOGLE_TRANSLATE_FALLBACK:
+            try:
+                logging.warning("Gemini khong dung duoc, fallback sang Google Translate de pipeline khong bi dung.")
+                return translate_srt_with_google_fallback(source_content)
+            except Exception as fallback_error:
+                raise PipelineError(
+                    f"Gemini loi va Google Translate fallback cung loi. Gemini: {last_error}; fallback: {fallback_error}"
+                ) from fallback_error
+
         raise PipelineError(f"Khong dich duoc SRT dung dinh dang qua Gemini: {last_error}")
 
     def create_post_campaign(self, vietnamese_srt_content: str) -> str:
@@ -537,8 +663,7 @@ class GeminiSrtTranslator:
             f"{vietnamese_srt_content}"
         )
         logging.info("Dang tao chien dich dang bai qua Gemini API...")
-        response = self.model.generate_content(prompt)
-        campaign = (getattr(response, "text", "") or "").strip()
+        campaign = self.generate_text(prompt, "caption dang bai")
         if not campaign:
             raise PipelineError("Gemini khong tra ve noi dung chien dich dang bai.")
         return campaign
@@ -550,8 +675,7 @@ class GeminiSrtTranslator:
             f"{vietnamese_srt_content}"
         )
         logging.info("Dang nhan dien san pham de tao link Shopee...")
-        response = self.model.generate_content(prompt)
-        text = (getattr(response, "text", "") or "").strip()
+        text = self.generate_text(prompt, "goi y comment san pham")
         json_match = re.search(r"\{.*\}", text, flags=re.S)
         if not json_match:
             raise PipelineError("Gemini khong tra ve JSON san pham hop le.")
@@ -622,13 +746,17 @@ class TimelineDubber:
         segments = parse_srt(srt_path.read_text(encoding="utf-8"))
         segment_audio_dir.mkdir(parents=True, exist_ok=True)
 
-        base_duration_ms = max(video_duration_ms, segments[-1].end_ms)
+        base_duration_ms = video_duration_ms if TTS_STRICT_TIMELINE else max(video_duration_ms, segments[-1].end_ms)
         final_audio = AudioSegment.silent(duration=base_duration_ms)
         voice_cursor_ms = 0
 
         for segment in segments:
             text = " ".join(segment.text.split())
             if not text:
+                continue
+            available_duration_ms = min(segment.duration_ms, max(0, base_duration_ms - segment.start_ms))
+            if available_duration_ms <= 0:
+                logging.warning("Bo qua caption %s vi nam ngoai duration video.", segment.index)
                 continue
 
             segment_path = segment_audio_dir / f"{segment.index:04d}.mp3"
@@ -640,17 +768,29 @@ class TimelineDubber:
             except Exception as exc:
                 raise PipelineError(f"Khong doc duoc audio TTS tai {segment_path}: {exc}") from exc
 
-            segment_audio = self._fit_audio_to_caption(segment_audio, segment.duration_ms, segment.index)
-            position_ms = max(segment.start_ms, voice_cursor_ms)
+            segment_audio = self._fit_audio_to_caption(segment_audio, available_duration_ms, segment.index)
+            if TTS_STRICT_TIMELINE:
+                position_ms = segment.start_ms
+                remaining_ms = max(0, base_duration_ms - position_ms)
+                if len(segment_audio) > remaining_ms:
+                    segment_audio = self._trim_audio(segment_audio, remaining_ms, segment.index)
+            else:
+                position_ms = max(segment.start_ms, voice_cursor_ms)
             end_ms = position_ms + len(segment_audio)
             if end_ms > len(final_audio):
-                final_audio += AudioSegment.silent(duration=end_ms - len(final_audio))
+                if TTS_STRICT_TIMELINE:
+                    segment_audio = self._trim_audio(segment_audio, max(0, len(final_audio) - position_ms), segment.index)
+                    end_ms = position_ms + len(segment_audio)
+                else:
+                    final_audio += AudioSegment.silent(duration=end_ms - len(final_audio))
             final_audio = final_audio.overlay(segment_audio, position=position_ms)
-            voice_cursor_ms = end_ms + 80
+            voice_cursor_ms = end_ms + TTS_SEGMENT_GAP_MS
 
         output_audio_path.parent.mkdir(parents=True, exist_ok=True)
+        if TTS_STRICT_TIMELINE and len(final_audio) > video_duration_ms:
+            final_audio = final_audio[:video_duration_ms]
         final_audio.export(output_audio_path, format="mp3")
-        logging.info("Da luu audio long tieng: %s", output_audio_path)
+        logging.info("Da luu audio long tieng: %s (%.2fs / video %.2fs)", output_audio_path, len(final_audio) / 1000, video_duration_ms / 1000)
 
     def _fit_audio_to_caption(self, audio: AudioSegment, target_duration_ms: int, caption_index: int) -> AudioSegment:
         if len(audio) <= target_duration_ms:
@@ -666,13 +806,24 @@ class TimelineDubber:
                 logging.warning("Khong speedup duoc caption %s: %s", caption_index, exc)
 
         if len(audio) > target_duration_ms:
-            logging.warning(
-                "Audio caption %s dai hon slot %.2fs, giu nguyen de khong bi cat loi.",
-                caption_index,
-                target_duration_ms / 1000,
-            )
+            audio = self._trim_audio(audio, target_duration_ms, caption_index)
 
         return audio
+
+    @staticmethod
+    def _trim_audio(audio: AudioSegment, target_duration_ms: int, caption_index: int) -> AudioSegment:
+        if target_duration_ms <= 0:
+            return audio[:0]
+        if len(audio) <= target_duration_ms:
+            return audio
+        fade_ms = min(80, max(12, target_duration_ms // 8))
+        logging.warning(
+            "Audio caption %s dai hon slot %.2fs, trim con %.2fs de giu sync video.",
+            caption_index,
+            len(audio) / 1000,
+            target_duration_ms / 1000,
+        )
+        return audio[:target_duration_ms].fade_out(fade_ms)
 
 
 class VideoTranslationPipeline:
@@ -695,7 +846,7 @@ class VideoTranslationPipeline:
     def translator(self) -> GeminiSrtTranslator:
         if self._translator is None:
             self._translator = GeminiSrtTranslator(
-                api_key=GEMINI_API_KEY,
+                api_keys=GEMINI_API_KEYS,
                 model_name=GEMINI_MODEL_NAME,
             )
         return self._translator
