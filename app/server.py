@@ -42,8 +42,11 @@ SETTING_ENV_KEYS = {
     "ttsTimeoutSeconds": "TTS_TIMEOUT_SECONDS",
     "ttsMaxRetries": "TTS_MAX_RETRIES",
     "maxAudioSpeedupRatio": "MAX_AUDIO_SPEEDUP_RATIO",
+    "ttsFinalSpeedupRatio": "TTS_FINAL_SPEEDUP_RATIO",
     "ttsStrictTimeline": "TTS_STRICT_TIMELINE",
     "ttsSegmentGapMs": "TTS_SEGMENT_GAP_MS",
+    "ttsMaxSilenceGapMs": "TTS_MAX_SILENCE_GAP_MS",
+    "ttsReuseSegments": "TTS_REUSE_SEGMENTS",
     "capcutPath": "CAPCUT_PATH",
     "capcutProjectDir": "CAPCUT_PROJECT_DIR",
 }
@@ -169,8 +172,11 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
     if "shopeeLinkLimit" in values and int(values["shopeeLinkLimit"]) <= 0:
         raise HTTPException(status_code=400, detail="SHOPEE_LINK_LIMIT phai lon hon 0")
 
-    if "maxAudioSpeedupRatio" in values and float(values["maxAudioSpeedupRatio"]) < 1:
-        raise HTTPException(status_code=400, detail="MAX_AUDIO_SPEEDUP_RATIO phai >= 1")
+    for key in ("maxAudioSpeedupRatio", "ttsFinalSpeedupRatio"):
+        if key in values and float(values[key]) < 1:
+            raise HTTPException(status_code=400, detail=f"{SETTING_ENV_KEYS[key]} phai >= 1")
+    if "ttsMaxSilenceGapMs" in values and int(values["ttsMaxSilenceGapMs"]) < 0:
+        raise HTTPException(status_code=400, detail="TTS_MAX_SILENCE_GAP_MS phai >= 0")
 
 
 def selected_output_dir(project: str | None) -> Path:
@@ -332,8 +338,11 @@ def config() -> dict[str, Any]:
             "ttsTimeoutSeconds": pipeline.TTS_TIMEOUT_SECONDS,
             "ttsMaxRetries": pipeline.TTS_MAX_RETRIES,
             "maxAudioSpeedupRatio": pipeline.MAX_AUDIO_SPEEDUP_RATIO,
+            "ttsFinalSpeedupRatio": pipeline.TTS_FINAL_SPEEDUP_RATIO,
             "ttsStrictTimeline": pipeline.TTS_STRICT_TIMELINE,
             "ttsSegmentGapMs": pipeline.TTS_SEGMENT_GAP_MS,
+            "ttsMaxSilenceGapMs": pipeline.TTS_MAX_SILENCE_GAP_MS,
+            "ttsReuseSegments": pipeline.TTS_REUSE_SEGMENTS,
             "capcutPath": os.getenv("CAPCUT_PATH", "").strip(),
             "capcutProjectDir": os.getenv("CAPCUT_PROJECT_DIR", "").strip(),
         },
@@ -474,6 +483,23 @@ def generate_tts(payload: dict[str, Any]) -> dict[str, Any]:
         "url": f"/api/tts-output/{filename}",
         "size": output_path.stat().st_size,
         "voiceId": voice_id,
+    }
+
+
+@app.get("/api/tts/history")
+def tts_history() -> dict[str, Any]:
+    output_dir = tts_output_dir()
+    files = sorted(output_dir.glob("*.mp3"), key=lambda path: path.stat().st_mtime, reverse=True)
+    return {
+        "items": [
+            {
+                "filename": file_path.name,
+                "url": f"/api/tts-output/{file_path.name}",
+                "size": file_path.stat().st_size,
+                "createdAt": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat(timespec="seconds"),
+            }
+            for file_path in files[:50]
+        ]
     }
 
 

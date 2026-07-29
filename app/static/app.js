@@ -9,6 +9,7 @@ const state = {
   celebratedProject: "",
   voices: [],
   currentVoiceAudio: null,
+  ttsHistory: [],
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -27,6 +28,8 @@ const ui = {
   copyShopeeBtn: $("#copyShopeeBtn"),
   clearLogsBtn: $("#clearLogsBtn"),
   optionsForm: $("#optionsForm"),
+  geminiApiKeysInput: $("#geminiApiKeysInput"),
+  toggleGeminiKeysBtn: $("#toggleGeminiKeysBtn"),
   logBox: $("#logBox"),
   openOutputBtn: $("#openOutputBtn"),
   dropZone: $("#dropZone"),
@@ -48,6 +51,9 @@ const ui = {
   ttsGenerateBtn: $("#ttsGenerateBtn"),
   ttsVoiceSelect: $("#ttsVoiceSelect"),
   ttsResult: $("#ttsResult"),
+  ttsVoicePanel: $("#ttsVoicePanel"),
+  ttsHistoryPanel: $("#ttsHistoryPanel"),
+  ttsHistoryList: $("#ttsHistoryList"),
   voiceLibraryList: $("#voiceLibraryList"),
   voiceSearch: $("#voiceSearch"),
   loadVoicesBtn: $("#loadVoicesBtn"),
@@ -191,6 +197,16 @@ function applyConfigToForm() {
   setFormValue("capcutProjectDir", settings.capcutProjectDir);
 }
 
+function applyGeminiKeysVisibility(hidden) {
+  if (!ui.geminiApiKeysInput || !ui.toggleGeminiKeysBtn) return;
+  ui.geminiApiKeysInput.classList.toggle("secret-masked", hidden);
+  ui.toggleGeminiKeysBtn.classList.toggle("active", !hidden);
+  ui.toggleGeminiKeysBtn.setAttribute("aria-pressed", String(!hidden));
+  ui.toggleGeminiKeysBtn.title = hidden ? "Hiện Gemini API keys" : "Ẩn Gemini API keys";
+  const label = ui.toggleGeminiKeysBtn.querySelector(".secret-toggle-label");
+  if (label) label.textContent = hidden ? "Hiện" : "Ẩn";
+}
+
 function selectedOutput(name) {
   return state.selected?.outputs?.find((file) => file.name === name);
 }
@@ -304,6 +320,31 @@ function renderHistory() {
   ui.historyList.innerHTML = voiceModules.historyHtml(state.videos, formatBytes, formatDate);
 }
 
+function renderTtsHistory() {
+  if (!ui.ttsHistoryList) return;
+  ui.ttsHistoryList.innerHTML = voiceModules.ttsHistoryHtml(state.ttsHistory, formatBytes, formatDate);
+}
+
+async function loadTtsHistory() {
+  try {
+    const payload = await api("/api/tts/history");
+    state.ttsHistory = payload.items || [];
+  } catch {
+    state.ttsHistory = [];
+  }
+  renderTtsHistory();
+}
+
+function showTtsSidePanel(name) {
+  const isHistory = name === "history";
+  ui.ttsVoicePanel?.classList.toggle("hidden", isHistory);
+  ui.ttsHistoryPanel?.classList.toggle("hidden", !isHistory);
+  $$("[data-tts-side-tab]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.ttsSideTab === name);
+  });
+  if (isHistory) loadTtsHistory();
+}
+
 function playVoicePreview(row) {
   if (!ui.voicePreviewPanel) return;
   const voiceName = row.querySelector("strong")?.textContent || "Voice";
@@ -364,6 +405,16 @@ async function generateStandaloneTts() {
       <audio controls src="${payload.url}"></audio>
       <a class="secondary-action" href="${payload.url}" download>Download MP3</a>
     `;
+    state.ttsHistory = [
+      {
+        filename: payload.filename,
+        url: payload.url,
+        size: payload.size,
+        createdAt: new Date().toISOString(),
+      },
+      ...state.ttsHistory,
+    ];
+    renderTtsHistory();
   } catch (error) {
     ui.ttsResult.textContent = error.message;
   } finally {
@@ -744,6 +795,7 @@ async function openCapCut() {
 function wireEvents() {
   setupSpotlightCards();
   applySidebarState(localStorage.getItem("sidebar-collapsed") === "1");
+  applyGeminiKeysVisibility(true);
   renderVoiceOptions(defaultVoices);
   renderVoiceLibrary(defaultVoices);
   updateTtsControls();
@@ -803,6 +855,9 @@ function wireEvents() {
   });
   ui.runBtn.addEventListener("click", runPipeline);
   ui.saveOptionsBtn.addEventListener("click", saveOptions);
+  ui.toggleGeminiKeysBtn?.addEventListener("click", () => {
+    applyGeminiKeysVisibility(!ui.geminiApiKeysInput.classList.contains("secret-masked"));
+  });
   ui.clearLogsBtn.addEventListener("click", () => {
     state.keepLogs = false;
     ui.logBox.textContent = "Đã xóa log hiển thị. Job nền vẫn tiếp tục nếu đang chạy.";
@@ -852,6 +907,9 @@ function wireEvents() {
   ui.batchRunBtn?.addEventListener("click", runBatchPipeline);
   ui.ttsText?.addEventListener("input", updateTtsControls);
   ui.ttsGenerateBtn?.addEventListener("click", generateStandaloneTts);
+  $$("[data-tts-side-tab]").forEach((button) => {
+    button.addEventListener("click", () => showTtsSidePanel(button.dataset.ttsSideTab));
+  });
   ui.loadVoicesBtn?.addEventListener("click", loadVoicesFromApi);
   ui.voiceSearch?.addEventListener("input", () => renderVoiceLibrary(state.voices.length ? state.voices : defaultVoices));
   ui.voiceLibraryList?.addEventListener("click", (event) => {

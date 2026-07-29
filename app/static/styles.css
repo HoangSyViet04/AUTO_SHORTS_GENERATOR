@@ -212,6 +212,28 @@ header,
   animation: viewFadeIn .26s cubic-bezier(.2,.8,.2,1) both;
 }
 
+#overviewView > div {
+  grid-template-columns:
+    minmax(280px, .76fr)
+    minmax(380px, 1fr)
+    minmax(340px, .96fr) !important;
+  min-width: 0;
+  overflow: hidden;
+}
+#overviewView > div > * {
+  min-width: 0;
+}
+#outputColumn {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+}
+#outputColumn > .grid {
+  height: auto;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1.05fr) minmax(0, .86fr) minmax(0, .86fr);
+}
+
 .nav-item {
   min-height: 40px;
   border-radius: 14px;
@@ -360,7 +382,8 @@ header,
 .field,
 .settings-form input,
 .settings-form select,
-.settings-form textarea {
+.settings-form textarea,
+.prompt-settings-panel textarea {
   width: 100%;
   min-height: 42px;
   border: 1px solid rgba(168, 85, 247, .20);
@@ -375,10 +398,12 @@ header,
 .settings-form input:hover,
 .settings-form select:hover,
 .settings-form textarea:hover,
+.prompt-settings-panel textarea:hover,
 .field:focus,
 .settings-form input:focus,
 .settings-form select:focus,
-.settings-form textarea:focus {
+.settings-form textarea:focus,
+.prompt-settings-panel textarea:focus {
   border-color: #22d3ee;
   box-shadow: 0 0 0 1px rgba(34, 211, 238, .28);
 }
@@ -719,6 +744,35 @@ header,
 .tts-result audio {
   width: 100%;
 }
+.tts-history-list {
+  display: grid;
+  gap: 12px;
+  max-height: calc(100vh - 260px);
+  overflow: auto;
+  padding-right: 4px;
+}
+.tts-history-row {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(168, 85, 247, .16);
+  border-radius: 18px;
+  padding: 12px;
+  color: #f8fafc;
+  background: rgba(15, 12, 33, .62);
+}
+.tts-history-row strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+}
+.tts-history-row small {
+  color: rgba(221, 214, 254, .58);
+  font-size: 12px;
+  font-weight: 700;
+}
+.tts-history-row audio {
+  width: 100%;
+}
 .voice-search {
   width: 100%;
   min-height: 58px;
@@ -887,7 +941,11 @@ header,
 }
 
 .output-pane {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
   border: 1px solid rgba(168, 85, 247, .20);
   border-radius: 22px;
   background: #15102A;
@@ -899,11 +957,27 @@ header,
   justify-content: space-between;
   gap: 14px;
   margin-bottom: 12px;
+  min-width: 0;
 }
-.pane-head h3 { margin: 0; color: #f8fafc; font-size: 15px; font-weight: 900; }
+.pane-head > div { min-width: 0; }
+.pane-head h3 {
+  margin: 0;
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pane-head .secondary-action {
+  flex: 0 0 auto;
+  min-width: 72px;
+}
 .output-pane pre {
   position: relative;
-  height: calc(100% - 54px);
+  min-width: 0;
+  height: auto;
+  max-width: 100%;
   overflow: auto;
   margin: 0;
   border: 1px solid rgba(168, 85, 247, .20);
@@ -915,6 +989,8 @@ header,
   font-size: 12.5px;
   line-height: 1.65;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .output-pane pre.typing-text::after {
   content: "";
@@ -963,7 +1039,8 @@ header,
 .wave-bars span:nth-child(3n) { height: 28px; animation-delay: .24s; }
 
 .settings-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.settings-form label {
+.settings-form label,
+.prompt-settings-panel label {
   display: grid;
   gap: 8px;
   color: rgba(221, 214, 254, .60);
@@ -972,7 +1049,82 @@ header,
 }
 .settings-form label.span-3 { grid-column: span 3; }
 .settings-form textarea { min-height: 150px; padding: 14px; line-height: 1.65; resize: vertical; }
-.prompt-field textarea { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+.prompt-field textarea {
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 12.5px;
+}
+.prompt-settings-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+}
+.prompt-settings-stack {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
+}
+.prompt-settings-panel textarea {
+  min-height: 190px;
+  padding: 14px;
+  line-height: 1.65;
+  resize: vertical;
+}
+.prompt-secure-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  border: 1px solid rgba(16, 185, 129, .28);
+  border-radius: 999px;
+  padding: 0 12px;
+  color: #34d399;
+  background: rgba(16, 185, 129, .10);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.prompt-secure-badge svg {
+  width: 16px;
+  height: 16px;
+}
+.secret-input-wrap {
+  position: relative;
+}
+.secret-input-wrap textarea {
+  padding-right: 76px;
+}
+.secret-masked {
+  -webkit-text-security: disc;
+}
+.secret-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  border: 1px solid rgba(168, 85, 247, .30);
+  border-radius: 12px;
+  padding: 0 10px;
+  color: #d8b4fe;
+  background: rgba(168, 85, 247, .12);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: color .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.secret-toggle:hover,
+.secret-toggle.active {
+  border-color: rgba(34, 211, 238, .42);
+  color: #67e8f9;
+  background: rgba(34, 211, 238, .12);
+  box-shadow: 0 0 18px rgba(34, 211, 238, .12);
+}
+.secret-toggle svg {
+  width: 16px;
+  height: 16px;
+}
 .note-item {
   border-radius: 16px;
   border: 1px solid rgba(168, 85, 247, .15);
@@ -1103,6 +1255,7 @@ body {
 .light-theme .file-row small,
 .light-theme .voice-option span,
 .light-theme .settings-form label,
+.light-theme .prompt-settings-panel label,
 .light-theme #dropZone small,
 .light-theme label span {
   color: #64748b !important;
@@ -1114,6 +1267,7 @@ body {
 .light-theme .settings-form input,
 .light-theme .settings-form select,
 .light-theme .settings-form textarea,
+.light-theme .prompt-settings-panel textarea,
 .light-theme .tts-textarea,
 .light-theme .voice-search,
 .light-theme .file-row,
@@ -1122,6 +1276,7 @@ body {
 .light-theme .voice-pick-card,
 .light-theme .voice-setting-card,
 .light-theme .tts-result,
+.light-theme .tts-history-row,
 .light-theme .voice-preview-panel,
 .light-theme .voice-library-row,
 .light-theme .history-row,
@@ -1131,6 +1286,28 @@ body {
   color: #334155;
   background: #ffffff;
   border-color: rgba(226, 232, 240, .80);
+}
+.light-theme .prompt-settings-panel textarea,
+.light-theme .secret-input-wrap textarea {
+  color: #1e293b;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+.light-theme .secret-toggle {
+  color: #4f46e5;
+  background: rgba(79, 70, 229, .06);
+  border-color: rgba(99, 102, 241, .18);
+}
+.light-theme .secret-toggle:hover,
+.light-theme .secret-toggle.active {
+  color: #0891b2;
+  background: rgba(6, 182, 212, .08);
+  border-color: rgba(6, 182, 212, .28);
+}
+.light-theme .prompt-secure-badge {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
 }
 .light-theme .tts-textarea {
   background: #f8fafc;
@@ -1152,6 +1329,12 @@ body {
 .light-theme .voice-row-tags span {
   color: #475569;
   background: #f1f5f9;
+}
+.light-theme .tts-history-row strong {
+  color: #0f172a;
+}
+.light-theme .tts-history-row small {
+  color: #64748b;
 }
 .light-theme .voice-preview-panel strong {
   color: #0f172a;

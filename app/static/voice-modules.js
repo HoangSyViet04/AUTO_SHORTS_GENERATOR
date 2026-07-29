@@ -105,11 +105,30 @@
       .join("");
   }
 
+  function ttsHistoryHtml(items, formatBytes, formatDate) {
+    if (!items.length) {
+      return `<div class="empty">Chưa có audio TTS nào. Tạo audio mới để lịch sử xuất hiện ở đây.</div>`;
+    }
+    return items
+      .map((item) => `
+        <article class="tts-history-row">
+          <div>
+            <strong>${escapeHtml(item.filename)}</strong>
+            <small>${formatBytes(item.size)} • ${formatDate(item.createdAt)}</small>
+          </div>
+          <audio controls src="${escapeHtml(item.url)}"></audio>
+          <a class="secondary-action" href="${escapeHtml(item.url)}" download>Download</a>
+        </article>
+      `)
+      .join("");
+  }
+
   window.VoiceModules = {
     defaultVoices,
     normalizeVoices,
     voiceOptionHtml,
     voiceLibraryHtml,
     historyHtml,
+    ttsHistoryHtml,
   };
 })();

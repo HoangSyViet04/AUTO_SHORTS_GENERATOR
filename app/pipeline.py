@@ -116,8 +116,11 @@ TTS_MODEL_ID = os.getenv("TTS_MODEL_ID", "eleven_flash_v2_5").strip() or "eleven
 TTS_TIMEOUT_SECONDS = int(os.getenv("TTS_TIMEOUT_SECONDS", "90"))
 TTS_MAX_RETRIES = int(os.getenv("TTS_MAX_RETRIES", "3"))
 MAX_AUDIO_SPEEDUP_RATIO = float(os.getenv("MAX_AUDIO_SPEEDUP_RATIO", "1.35"))
+TTS_FINAL_SPEEDUP_RATIO = float(os.getenv("TTS_FINAL_SPEEDUP_RATIO", "1.60"))
 TTS_STRICT_TIMELINE = os.getenv("TTS_STRICT_TIMELINE", "true").strip().lower() in {"1", "true", "yes", "on"}
 TTS_SEGMENT_GAP_MS = int(os.getenv("TTS_SEGMENT_GAP_MS", "30"))
+TTS_MAX_SILENCE_GAP_MS = int(os.getenv("TTS_MAX_SILENCE_GAP_MS", "350"))
+TTS_REUSE_SEGMENTS = os.getenv("TTS_REUSE_SEGMENTS", "true").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def reload_settings() -> None:
@@ -143,8 +146,11 @@ def reload_settings() -> None:
     global TTS_TIMEOUT_SECONDS
     global TTS_MAX_RETRIES
     global MAX_AUDIO_SPEEDUP_RATIO
+    global TTS_FINAL_SPEEDUP_RATIO
     global TTS_STRICT_TIMELINE
     global TTS_SEGMENT_GAP_MS
+    global TTS_MAX_SILENCE_GAP_MS
+    global TTS_REUSE_SEGMENTS
 
     load_dotenv(BASE_DIR / ".env", encoding="utf-8-sig", override=True)
     WHISPER_MODEL_NAME = os.getenv("WHISPER_MODEL", "small").strip() or "small"
@@ -180,8 +186,11 @@ def reload_settings() -> None:
     TTS_TIMEOUT_SECONDS = int(os.getenv("TTS_TIMEOUT_SECONDS", "90"))
     TTS_MAX_RETRIES = int(os.getenv("TTS_MAX_RETRIES", "3"))
     MAX_AUDIO_SPEEDUP_RATIO = float(os.getenv("MAX_AUDIO_SPEEDUP_RATIO", "1.35"))
+    TTS_FINAL_SPEEDUP_RATIO = float(os.getenv("TTS_FINAL_SPEEDUP_RATIO", "1.60"))
     TTS_STRICT_TIMELINE = os.getenv("TTS_STRICT_TIMELINE", "true").strip().lower() in {"1", "true", "yes", "on"}
     TTS_SEGMENT_GAP_MS = int(os.getenv("TTS_SEGMENT_GAP_MS", "30"))
+    TTS_MAX_SILENCE_GAP_MS = int(os.getenv("TTS_MAX_SILENCE_GAP_MS", "350"))
+    TTS_REUSE_SEGMENTS = os.getenv("TTS_REUSE_SEGMENTS", "true").strip().lower() in {"1", "true", "yes", "on"}
 
 
 class PipelineError(Exception):
@@ -242,7 +251,7 @@ def build_shopee_share_url(target_url: str, sub_id: str) -> str:
     )
 
 
-def format_product_comment_suggestions(product_data: dict[str, object]) -> str:
+def format_product_comment_suggestions(product_data: dict[str, object], video_name: str = "") -> str:
     product_name = str(product_data.get("product_name") or "San pham trong video").strip()
     buyer_intent = str(product_data.get("buyer_intent") or "").strip()
     raw_keywords = product_data.get("keywords") or []
@@ -256,6 +265,12 @@ def format_product_comment_suggestions(product_data: dict[str, object]) -> str:
     keywords = keywords[: max(1, SHOPEE_LINK_LIMIT)]
     if not keywords:
         keywords = [product_name]
+    safe_video = sanitize_folder_name(Path(video_name).stem if video_name else product_name)
+    affiliate_links = []
+    for index, keyword in enumerate(keywords, start=1):
+        search_url = build_shopee_search_url(keyword)
+        sub_id = f"{SHOPEE_SUB_ID_PREFIX}-{safe_video}-{index}"
+        affiliate_links.append((keyword, build_shopee_share_url(search_url, sub_id)))
 
     lines = [
         "💬 Gợi ý comment sản phẩm",
@@ -266,8 +281,11 @@ def format_product_comment_suggestions(product_data: dict[str, object]) -> str:
     lines.extend(
         [
             "",
+            "Link affiliate Shopee để gắn video/comment:",
+            *[f"- {keyword}: {url}" for keyword, url in affiliate_links],
+            "",
             "Gợi ý comment:",
-            f"1. Ai cần món này thì mình để link sản phẩm ở phần bình luận nha, dùng khá tiện.",
+            f"1. Ai cần món này thì mình ghim link sản phẩm ở bình luận nha: {affiliate_links[0][1]}",
             f"2. Mình thấy keyword dễ tìm là: {keywords[0]}. Bạn nào cần thì bấm link mình ghim nhé.",
             "3. Nếu bạn đang tìm món nhỏ gọn, dễ dùng thì thử xem sản phẩm này, mình để link cho tiện.",
             "4. Mình để link tham khảo bên dưới, ai cần đúng mẫu thì vào xem trước đánh giá rồi quyết định nhé.",
@@ -277,7 +295,7 @@ def format_product_comment_suggestions(product_data: dict[str, object]) -> str:
 
 
 def format_shopee_links(product_data: dict[str, object], video_name: str) -> str:
-    return format_product_comment_suggestions(product_data)
+    return format_product_comment_suggestions(product_data, video_name)
 
 
 def plain_text_from_srt(srt_content: str) -> str:
@@ -746,7 +764,7 @@ class TimelineDubber:
         segments = parse_srt(srt_path.read_text(encoding="utf-8"))
         segment_audio_dir.mkdir(parents=True, exist_ok=True)
 
-        base_duration_ms = video_duration_ms if TTS_STRICT_TIMELINE else max(video_duration_ms, segments[-1].end_ms)
+        base_duration_ms = max(video_duration_ms, segments[-1].end_ms)
         final_audio = AudioSegment.silent(duration=base_duration_ms)
         voice_cursor_ms = 0
 
@@ -754,41 +772,37 @@ class TimelineDubber:
             text = " ".join(segment.text.split())
             if not text:
                 continue
-            available_duration_ms = min(segment.duration_ms, max(0, base_duration_ms - segment.start_ms))
-            if available_duration_ms <= 0:
-                logging.warning("Bo qua caption %s vi nam ngoai duration video.", segment.index)
-                continue
+            target_duration_ms = max(1, segment.duration_ms)
 
             segment_path = segment_audio_dir / f"{segment.index:04d}.mp3"
-            logging.info("Dang tao audio caption %s/%s...", segment.index, len(segments))
-            self.tts_client.synthesize_to_file(text, segment_path)
+            if TTS_REUSE_SEGMENTS and segment_path.exists() and segment_path.stat().st_size > 0:
+                logging.info("Tai su dung audio caption %s/%s...", segment.index, len(segments))
+            else:
+                logging.info("Dang tao audio caption %s/%s...", segment.index, len(segments))
+                self.tts_client.synthesize_to_file(text, segment_path)
 
             try:
                 segment_audio = AudioSegment.from_file(segment_path, format="mp3")
             except Exception as exc:
                 raise PipelineError(f"Khong doc duoc audio TTS tai {segment_path}: {exc}") from exc
 
-            segment_audio = self._fit_audio_to_caption(segment_audio, available_duration_ms, segment.index)
+            segment_audio = self._fit_audio_to_caption(segment_audio, target_duration_ms, segment.index)
             if TTS_STRICT_TIMELINE:
-                position_ms = segment.start_ms
-                remaining_ms = max(0, base_duration_ms - position_ms)
-                if len(segment_audio) > remaining_ms:
-                    segment_audio = self._trim_audio(segment_audio, remaining_ms, segment.index)
+                if voice_cursor_ms and segment.start_ms > voice_cursor_ms + TTS_MAX_SILENCE_GAP_MS:
+                    position_ms = voice_cursor_ms + TTS_MAX_SILENCE_GAP_MS
+                else:
+                    position_ms = max(segment.start_ms, voice_cursor_ms)
             else:
                 position_ms = max(segment.start_ms, voice_cursor_ms)
             end_ms = position_ms + len(segment_audio)
             if end_ms > len(final_audio):
-                if TTS_STRICT_TIMELINE:
-                    segment_audio = self._trim_audio(segment_audio, max(0, len(final_audio) - position_ms), segment.index)
-                    end_ms = position_ms + len(segment_audio)
-                else:
-                    final_audio += AudioSegment.silent(duration=end_ms - len(final_audio))
+                final_audio += AudioSegment.silent(duration=end_ms - len(final_audio))
             final_audio = final_audio.overlay(segment_audio, position=position_ms)
             voice_cursor_ms = end_ms + TTS_SEGMENT_GAP_MS
 
         output_audio_path.parent.mkdir(parents=True, exist_ok=True)
-        if TTS_STRICT_TIMELINE and len(final_audio) > video_duration_ms:
-            final_audio = final_audio[:video_duration_ms]
+        if TTS_STRICT_TIMELINE:
+            final_audio = self._fit_final_audio_to_video(final_audio, video_duration_ms)
         final_audio.export(output_audio_path, format="mp3")
         logging.info("Da luu audio long tieng: %s (%.2fs / video %.2fs)", output_audio_path, len(final_audio) / 1000, video_duration_ms / 1000)
 
@@ -806,8 +820,46 @@ class TimelineDubber:
                 logging.warning("Khong speedup duoc caption %s: %s", caption_index, exc)
 
         if len(audio) > target_duration_ms:
-            audio = self._trim_audio(audio, target_duration_ms, caption_index)
+            logging.warning(
+                "Audio caption %s dai hon slot %.2fs, giu nguyen de fit global thay vi cat chu.",
+                caption_index,
+                target_duration_ms / 1000,
+            )
 
+        return audio
+
+    def _fit_final_audio_to_video(self, audio: AudioSegment, target_duration_ms: int) -> AudioSegment:
+        audio_class = audio.__class__
+        if target_duration_ms <= 0:
+            return audio[:0]
+        if len(audio) <= target_duration_ms:
+            return audio + audio_class.silent(duration=target_duration_ms - len(audio))
+
+        ratio = len(audio) / target_duration_ms
+        if 1 < ratio <= TTS_FINAL_SPEEDUP_RATIO:
+            try:
+                from pydub.effects import speedup
+
+                logging.warning(
+                    "Tong voice dai %.2fs so voi video %.2fs, speedup global %.2fx de tranh cat chu.",
+                    len(audio) / 1000,
+                    target_duration_ms / 1000,
+                    ratio,
+                )
+                audio = speedup(audio, playback_speed=ratio, chunk_size=80, crossfade=20)
+            except Exception as exc:
+                logging.warning("Khong speedup global duoc audio: %s", exc)
+
+        if len(audio) < target_duration_ms:
+            return audio + audio_class.silent(duration=target_duration_ms - len(audio))
+        if len(audio) > target_duration_ms:
+            logging.warning(
+                "Tong voice van dai %.2fs, chi trim phan du cuoi con %.2fs.",
+                len(audio) / 1000,
+                target_duration_ms / 1000,
+            )
+            fade_ms = min(80, max(12, target_duration_ms // 80))
+            return audio[:target_duration_ms].fade_out(fade_ms)
         return audio
 
     @staticmethod

@@ -117,8 +117,7 @@
           </div>
 
           <div class="text-center">
-            <p class="text-xs font-bold uppercase tracking-[.22em] text-cyan-300/70">Deep Violet AI</p>
-            <h2 class="text-2xl font-black tracking-[-.05em] text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-fuchsia-300 to-cyan-300">Hoàng Sỹ Việt</h2>
+            <h2 class="text-2xl font-black tracking-[-.05em] text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-fuchsia-300 to-cyan-300">Hoàng Sỹ Việt ❤️ Phạm Hu Hang</h2>
           </div>
 
           <div class="flex items-center gap-3">
@@ -383,29 +382,35 @@
             <aside class="panel-card">
               <div class="mb-4 flex items-center justify-between">
                 <div class="tts-tabs compact">
-                  <button class="tts-tab active" type="button">Giọng nói</button>
-                  <button class="tts-tab" type="button">Lịch sử</button>
+                  <button class="tts-tab active" type="button" data-tts-side-tab="voice">Giọng nói</button>
+                  <button class="tts-tab" type="button" data-tts-side-tab="history">Lịch sử</button>
                 </div>
               </div>
-              <h3 class="section-title text-lg">Giọng mặc định</h3>
-              <label class="mt-4 grid gap-2 text-sm font-bold text-purple-200/60">
-                Chọn voice
-                <select id="ttsVoiceSelect" class="field">
-                  <option value="">Adam mặc định</option>
-                </select>
-              </label>
-              <div class="voice-pick-card mt-4">
-                <span class="play-dot">▶</span>
-                <div>
-                  <strong>Adam</strong>
-                  <small>Giọng nam trẻ trung, phù hợp review sản phẩm.</small>
+              <div id="ttsVoicePanel">
+                <h3 class="section-title text-lg">Giọng mặc định</h3>
+                <label class="mt-4 grid gap-2 text-sm font-bold text-purple-200/60">
+                  Chọn voice
+                  <select id="ttsVoiceSelect" class="field">
+                    <option value="">Adam mặc định</option>
+                  </select>
+                </label>
+                <div class="voice-pick-card mt-4">
+                  <span class="play-dot">▶</span>
+                  <div>
+                    <strong>Adam</strong>
+                    <small>Giọng nam trẻ trung, phù hợp review sản phẩm.</small>
+                  </div>
                 </div>
+                <div class="voice-setting-card mt-4">
+                  <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M9 19V9"/><path d="M14 19V3"/><path d="M19 19v-7"/></svg>
+                  <div><strong>Tốc độ & khoảng nghỉ</strong><small>Đồng bộ với timeline video.</small></div>
+                </div>
+                <div id="ttsResult" class="tts-result mt-5">Chưa có audio được tạo trong phiên này.</div>
               </div>
-              <div class="voice-setting-card mt-4">
-                <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M9 19V9"/><path d="M14 19V3"/><path d="M19 19v-7"/></svg>
-                <div><strong>Tốc độ & khoảng nghỉ</strong><small>Đồng bộ với timeline video.</small></div>
+              <div id="ttsHistoryPanel" class="hidden">
+                <h3 class="section-title text-lg">Lịch sử audio</h3>
+                <div id="ttsHistoryList" class="tts-history-list mt-4"></div>
               </div>
-              <div id="ttsResult" class="tts-result mt-5">Chưa có audio được tạo trong phiên này.</div>
             </aside>
           </div>
         </section>
@@ -495,7 +500,16 @@
                 <label><span>Whisper fallback</span><input name="whisperFallbackModels" /></label>
                 <label><span>Gemini model</span><input name="geminiModel" /></label>
                 <label><span>Gemini fallback</span><input name="geminiModelFallbacks" /></label>
-                <label class="span-3 prompt-field"><span>Gemini API keys (mỗi dòng 1 key, tối đa khuyến nghị 5)</span><textarea name="geminiApiKeys" spellcheck="false" placeholder="Dán key mới vào đây để cập nhật GEMINI_API_KEYS. Để trống sẽ giữ nguyên key hiện tại."></textarea></label>
+                <label class="span-3 prompt-field secret-setting">
+                  <span>Gemini API keys (mỗi dòng 1 key, tối đa khuyến nghị 5)</span>
+                  <div class="secret-input-wrap">
+                    <textarea id="geminiApiKeysInput" name="geminiApiKeys" spellcheck="false" placeholder="Dán key mới vào đây để cập nhật GEMINI_API_KEYS. Để trống sẽ giữ nguyên key hiện tại."></textarea>
+                    <button id="toggleGeminiKeysBtn" class="secret-toggle" type="button" aria-pressed="true" title="Ẩn/hiện Gemini API keys">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.8"/></svg>
+                      <span class="secret-toggle-label">Hiện</span>
+                    </button>
+                  </div>
+                </label>
                 <label><span>TTS voice ID</span><input name="ttsVoiceId" /></label>
                 <label><span>TTS model ID</span><input name="ttsModelId" /></label>
                 <label><span>Timeout seconds</span><input name="ttsTimeoutSeconds" type="number" min="1" step="1" /></label>
@@ -505,23 +519,37 @@
                 <label><span>Segment gap ms</span><input name="ttsSegmentGapMs" type="number" min="0" step="10" /></label>
                 <label><span>CapCut path</span><input name="capcutPath" /></label>
                 <label class="span-3"><span>TTS API URL</span><input name="ttsApiUrl" /></label>
-                <label class="span-3 prompt-field"><span>Prompt rewrite SRT / kịch bản lồng tiếng</span><textarea name="geminiRewritePrompt" spellcheck="false"></textarea></label>
-                <label class="span-3 prompt-field"><span>Prompt caption đăng bài</span><textarea name="geminiPostPrompt" spellcheck="false"></textarea></label>
-                <label class="span-3 prompt-field"><span>Prompt gợi ý comment sản phẩm</span><textarea name="shopeeProductPrompt" spellcheck="false"></textarea></label>
                 <label class="span-3"><span>CapCut project dir</span><input name="capcutProjectDir" /></label>
               </form>
               <button id="saveOptionsBtn" class="primary-action mt-5 w-56">Lưu cài đặt</button>
             </article>
 
-            <article class="panel-card">
-              <div class="section-kicker">Design notes</div>
-              <h2 class="section-title">3 cột desktop</h2>
-              <ul class="mt-5 space-y-3 text-sm font-medium text-purple-200/60">
-                <li class="note-item">Input tập trung upload, chọn video và file output.</li>
-                <li class="note-item">Pipeline hiển thị trạng thái 5 bước rõ ràng.</li>
-                <li class="note-item">Output gom tất cả nội dung cần copy khi đăng bài.</li>
-                <li class="note-item">Icon dùng SVG đồng bộ theo phong cách Lucide.</li>
-              </ul>
+            <article class="panel-card prompt-settings-panel overflow-auto">
+              <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                  <div class="section-kicker">Prompt Studio</div>
+                  <h2 class="section-title">Prompt AI</h2>
+                  <p class="section-subtitle">Tinh chỉnh cách Gemini rewrite SRT, caption và comment.</p>
+                </div>
+                <span class="prompt-secure-badge">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 9.8 4.1-1.4 7-5.4 7-9.8V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/><path d="m9.5 12 1.7 1.7 3.8-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Lưu vào .env
+                </span>
+              </div>
+              <div class="prompt-settings-stack">
+                <label class="prompt-field">
+                  <span>Prompt rewrite SRT / kịch bản lồng tiếng</span>
+                  <textarea form="optionsForm" name="geminiRewritePrompt" spellcheck="false"></textarea>
+                </label>
+                <label class="prompt-field">
+                  <span>Prompt caption đăng bài</span>
+                  <textarea form="optionsForm" name="geminiPostPrompt" spellcheck="false"></textarea>
+                </label>
+                <label class="prompt-field">
+                  <span>Prompt gợi ý comment sản phẩm</span>
+                  <textarea form="optionsForm" name="shopeeProductPrompt" spellcheck="false"></textarea>
+                </label>
+              </div>
             </article>
           </div>
         </section>
