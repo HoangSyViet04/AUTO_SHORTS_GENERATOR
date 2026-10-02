@@ -10,6 +10,8 @@ const state = {
   voices: [],
   currentVoiceAudio: null,
   ttsHistory: [],
+  publishCaptionDirty: false,
+  publishCaptionProject: "",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -59,6 +61,32 @@ const ui = {
   loadVoicesBtn: $("#loadVoicesBtn"),
   voicePreviewPanel: $("#voicePreviewPanel"),
   historyList: $("#historyList"),
+  finalVideoInput: $("#finalVideoInput"),
+  finalVideoDropZone: $("#finalVideoDropZone"),
+  finalVideoStatus: $("#finalVideoStatus"),
+  publishProjectBadge: $("#publishProjectBadge"),
+  publishCaption: $("#publishCaption"),
+  publishCaptionCount: $("#publishCaptionCount"),
+  tiktokPrivacy: $("#tiktokPrivacy"),
+  tiktokConfigStatus: $("#tiktokConfigStatus"),
+  facebookConfigStatus: $("#facebookConfigStatus"),
+  publishTikTokBtn: $("#publishTikTokBtn"),
+  publishFacebookBtn: $("#publishFacebookBtn"),
+  publishResult: $("#publishResult"),
+  publishCenterStatus: $("#publishCenterStatus"),
+  publishStep1Status: $("#publishStep1Status"),
+  publishStep2Status: $("#publishStep2Status"),
+  publishStep3Status: $("#publishStep3Status"),
+  publishReadyBtn: $("#publishReadyBtn"),
+  tiktokConnectionBadge: $("#tiktokConnectionBadge"),
+  facebookConnectionBadge: $("#facebookConnectionBadge"),
+  tiktokAccountSelect: $("#tiktokAccountSelect"),
+  facebookPageSelect: $("#facebookPageSelect"),
+  settingsSaveState: $("#settingsSaveState"),
+  aiSettingsStatus: $("#aiSettingsStatus"),
+  voiceSettingsStatus: $("#voiceSettingsStatus"),
+  capcutSettingsStatus: $("#capcutSettingsStatus"),
+  publishingSettingsStatus: $("#publishingSettingsStatus"),
 };
 
 const voiceModules = window.VoiceModules;
@@ -118,6 +146,7 @@ function showView(name) {
   localStorage.setItem("active-view", name);
   if (name === "history") renderHistory();
   if (name === "voiceLibrary" && !state.voices.length) renderVoiceLibrary(defaultVoices);
+  if (name === "publish") renderPublishState();
 }
 
 function setWorkflowState(currentStep = "import", mode = "ready") {
@@ -181,20 +210,105 @@ function applyConfigToForm() {
   setFormValue("whisperFallbackModels", settings.whisperFallbackModels);
   setFormValue("geminiModel", settings.geminiModel);
   setFormValue("geminiModelFallbacks", settings.geminiModelFallbacks);
+  setFormValue("googleTranslateFallback", String(settings.googleTranslateFallback ?? true));
   setFormValue("geminiApiKeys", "");
   setFormValue("geminiRewritePrompt", settings.geminiRewritePrompt);
   setFormValue("geminiPostPrompt", settings.geminiPostPrompt);
+  setFormValue("ttsEnhancePrompt", settings.ttsEnhancePrompt);
   setFormValue("shopeeProductPrompt", settings.shopeeProductPrompt);
   setFormValue("ttsApiUrl", settings.ttsApiUrl);
+  setFormValue("ttsApiKey", "");
+  setFormValue("ttsMode", settings.ttsMode);
+  setFormValue("ttsEnhanceEnabled", String(settings.ttsEnhanceEnabled ?? true));
+  setFormValue("ttsSemanticChunkEnabled", String(settings.ttsSemanticChunkEnabled ?? true));
+  setFormValue("ttsAudioFirst", String(settings.ttsAudioFirst ?? false));
+  setFormValue("ttsQualityModelId", settings.ttsQualityModelId);
+  setFormValue("ttsFastModelId", settings.ttsFastModelId);
   setFormValue("ttsVoiceId", settings.ttsVoiceId);
   setFormValue("ttsModelId", settings.ttsModelId);
   setFormValue("ttsTimeoutSeconds", settings.ttsTimeoutSeconds);
   setFormValue("ttsMaxRetries", settings.ttsMaxRetries);
   setFormValue("maxAudioSpeedupRatio", settings.maxAudioSpeedupRatio);
+  setFormValue("ttsFinalSpeedupRatio", settings.ttsFinalSpeedupRatio);
+  setFormValue("ttsQualityMaxSpeedupRatio", settings.ttsQualityMaxSpeedupRatio);
+  setFormValue("ttsQualityFinalSpeedupRatio", settings.ttsQualityFinalSpeedupRatio);
   setFormValue("ttsStrictTimeline", String(settings.ttsStrictTimeline ?? true));
   setFormValue("ttsSegmentGapMs", settings.ttsSegmentGapMs);
+  setFormValue("ttsMaxSilenceGapMs", settings.ttsMaxSilenceGapMs);
+  setFormValue("ttsReuseSegments", String(settings.ttsReuseSegments ?? true));
+  setFormValue("ttsChunkMaxChars", settings.ttsChunkMaxChars);
+  setFormValue("ttsChunkMaxSegments", settings.ttsChunkMaxSegments);
+  setFormValue("ttsTargetCharsPerSecond", settings.ttsTargetCharsPerSecond);
+  setFormValue("ttsUseDurationTextBudget", String(settings.ttsUseDurationTextBudget ?? true));
+  setFormValue("ttsPreserveScript", String(settings.ttsPreserveScript ?? true));
+  setFormValue("ttsLeadInMs", settings.ttsLeadInMs ?? 80);
+  setFormValue("ttsFitAudioToVideo", String(settings.ttsFitAudioToVideo ?? true));
+  setFormValue("ttsEmergencyFinalSpeedupRatio", settings.ttsEmergencyFinalSpeedupRatio);
+  setFormValue("ttsVoiceStability", settings.ttsVoiceStability);
+  setFormValue("ttsVoiceSimilarity", settings.ttsVoiceSimilarity);
+  setFormValue("ttsVoiceStyle", settings.ttsVoiceStyle);
   setFormValue("capcutPath", settings.capcutPath);
   setFormValue("capcutProjectDir", settings.capcutProjectDir);
+  setFormValue("tiktokClientKey", settings.tiktokClientKey);
+  setFormValue("tiktokClientSecret", "");
+  setFormValue("tiktokAccessToken", "");
+  setFormValue("tiktokRefreshToken", "");
+  setFormValue("facebookPageId", settings.facebookPageId);
+  setFormValue("facebookPageAccessToken", "");
+  setFormValue("metaGraphVersion", settings.metaGraphVersion);
+  renderPublishState();
+  renderSettingsStatuses();
+}
+
+function setSettingsStatus(element, label, ready) {
+  if (!element) return;
+  element.textContent = label;
+  element.classList.toggle("ready", ready);
+  element.classList.toggle("warning", !ready);
+}
+
+function renderSettingsStatuses() {
+  const apiStatus = state.config?.api || {};
+  const settings = state.config?.settings || {};
+  setSettingsStatus(
+    ui.aiSettingsStatus,
+    apiStatus.gemini ? `${apiStatus.geminiKeyCount || 1} Gemini key` : "Thiếu Gemini key",
+    Boolean(apiStatus.gemini),
+  );
+  setSettingsStatus(
+    ui.voiceSettingsStatus,
+    apiStatus.tts ? "API đã kết nối" : "Thiếu ElevenLabs key",
+    Boolean(apiStatus.tts),
+  );
+  setSettingsStatus(
+    ui.capcutSettingsStatus,
+    settings.capcutPath ? "Đã có đường dẫn" : "Thiếu đường dẫn",
+    Boolean(settings.capcutPath),
+  );
+
+  const publishingCount = Number(Boolean(apiStatus.tiktokConfigured)) + Number(Boolean(apiStatus.facebookConfigured));
+  setSettingsStatus(
+    ui.publishingSettingsStatus,
+    publishingCount === 2 ? "Đã cấu hình 2/2" : publishingCount === 1 ? "Đã cấu hình 1/2" : "Chưa cấu hình",
+    publishingCount === 2,
+  );
+}
+
+function setSettingsSaveState(label, stateName = "") {
+  if (!ui.settingsSaveState) return;
+  ui.settingsSaveState.textContent = label;
+  ui.settingsSaveState.classList.toggle("dirty", stateName === "dirty");
+  ui.settingsSaveState.classList.toggle("saved", stateName === "saved");
+}
+
+function restoreSettingsPanel() {
+  const sections = $$(".settings-section");
+  if (!sections.length) return;
+  const savedPanel = localStorage.getItem("settings-panel") || "ai";
+  const target = sections.find((section) => section.dataset.settingsPanel === savedPanel) || sections[0];
+  sections.forEach((section) => {
+    section.open = section === target;
+  });
 }
 
 function applyGeminiKeysVisibility(hidden) {
@@ -209,6 +323,134 @@ function applyGeminiKeysVisibility(hidden) {
 
 function selectedOutput(name) {
   return state.selected?.outputs?.find((file) => file.name === name);
+}
+
+function setPublishResult(message, tone = "") {
+  if (!ui.publishResult) return;
+  const content = ui.publishResult.querySelector("span") || ui.publishResult;
+  content.textContent = message;
+  ui.publishResult.classList.toggle("success", tone === "success");
+  ui.publishResult.classList.toggle("error", tone === "error");
+}
+
+function setConnectionBadge(element, connected) {
+  if (!element) return;
+  element.classList.toggle("connected", connected);
+  const dot = element.querySelector("i");
+  element.textContent = connected ? "Đã kết nối" : "Chưa kết nối";
+  if (dot) element.prepend(dot);
+}
+
+function setSingleSelectOption(select, label, enabled) {
+  if (!select) return;
+  select.options[0].textContent = label;
+  select.disabled = !enabled;
+}
+
+function renderPublishState() {
+  if (!ui.publishProjectBadge) return;
+  const finalVideo = selectedOutput("video_final.mp4");
+  const tiktokConfigured = Boolean(state.config?.api?.tiktokConfigured);
+  const facebookConfigured = Boolean(state.config?.api?.facebookConfigured);
+  const hasCaption = Boolean(ui.publishCaption?.value.trim());
+  const connectedCount = Number(tiktokConfigured) + Number(facebookConfigured);
+  const readyToPublish = Boolean(state.selected && finalVideo && hasCaption && connectedCount);
+
+  ui.publishProjectBadge.textContent = state.selected ? state.selected.name : "Chưa chọn project";
+  ui.finalVideoStatus.textContent = finalVideo
+    ? `✓ ${finalVideo.name} • ${formatBytes(finalVideo.size)} • sẵn sàng đăng`
+    : "Chưa có video final. Export từ CapCut rồi chọn file MP4 tại đây.";
+  ui.finalVideoStatus.classList.toggle("ready", Boolean(finalVideo));
+  ui.tiktokConfigStatus.textContent = tiktokConfigured ? "API đã cấu hình" : "Thiếu TIKTOK_ACCESS_TOKEN";
+  ui.facebookConfigStatus.textContent = facebookConfigured ? "Page API đã cấu hình" : "Thiếu Page ID hoặc Access Token";
+  ui.publishTikTokBtn.disabled = !state.selected || !finalVideo || !hasCaption || !tiktokConfigured;
+  ui.publishFacebookBtn.disabled = !state.selected || !finalVideo || !hasCaption || !facebookConfigured;
+  ui.publishReadyBtn.disabled = !readyToPublish;
+
+  ui.publishStep1Status.textContent = finalVideo ? "Video sẵn sàng" : "Chưa có video";
+  ui.publishStep1Status.classList.toggle("ready", Boolean(finalVideo));
+  ui.publishStep2Status.textContent = hasCaption ? "Đã có nội dung" : "Chưa có nội dung";
+  ui.publishStep2Status.classList.toggle("ready", hasCaption);
+  ui.publishStep3Status.textContent = `${connectedCount}/2 đã kết nối`;
+  ui.publishStep3Status.classList.toggle("ready", connectedCount > 0);
+
+  ui.publishCenterStatus.innerHTML = readyToPublish ? "<i></i> Sẵn sàng xuất bản" : "<i></i> Đang chuẩn bị";
+  setConnectionBadge(ui.tiktokConnectionBadge, tiktokConfigured);
+  setConnectionBadge(ui.facebookConnectionBadge, facebookConfigured);
+  setSingleSelectOption(
+    ui.tiktokAccountSelect,
+    tiktokConfigured ? "Tài khoản TikTok đã kết nối" : "Chưa kết nối tài khoản TikTok",
+    tiktokConfigured,
+  );
+  const pageId = state.config?.settings?.facebookPageId || state.config?.api?.facebookPageId || "";
+  setSingleSelectOption(
+    ui.facebookPageSelect,
+    facebookConfigured ? `Fanpage · ${pageId || "đã kết nối"}` : "Chưa kết nối Fanpage",
+    facebookConfigured,
+  );
+  $("#tiktokPublishCard")?.classList.toggle("connected", tiktokConfigured);
+  $("#facebookPublishCard")?.classList.toggle("connected", facebookConfigured);
+  $$(".publish-platform-choice")[0]?.classList.toggle("connected", tiktokConfigured);
+  $$(".publish-platform-choice")[1]?.classList.toggle("connected", facebookConfigured);
+  if (ui.publishCaptionCount) {
+    ui.publishCaptionCount.textContent = `${ui.publishCaption.value.length.toLocaleString("vi-VN")} / 2200`;
+  }
+}
+
+async function uploadFinalVideo(file) {
+  if (!file || !state.selected) {
+    alert("Hãy chọn project trước khi tải video final.");
+    return;
+  }
+  const form = new FormData();
+  form.append("project", state.selected.stem);
+  form.append("file", file);
+  ui.finalVideoStatus.textContent = "Đang tải video final...";
+  try {
+    await api("/api/publish/final-video", { method: "POST", body: form });
+    await loadVideos();
+    setPublishResult("Video final đã sẵn sàng. Kiểm tra caption rồi chọn nền tảng để đăng.", "success");
+  } catch (error) {
+    setPublishResult(error.message, "error");
+    alert(error.message);
+  } finally {
+    ui.finalVideoInput.value = "";
+    renderPublishState();
+  }
+}
+
+async function publishToPlatform(platform) {
+  if (!state.selected) return;
+  const platformLabel = platform === "tiktok" ? "TikTok" : "Fanpage Facebook";
+  if (!window.confirm(`Xác nhận đăng video final của ${state.selected.name} lên ${platformLabel}?`)) return;
+  const button = platform === "tiktok" ? ui.publishTikTokBtn : ui.publishFacebookBtn;
+  const defaultText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Đang upload...";
+  setPublishResult(`Đang gửi video lên ${platformLabel}. Không đóng ứng dụng...`);
+  try {
+    const payload = {
+      project: state.selected.stem,
+      caption: ui.publishCaption.value.trim(),
+    };
+    if (platform === "tiktok") {
+      payload.privacyLevel = ui.tiktokPrivacy.value;
+      payload.isAigc = true;
+    }
+    const result = await api(`/api/publish/${platform}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const publishId = result.publishId || result.videoId || "đã nhận";
+    setPublishResult(`${platformLabel}: upload thành công, mã ${publishId}. Nền tảng đang xử lý video.`, "success");
+  } catch (error) {
+    setPublishResult(`${platformLabel}: ${error.message}`, "error");
+    alert(error.message);
+  } finally {
+    button.textContent = defaultText;
+    renderPublishState();
+  }
 }
 
 function outputByExtension(extension) {
@@ -459,6 +701,8 @@ async function renderPreviews() {
     setPreviewText(ui.shopeePreview, "Chọn video đã chạy xong để xem gợi ý comment.");
     ui.copyCampaignBtn.disabled = true;
     ui.copyShopeeBtn.disabled = true;
+    if (ui.publishCaption) ui.publishCaption.value = "";
+    renderPublishState();
     return;
   }
 
@@ -488,7 +732,13 @@ async function renderPreviews() {
 
   if (campaign) {
     try {
-      setPreviewText(ui.campaignPreview, await fetch(campaign.url).then((response) => response.text()), { animate: true });
+      const campaignText = await fetch(campaign.url).then((response) => response.text());
+      setPreviewText(ui.campaignPreview, campaignText, { animate: true });
+      if (!state.publishCaptionDirty || state.publishCaptionProject !== state.selected.stem) {
+        ui.publishCaption.value = campaignText.trim();
+        state.publishCaptionProject = state.selected.stem;
+        state.publishCaptionDirty = false;
+      }
       ui.copyCampaignBtn.disabled = false;
     } catch {
       setPreviewText(ui.campaignPreview, "Không đọc được file caption.");
@@ -511,6 +761,7 @@ async function renderPreviews() {
     setPreviewText(ui.shopeePreview, "Chưa có gợi ý comment. Chạy pipeline để tạo nội dung.");
     ui.copyShopeeBtn.disabled = true;
   }
+  renderPublishState();
 }
 
 function renderOutputs() {
@@ -567,8 +818,13 @@ function renderOutputs() {
 }
 
 function chooseVideo(video) {
+  if (state.selected?.stem !== video?.stem) {
+    state.publishCaptionDirty = false;
+    state.publishCaptionProject = "";
+  }
   state.selected = video;
   renderOutputs();
+  renderPublishState();
 }
 
 function renderVideos() {
@@ -656,20 +912,52 @@ function optionsPayload() {
     whisperFallbackModels: form.get("whisperFallbackModels"),
     geminiModel: form.get("geminiModel"),
     geminiModelFallbacks: form.get("geminiModelFallbacks"),
+    googleTranslateFallback: form.get("googleTranslateFallback"),
     geminiApiKeys: form.get("geminiApiKeys"),
     geminiRewritePrompt: form.get("geminiRewritePrompt"),
     geminiPostPrompt: form.get("geminiPostPrompt"),
+    ttsEnhancePrompt: form.get("ttsEnhancePrompt"),
     shopeeProductPrompt: form.get("shopeeProductPrompt"),
     ttsApiUrl: form.get("ttsApiUrl"),
+    ttsApiKey: form.get("ttsApiKey"),
+    ttsMode: form.get("ttsMode"),
+    ttsEnhanceEnabled: form.get("ttsEnhanceEnabled"),
+    ttsSemanticChunkEnabled: form.get("ttsSemanticChunkEnabled"),
+    ttsAudioFirst: form.get("ttsAudioFirst"),
+    ttsQualityModelId: form.get("ttsQualityModelId"),
+    ttsFastModelId: form.get("ttsFastModelId"),
     ttsVoiceId: form.get("ttsVoiceId"),
     ttsModelId: form.get("ttsModelId"),
     ttsTimeoutSeconds: Number(form.get("ttsTimeoutSeconds")),
     ttsMaxRetries: Number(form.get("ttsMaxRetries")),
     maxAudioSpeedupRatio: Number(form.get("maxAudioSpeedupRatio")),
+    ttsFinalSpeedupRatio: Number(form.get("ttsFinalSpeedupRatio")),
+    ttsQualityMaxSpeedupRatio: Number(form.get("ttsQualityMaxSpeedupRatio")),
+    ttsQualityFinalSpeedupRatio: Number(form.get("ttsQualityFinalSpeedupRatio")),
     ttsStrictTimeline: form.get("ttsStrictTimeline"),
     ttsSegmentGapMs: Number(form.get("ttsSegmentGapMs")),
+    ttsMaxSilenceGapMs: Number(form.get("ttsMaxSilenceGapMs")),
+    ttsReuseSegments: form.get("ttsReuseSegments"),
+    ttsChunkMaxChars: Number(form.get("ttsChunkMaxChars")),
+    ttsChunkMaxSegments: Number(form.get("ttsChunkMaxSegments")),
+    ttsTargetCharsPerSecond: Number(form.get("ttsTargetCharsPerSecond")),
+    ttsUseDurationTextBudget: form.get("ttsUseDurationTextBudget"),
+    ttsPreserveScript: form.get("ttsPreserveScript"),
+    ttsLeadInMs: Number(form.get("ttsLeadInMs")),
+    ttsFitAudioToVideo: form.get("ttsFitAudioToVideo"),
+    ttsEmergencyFinalSpeedupRatio: Number(form.get("ttsEmergencyFinalSpeedupRatio")),
+    ttsVoiceStability: Number(form.get("ttsVoiceStability")),
+    ttsVoiceSimilarity: Number(form.get("ttsVoiceSimilarity")),
+    ttsVoiceStyle: Number(form.get("ttsVoiceStyle")),
     capcutPath: form.get("capcutPath"),
     capcutProjectDir: form.get("capcutProjectDir"),
+    tiktokClientKey: form.get("tiktokClientKey"),
+    tiktokClientSecret: form.get("tiktokClientSecret"),
+    tiktokAccessToken: form.get("tiktokAccessToken"),
+    tiktokRefreshToken: form.get("tiktokRefreshToken"),
+    facebookPageId: form.get("facebookPageId"),
+    facebookPageAccessToken: form.get("facebookPageAccessToken"),
+    metaGraphVersion: form.get("metaGraphVersion"),
   };
 }
 
@@ -710,6 +998,7 @@ async function uploadVideo(file) {
 
 async function saveOptions() {
   ui.saveOptionsBtn.disabled = true;
+  setSettingsSaveState("Đang lưu...", "dirty");
   try {
     state.config = await api("/api/config", {
       method: "POST",
@@ -718,10 +1007,13 @@ async function saveOptions() {
     });
     applyConfigToForm();
     ui.saveOptionsBtn.textContent = "Đã lưu";
+    setSettingsSaveState("Đã lưu an toàn vào .env", "saved");
     setTimeout(() => {
       ui.saveOptionsBtn.textContent = "Lưu cài đặt";
+      setSettingsSaveState("Chưa có thay đổi");
     }, 1200);
   } catch (error) {
+    setSettingsSaveState("Lưu thất bại", "dirty");
     alert(error.message);
   } finally {
     ui.saveOptionsBtn.disabled = false;
@@ -838,6 +1130,28 @@ function wireEvents() {
     ui.dropZone.classList.remove("drag-over");
     uploadVideo(event.dataTransfer.files?.[0]);
   });
+  ui.finalVideoInput?.addEventListener("change", (event) => uploadFinalVideo(event.target.files?.[0]));
+  ui.finalVideoDropZone?.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    ui.finalVideoDropZone.classList.add("drag-over");
+  });
+  ui.finalVideoDropZone?.addEventListener("dragleave", () => ui.finalVideoDropZone.classList.remove("drag-over"));
+  ui.finalVideoDropZone?.addEventListener("drop", (event) => {
+    event.preventDefault();
+    ui.finalVideoDropZone.classList.remove("drag-over");
+    uploadFinalVideo(event.dataTransfer.files?.[0]);
+  });
+  ui.publishCaption?.addEventListener("input", () => {
+    state.publishCaptionDirty = true;
+    renderPublishState();
+  });
+  ui.publishTikTokBtn?.addEventListener("click", () => publishToPlatform("tiktok"));
+  ui.publishFacebookBtn?.addEventListener("click", () => publishToPlatform("facebook"));
+  ui.publishReadyBtn?.addEventListener("click", () => {
+    const target = !ui.publishTikTokBtn.disabled ? ui.publishTikTokBtn : ui.publishFacebookBtn;
+    target?.closest(".publish-integration-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setTimeout(() => target?.focus(), 350);
+  });
   ui.openOutputBtn.addEventListener("click", openOutput);
   ui.clearSelectionBtn.addEventListener("click", () => {
     chooseVideo(null);
@@ -855,6 +1169,17 @@ function wireEvents() {
   });
   ui.runBtn.addEventListener("click", runPipeline);
   ui.saveOptionsBtn.addEventListener("click", saveOptions);
+  ui.optionsForm?.addEventListener("input", () => setSettingsSaveState("Có thay đổi chưa lưu", "dirty"));
+  ui.optionsForm?.addEventListener("change", () => setSettingsSaveState("Có thay đổi chưa lưu", "dirty"));
+  $$(".settings-section").forEach((section) => {
+    section.addEventListener("toggle", () => {
+      if (!section.open) return;
+      $$(".settings-section").forEach((other) => {
+        if (other !== section) other.open = false;
+      });
+      localStorage.setItem("settings-panel", section.dataset.settingsPanel || "ai");
+    });
+  });
   ui.toggleGeminiKeysBtn?.addEventListener("click", () => {
     applyGeminiKeysVisibility(!ui.geminiApiKeysInput.classList.contains("secret-masked"));
   });
@@ -866,7 +1191,16 @@ function wireEvents() {
     button.addEventListener("click", () => {
       showView(button.dataset.view);
       if (button.dataset.focus) {
-        setTimeout(() => $(`#${button.dataset.focus}`)?.scrollIntoView({ behavior: "smooth" }), 50);
+        setTimeout(() => {
+          const target = $(`#${button.dataset.focus}`);
+          const section = target?.closest("details");
+          if (section) {
+            $$(".settings-section").forEach((item) => {
+              item.open = item === section;
+            });
+          }
+          target?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 50);
       }
     });
   });
@@ -943,8 +1277,9 @@ function wireEvents() {
 }
 
 async function boot() {
-  applyTheme(localStorage.getItem("ui-theme") || "dark");
+  applyTheme(localStorage.getItem("ui-theme") || "light");
   wireEvents();
+  restoreSettingsPanel();
   await loadConfig();
   await loadVideos();
   await loadJob();

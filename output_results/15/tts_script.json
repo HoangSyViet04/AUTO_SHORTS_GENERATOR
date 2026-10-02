@@ -1,0 +1,334 @@
+{
+  "video_duration_ms": 36200,
+  "audio_duration_ms": 36200,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ! Đứa con gái nào mà cưỡng lại được cái nồi mini xinh xỉu này chứ? Chiếc nồi Chuidaren phiên bản mới này, bình thường cả triệu bạc.",
+      "enhanced_text": "[curious] Đèo mẹ! Đứa con gái nào cưỡng lại được cái nồi mini xinh xỉu này ?",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Trước đó mắc quá nên tui không dám mua. Mà nay đang có deal hời, rẻ bất ngờ luôn!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 6500,
+      "actual_duration_ms": 4080,
+      "rendered_duration_ms": 4080,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "1495da75f471",
+      "audio_file": "chunk_0001_1495da75f471.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Trước đó mắc quá nên tui không dám mua. Mà nay đang có deal hời, rẻ bất ngờ luôn!",
+      "enhanced_text": "[excited] Mắc quá không dám mua. Nay rẻ bất ngờ!",
+      "emotion_intent": "reveal_bất_ngờ",
+      "context_before": "Đèo mẹ! Đứa con gái nào mà cưỡng lại được cái nồi mini xinh xỉu này chứ? Chiếc nồi Chuidaren phiên bản mới này, bình thường cả triệu bạc.",
+      "context_after": "Màu kem sữa pastel nhẹ nhàng, cầm trên tay nặng trịch, sang ghê! Lòng nồi dùng men sứ chống dính, không chứa lớp phủ hóa chất độc hại nào nha.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3500,
+      "actual_duration_ms": 2720,
+      "rendered_duration_ms": 2720,
+      "position_ms": 4460,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "703efd236792",
+      "audio_file": "chunk_0002_703efd236792.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5,
+        6
+      ],
+      "raw_text": "Màu kem sữa pastel nhẹ nhàng, cầm trên tay nặng trịch, sang ghê! Lòng nồi dùng men sứ chống dính, không chứa lớp phủ hóa chất độc hại nào nha.",
+      "enhanced_text": "[warm] Màu kem sữa pastel, rất sang! Lòng nồi men sứ chống dính, an toàn.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Trước đó mắc quá nên tui không dám mua. Mà nay đang có deal hời, rẻ bất ngờ luôn!",
+      "context_after": "Cứ yên tâm mà dùng thôi. Dùng để chiên, xào đơn giản là không lo bị dính nồi.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 5700,
+      "actual_duration_ms": 5600,
+      "rendered_duration_ms": 5600,
+      "position_ms": 7560,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "2ee3d21a3040",
+      "audio_file": "chunk_0003_2ee3d21a3040.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        7,
+        8,
+        9
+      ],
+      "raw_text": "Cứ yên tâm mà dùng thôi. Dùng để chiên, xào đơn giản là không lo bị dính nồi.",
+      "enhanced_text": "Yên tâm dùng, chiên xào không dính.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Màu kem sữa pastel nhẹ nhàng, cầm trên tay nặng trịch, sang ghê! Lòng nồi dùng men sứ chống dính, không chứa lớp phủ hóa chất độc hại nào nha.",
+      "context_after": "Mà truyền nhiệt còn nhanh xỉu nữa. Sáng dậy hâm sữa, nấu mì vài phút là có ngay bữa sáng tiện lợi.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3000,
+      "actual_duration_ms": 2720,
+      "rendered_duration_ms": 2720,
+      "position_ms": 13540,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "9357be41616a",
+      "audio_file": "chunk_0004_9357be41616a.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        10,
+        11
+      ],
+      "raw_text": "Mà truyền nhiệt còn nhanh xỉu nữa. Sáng dậy hâm sữa, nấu mì vài phút là có ngay bữa sáng tiện lợi.",
+      "enhanced_text": "[excited] Truyền nhiệt nhanh. Hâm sữa, nấu mì tiện lợi.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Cứ yên tâm mà dùng thôi. Dùng để chiên, xào đơn giản là không lo bị dính nồi.",
+      "context_after": "Đi kèm lồng hấp inox siêu xịn, có thể vừa hấp vừa nấu cùng lúc luôn, quá tiện.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3600,
+      "actual_duration_ms": 3360,
+      "rendered_duration_ms": 3360,
+      "position_ms": 16640,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "fbd563a1a62f",
+      "audio_file": "chunk_0005_fbd563a1a62f.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        12,
+        13
+      ],
+      "raw_text": "Đi kèm lồng hấp inox siêu xịn, có thể vừa hấp vừa nấu cùng lúc luôn, quá tiện.",
+      "enhanced_text": "[excited] Kèm lồng hấp inox. Vừa hấp vừa nấu, tiện!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Mà truyền nhiệt còn nhanh xỉu nữa. Sáng dậy hâm sữa, nấu mì vài phút là có ngay bữa sáng tiện lợi.",
+      "context_after": "Nấu đồ ăn dặm cho bé, hay nấu canh, cháo đều bao mượt.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3600,
+      "actual_duration_ms": 3360,
+      "rendered_duration_ms": 3360,
+      "position_ms": 20380,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "98376b619ac8",
+      "audio_file": "chunk_0006_98376b619ac8.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        14,
+        15
+      ],
+      "raw_text": "Nấu đồ ăn dặm cho bé, hay nấu canh, cháo đều bao mượt.",
+      "enhanced_text": "Nấu ăn dặm, canh, cháo mượt .",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đi kèm lồng hấp inox siêu xịn, có thể vừa hấp vừa nấu cùng lúc luôn, quá tiện.",
+      "context_after": "Tay cầm chống nóng, cầm rất êm ái luôn. Cho mấy bà coi nè!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2400,
+      "actual_duration_ms": 2560,
+      "rendered_duration_ms": 2418,
+      "position_ms": 24120,
+      "speed_adjustment_ratio": 1.0587,
+      "request_status": "cached",
+      "cache_key": "98eaa54ca2a5",
+      "audio_file": "chunk_0007_98eaa54ca2a5.mp3"
+    },
+    {
+      "chunk_id": 8,
+      "segment_indexes": [
+        16,
+        17
+      ],
+      "raw_text": "Tay cầm chống nóng, cầm rất êm ái luôn. Cho mấy bà coi nè!",
+      "enhanced_text": "Tay cầm chống nóng, êm ái.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Nấu đồ ăn dặm cho bé, hay nấu canh, cháo đều bao mượt.",
+      "context_after": "Đáy nồi không lo bị cháy đen đâu nha. Bếp ga, bếp từ gì cũng cân hết.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2600,
+      "actual_duration_ms": 2080,
+      "rendered_duration_ms": 2080,
+      "position_ms": 26918,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "8d24fff6336b",
+      "audio_file": "chunk_0008_8d24fff6336b.mp3"
+    },
+    {
+      "chunk_id": 9,
+      "segment_indexes": [
+        18,
+        19
+      ],
+      "raw_text": "Đáy nồi không lo bị cháy đen đâu nha. Bếp ga, bếp từ gì cũng cân hết.",
+      "enhanced_text": "Bếp ga, bếp từ gì cũng cân hết.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Tay cầm chống nóng, cầm rất êm ái luôn. Cho mấy bà coi nè!",
+      "context_after": "Từ ngày tậu em nồi này, tui cứ như masterchef đích thực vậy đó!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2300,
+      "actual_duration_ms": 2320,
+      "rendered_duration_ms": 2320,
+      "position_ms": 29378,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "5690df37872b",
+      "audio_file": "chunk_0009_5690df37872b.mp3"
+    },
+    {
+      "chunk_id": 10,
+      "segment_indexes": [
+        20,
+        21
+      ],
+      "raw_text": "Từ ngày tậu em nồi này, tui cứ như masterchef đích thực vậy đó!",
+      "enhanced_text": "[confident] Có nồi này, tui thành masterchef.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đáy nồi không lo bị cháy đen đâu nha. Bếp ga, bếp từ gì cũng cân hết.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_flash_v2_5",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2700,
+      "actual_duration_ms": 1840,
+      "rendered_duration_ms": 1840,
+      "position_ms": 32078,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "cached",
+      "cache_key": "22c5b57a0793",
+      "audio_file": "chunk_0010_22c5b57a0793.mp3"
+    }
+  ]
+}

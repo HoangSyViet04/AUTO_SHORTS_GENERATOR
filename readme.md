@@ -41,6 +41,19 @@ TTS_MODEL_ID=eleven_flash_v2_5
 TTS_TIMEOUT_SECONDS=90
 TTS_MAX_RETRIES=3
 MAX_AUDIO_SPEEDUP_RATIO=1.35
+TTS_PRESERVE_SCRIPT=true
+TTS_LEAD_IN_MS=80
+
+# TikTok Content Posting API (scope video.publish)
+TIKTOK_CLIENT_KEY=
+TIKTOK_CLIENT_SECRET=
+TIKTOK_ACCESS_TOKEN=
+TIKTOK_REFRESH_TOKEN=
+
+# Facebook Page Reels API
+FACEBOOK_PAGE_ID=
+FACEBOOK_PAGE_ACCESS_TOKEN=
+META_GRAPH_VERSION=v26.0
 ```
 
 Các option pipeline có thể chỉnh trực tiếp trong tab `Options` của giao diện web; app sẽ lưu lại vào `.env`.
@@ -70,3 +83,11 @@ output_results/[ten_video]/
 ```
 
 Gồm `video_goc.mp4`, `sub_viet.srt`, `giong_doc_viet.mp3`.
+
+## Đăng TikTok/Facebook
+
+1. Export video hoàn chỉnh từ CapCut thành MP4.
+2. Mở tab `Xuất bản`, chọn project và tải file MP4 final vào app.
+3. Kiểm tra caption, quyền riêng tư rồi bấm đăng lên TikTok hoặc Fanpage.
+
+App luôn dùng `video_final.mp4`, không tự đăng `video_goc.mp4`. TikTok cần app Developer được cấp scope `video.publish`; app chưa qua audit chỉ có thể đăng riêng tư. Facebook cần Page Access Token có quyền quản lý và đăng nội dung Page.

@@ -82,6 +82,10 @@
             <svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"/><path d="M3.05 11a9 9 0 1 1 2.64 6.36"/><path d="M3 17v-6h6"/></svg>
             <span>Hàng chờ & Lịch sử</span>
           </button>
+          <button class="side-nav-item" data-view="publish" data-tooltip="Xuất bản" title="Xuất bản">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
+            <span>Xuất bản</span>
+          </button>
           <button class="side-nav-item" data-view="settings" data-tooltip="Cài đặt & API" title="Cài đặt & API">
             <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8.92 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.48.52.86 1 1h.6a2 2 0 1 1 0 4h-.09c-.7 0-1.31.4-1.51 1Z"/></svg>
             <span>Cài đặt & API</span>
@@ -485,73 +489,328 @@
           </div>
         </section>
 
-        <section id="settingsView" class="view">
-          <div class="grid h-[calc(100vh-112px)] grid-cols-[1.15fr_.85fr] gap-5">
-            <article class="panel-card overflow-auto">
-              <div class="mb-5">
-                <div class="section-kicker">Settings</div>
-                <h2 class="section-title">Cấu hình pipeline</h2>
-                <p class="section-subtitle">Các option này được lưu vào .env.</p>
-              </div>
-              <form id="optionsForm" class="settings-form">
-                <label><span>Whisper model</span><select name="whisperModel"><option value="base">base</option><option value="small">small</option><option value="medium">medium</option></select></label>
-                <label><span>Device</span><select name="whisperDevice"><option value="cpu">cpu</option><option value="cuda">cuda</option><option value="auto">auto</option></select></label>
-                <label><span>Compute type</span><select name="whisperComputeType"><option value="int8">int8</option><option value="int8_float16">int8_float16</option><option value="float16">float16</option><option value="float32">float32</option></select></label>
-                <label><span>Whisper fallback</span><input name="whisperFallbackModels" /></label>
-                <label><span>Gemini model</span><input name="geminiModel" /></label>
-                <label><span>Gemini fallback</span><input name="geminiModelFallbacks" /></label>
-                <label class="span-3 prompt-field secret-setting">
-                  <span>Gemini API keys (mỗi dòng 1 key, tối đa khuyến nghị 5)</span>
-                  <div class="secret-input-wrap">
-                    <textarea id="geminiApiKeysInput" name="geminiApiKeys" spellcheck="false" placeholder="Dán key mới vào đây để cập nhật GEMINI_API_KEYS. Để trống sẽ giữ nguyên key hiện tại."></textarea>
-                    <button id="toggleGeminiKeysBtn" class="secret-toggle" type="button" aria-pressed="true" title="Ẩn/hiện Gemini API keys">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.8"/></svg>
-                      <span class="secret-toggle-label">Hiện</span>
-                    </button>
+        <section id="publishView" class="view">
+          <div class="publish-center-shell">
+            <article class="publish-workspace-card">
+              <header class="publish-hero">
+                <div class="publish-hero-copy">
+                  <span class="publish-eyebrow">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3V9Z"/></svg>
+                    Video publishing
+                  </span>
+                  <h2>Đăng video tự động</h2>
+                  <p>Hoàn tất ba bước để đưa video đã export lên các kênh mạng xã hội.</p>
+                </div>
+                <div class="publish-hero-meta">
+                  <span id="publishCenterStatus" class="publish-live-badge"><i></i> Sẵn sàng</span>
+                  <span id="publishProjectBadge" class="publish-project-badge">Chưa chọn project</span>
+                </div>
+              </header>
+
+              <div class="publish-flow">
+                <section class="publish-step-card" data-publish-step="video">
+                  <div class="publish-step-heading">
+                    <span class="publish-step-number">1</span>
+                    <div><h3>Chọn video hoàn chỉnh</h3><p>Chọn bản MP4 đã export từ CapCut.</p></div>
+                    <span id="publishStep1Status" class="publish-step-status">Chưa có video</span>
                   </div>
-                </label>
-                <label><span>TTS voice ID</span><input name="ttsVoiceId" /></label>
-                <label><span>TTS model ID</span><input name="ttsModelId" /></label>
-                <label><span>Timeout seconds</span><input name="ttsTimeoutSeconds" type="number" min="1" step="1" /></label>
-                <label><span>Max retries</span><input name="ttsMaxRetries" type="number" min="1" step="1" /></label>
-                <label><span>Max speedup ratio</span><input name="maxAudioSpeedupRatio" type="number" min="1" step="0.05" /></label>
-                <label><span>Strict timeline</span><select name="ttsStrictTimeline"><option value="true">true</option><option value="false">false</option></select></label>
-                <label><span>Segment gap ms</span><input name="ttsSegmentGapMs" type="number" min="0" step="10" /></label>
-                <label><span>CapCut path</span><input name="capcutPath" /></label>
-                <label class="span-3"><span>TTS API URL</span><input name="ttsApiUrl" /></label>
-                <label class="span-3"><span>CapCut project dir</span><input name="capcutProjectDir" /></label>
-              </form>
-              <button id="saveOptionsBtn" class="primary-action mt-5 w-56">Lưu cài đặt</button>
+                  <label id="finalVideoDropZone" class="publish-drop-zone publish-drop-zone-v2">
+                    <input id="finalVideoInput" type="file" accept="video/mp4,.mp4" class="hidden" />
+                    <span class="publish-upload-icon">
+                      <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
+                    </span>
+                    <span class="publish-drop-copy">
+                      <strong>Chọn video hoặc kéo thả file vào đây</strong>
+                      <small>Hỗ trợ MP4 · App lưu thành <b>video_final.mp4</b> trong project đang chọn</small>
+                    </span>
+                    <span class="publish-browse-button">Chọn file</span>
+                  </label>
+                  <div id="finalVideoStatus" class="publish-file-status">Chưa có video final.</div>
+                </section>
+
+                <section class="publish-step-card" data-publish-step="caption">
+                  <div class="publish-step-heading">
+                    <span class="publish-step-number">2</span>
+                    <div><h3>Caption & hashtag</h3><p>Kiểm tra nội dung trước khi xuất bản.</p></div>
+                    <span id="publishStep2Status" class="publish-step-status">Chưa có nội dung</span>
+                  </div>
+                  <div class="publish-caption-wrap">
+                    <textarea id="publishCaption" class="publish-caption" maxlength="2200" placeholder="Nhập mô tả, tiêu đề và hashtag phù hợp cho video..."></textarea>
+                    <div class="publish-caption-meta">
+                      <span>
+                        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
+                        Có thể chỉnh sửa trước khi đăng
+                      </span>
+                      <strong id="publishCaptionCount">0 / 2200</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="publish-step-card publish-step-platforms" data-publish-step="platforms">
+                  <div class="publish-step-heading">
+                    <span class="publish-step-number">3</span>
+                    <div><h3>Chọn nền tảng</h3><p>Mở integration bên phải để kiểm tra và đăng.</p></div>
+                    <span id="publishStep3Status" class="publish-step-status">0/2 đã kết nối</span>
+                  </div>
+                  <div class="publish-platform-choices">
+                    <a class="publish-platform-choice" href="#tiktokPublishCard">
+                      <span class="platform-mark tiktok-mark"><svg viewBox="0 0 24 24"><path d="M15 4v10.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4c.8 2.5 2.3 4 5 4"/></svg></span>
+                      <span><strong>TikTok</strong><small>Direct Post</small></span>
+                      <svg class="publish-choice-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                    <a class="publish-platform-choice" href="#facebookPublishCard">
+                      <span class="platform-mark facebook-mark">f</span>
+                      <span><strong>Facebook</strong><small>Page Reels</small></span>
+                      <svg class="publish-choice-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
+                  </div>
+                </section>
+              </div>
+
+              <footer class="publish-workspace-footer">
+                <div class="publish-safety-note">
+                  <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  <span>Không tự đăng khi chưa xác nhận. TikTok chưa audit chỉ hỗ trợ chế độ riêng tư.</span>
+                </div>
+                <button id="publishReadyBtn" class="publish-primary-cta" type="button" disabled>
+                  Tiếp tục chọn nền tảng
+                  <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+                </button>
+              </footer>
             </article>
 
-            <article class="panel-card prompt-settings-panel overflow-auto">
-              <div class="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <div class="section-kicker">Prompt Studio</div>
-                  <h2 class="section-title">Prompt AI</h2>
-                  <p class="section-subtitle">Tinh chỉnh cách Gemini rewrite SRT, caption và comment.</p>
+            <aside class="publish-integrations">
+              <div class="publish-integrations-heading">
+                <div><span>Integrations</span><h2>Kênh xuất bản</h2></div>
+                <button class="publish-settings-link" type="button" data-view="settings" data-focus="publishingSettingsStatus">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-2.83 2.83-.06-.06a1.65 1.65 0 0 0-1.82-.33A1.65 1.65 0 0 0 14 20.83V21h-4v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-2.83-2.83.06-.06A1.65 1.65 0 0 0 4.6 15 1.65 1.65 0 0 0 3.09 14H3v-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06 2.83-2.83.06.06A1.65 1.65 0 0 0 8.92 4.6 1.65 1.65 0 0 0 10 3.09V3h4v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 2.83 2.83-.06.06A1.65 1.65 0 0 0 19.4 9c.14.48.52.86 1 1h.6v4h-.09c-.7 0-1.31.4-1.51 1Z"/></svg>
+                  Cấu hình
+                </button>
+              </div>
+
+              <article id="tiktokPublishCard" class="publish-integration-card tiktok-integration">
+                <div class="publish-integration-head">
+                  <span class="platform-mark tiktok-mark large"><svg viewBox="0 0 24 24"><path d="M15 4v10.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4c.8 2.5 2.3 4 5 4"/></svg></span>
+                  <div><h3>TikTok Direct Post</h3><p>Đăng trực tiếp qua Content Posting API.</p></div>
+                  <span id="tiktokConnectionBadge" class="integration-status"><i></i> Chưa kết nối</span>
                 </div>
-                <span class="prompt-secure-badge">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.4 2.9 8.4 7 9.8 4.1-1.4 7-5.4 7-9.8V6l-7-3Z" stroke="currentColor" stroke-width="1.8"/><path d="m9.5 12 1.7 1.7 3.8-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Lưu vào .env
-                </span>
+                <div class="publish-integration-fields">
+                  <label><span>Tài khoản</span><select id="tiktokAccountSelect" class="publish-select" disabled><option>Chưa kết nối tài khoản TikTok</option></select></label>
+                  <label><span>Quyền riêng tư</span><select id="tiktokPrivacy" class="publish-select">
+                    <option value="SELF_ONLY">Chỉ mình tôi (an toàn để test)</option>
+                    <option value="PUBLIC_TO_EVERYONE">Công khai</option>
+                    <option value="FOLLOWER_OF_CREATOR">Người theo dõi</option>
+                    <option value="MUTUAL_FOLLOW_FRIENDS">Bạn bè</option>
+                  </select></label>
+                </div>
+                <p id="tiktokConfigStatus" class="integration-helper">Chưa kiểm tra cấu hình</p>
+                <button id="publishTikTokBtn" class="publish-platform-button" disabled>
+                  <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="m15 3 6 0 0 6"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/></svg>
+                  Đăng lên TikTok
+                </button>
+              </article>
+
+              <article id="facebookPublishCard" class="publish-integration-card facebook-integration">
+                <div class="publish-integration-head">
+                  <span class="platform-mark facebook-mark large">f</span>
+                  <div><h3>Facebook Page Reels</h3><p>Đăng Reel lên Fanpage đã kết nối.</p></div>
+                  <span id="facebookConnectionBadge" class="integration-status"><i></i> Chưa kết nối</span>
+                </div>
+                <div class="publish-integration-fields one-column">
+                  <label><span>Fanpage</span><select id="facebookPageSelect" class="publish-select" disabled><option>Chưa kết nối Fanpage</option></select></label>
+                </div>
+                <p id="facebookConfigStatus" class="integration-helper">Chưa kiểm tra cấu hình</p>
+                <button id="publishFacebookBtn" class="publish-platform-button" disabled>
+                  <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="m15 3 6 0 0 6"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/></svg>
+                  Đăng lên Fanpage
+                </button>
+              </article>
+
+              <div id="publishResult" class="publish-result publish-result-v2">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                <span>Sẵn sàng sau khi có video final và cấu hình API.</span>
               </div>
-              <div class="prompt-settings-stack">
-                <label class="prompt-field">
-                  <span>Prompt rewrite SRT / kịch bản lồng tiếng</span>
-                  <textarea form="optionsForm" name="geminiRewritePrompt" spellcheck="false"></textarea>
-                </label>
-                <label class="prompt-field">
-                  <span>Prompt caption đăng bài</span>
-                  <textarea form="optionsForm" name="geminiPostPrompt" spellcheck="false"></textarea>
-                </label>
-                <label class="prompt-field">
-                  <span>Prompt gợi ý comment sản phẩm</span>
-                  <textarea form="optionsForm" name="shopeeProductPrompt" spellcheck="false"></textarea>
-                </label>
-              </div>
-            </article>
+            </aside>
           </div>
+        </section>
+
+        <section id="settingsView" class="view">
+          <article class="panel-card settings-page-shell h-[calc(100vh-112px)] overflow-hidden">
+            <header class="settings-page-head">
+              <div>
+                <div class="section-kicker">Settings & API</div>
+                <h2 class="page-title">Cấu hình ứng dụng</h2>
+                <p class="section-subtitle">Chọn một nhóm để mở. Thay đổi chỉ được ghi vào <b>.env</b> sau khi bấm lưu.</p>
+              </div>
+              <div class="settings-save-group">
+                <span id="settingsSaveState" class="settings-save-state" aria-live="polite">Chưa có thay đổi</span>
+                <button id="saveOptionsBtn" class="primary-action" type="button">Lưu cài đặt</button>
+              </div>
+            </header>
+
+            <form id="optionsForm" class="settings-accordion" autocomplete="off">
+              <details class="settings-section" data-settings-panel="ai" open>
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M12 3 9.5 9.5 3 12l6.5 2.5L12 21l2.5-6.5L21 12l-6.5-2.5L12 3Z"/></svg></span>
+                  <span><strong>AI & nhận dạng giọng nói</strong><small>Whisper, Gemini model và API keys</small></span>
+                  <span id="aiSettingsStatus" class="settings-status-badge">Cần kiểm tra</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body">
+                  <div class="settings-grid">
+                    <label><span>Whisper model</span><select name="whisperModel"><option value="base">base</option><option value="small">small</option><option value="medium">medium</option></select></label>
+                    <label><span>Thiết bị xử lý</span><select name="whisperDevice"><option value="cpu">cpu</option><option value="cuda">cuda</option><option value="auto">auto</option></select></label>
+                    <label><span>Compute type</span><select name="whisperComputeType"><option value="int8">int8</option><option value="int8_float16">int8_float16</option><option value="float16">float16</option><option value="float32">float32</option></select></label>
+                    <label><span>Whisper fallback</span><input name="whisperFallbackModels" /></label>
+                    <label><span>Gemini model</span><input name="geminiModel" /></label>
+                    <label><span>Gemini fallback</span><input name="geminiModelFallbacks" /></label>
+                    <label><span>Google Translate fallback</span><select name="googleTranslateFallback"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label class="span-3 prompt-field secret-setting">
+                      <span>Gemini API keys · mỗi dòng một key</span>
+                      <div class="secret-input-wrap">
+                        <textarea id="geminiApiKeysInput" name="geminiApiKeys" spellcheck="false" placeholder="Để trống nếu không muốn thay đổi key đang lưu."></textarea>
+                        <button id="toggleGeminiKeysBtn" class="secret-toggle" type="button" aria-pressed="false" title="Ẩn/hiện Gemini API keys">
+                          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.8"/><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.8"/></svg>
+                          <span class="secret-toggle-label">Hiện</span>
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-section" data-settings-panel="voice">
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span>
+                  <span><strong>Giọng đọc & ElevenLabs</strong><small>Voice, model, chất lượng và cảm xúc</small></span>
+                  <span id="voiceSettingsStatus" class="settings-status-badge">Cần kiểm tra</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body">
+                  <div class="settings-grid">
+                    <label><span>Chế độ TTS</span><select name="ttsMode"><option value="quality">Quality</option><option value="fast">Fast</option></select></label>
+                    <label><span>TTS Enhance</span><select name="ttsEnhanceEnabled"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Semantic chunk</span><select name="ttsSemanticChunkEnabled"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Quality model</span><input name="ttsQualityModelId" placeholder="eleven_v3" /></label>
+                    <label><span>Fast model</span><input name="ttsFastModelId" placeholder="eleven_flash_v2_5" /></label>
+                    <label><span>Voice ID</span><input name="ttsVoiceId" /></label>
+                    <label><span>Model ID fallback</span><input name="ttsModelId" /></label>
+                    <label><span>Voice stability</span><input name="ttsVoiceStability" type="number" min="0" max="1" step="0.01" /></label>
+                    <label><span>Voice similarity</span><input name="ttsVoiceSimilarity" type="number" min="0" max="1" step="0.01" /></label>
+                    <label><span>Voice style</span><input name="ttsVoiceStyle" type="number" min="0" max="1" step="0.01" /></label>
+                    <label><span>Timeout (giây)</span><input name="ttsTimeoutSeconds" type="number" min="1" step="1" /></label>
+                    <label><span>Số lần thử lại</span><input name="ttsMaxRetries" type="number" min="1" step="1" /></label>
+                    <label class="span-3"><span>ElevenLabs API URL</span><input name="ttsApiUrl" /></label>
+                    <label class="span-3"><span>ElevenLabs API Key</span><input name="ttsApiKey" type="password" placeholder="Để trống nếu không muốn thay đổi key đang lưu" /></label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-section" data-settings-panel="timeline">
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h10"/><path d="M4 18h16"/><circle cx="17" cy="12" r="3"/></svg></span>
+                  <span><strong>Timeline & đồng bộ audio</strong><small>Fit voice, khoảng nghỉ, tốc độ và cache</small></span>
+                  <span class="settings-status-badge ready">Đã tối ưu</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body">
+                  <div class="settings-grid">
+                    <label><span>Audio-first timeline</span><select name="ttsAudioFirst"><option value="false">Tắt</option><option value="true">Bật</option></select></label>
+                    <label><span>Strict timeline</span><select name="ttsStrictTimeline"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Fit audio vào video</span><select name="ttsFitAudioToVideo"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Giữ đủ nội dung voice</span><select name="ttsPreserveScript"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Lead-in chống mất tiếng (ms)</span><input name="ttsLeadInMs" type="number" min="0" step="10" /></label>
+                    <label><span>Khoảng cách chunk (ms)</span><input name="ttsSegmentGapMs" type="number" min="0" step="10" /></label>
+                    <label><span>Khoảng im tối đa (ms)</span><input name="ttsMaxSilenceGapMs" type="number" min="0" step="10" /></label>
+                    <label><span>Reuse audio cache</span><select name="ttsReuseSegments"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Chunk max chars</span><input name="ttsChunkMaxChars" type="number" min="40" step="10" /></label>
+                    <label><span>Chunk max segments</span><input name="ttsChunkMaxSegments" type="number" min="1" step="1" /></label>
+                    <label><span>Target chars/sec</span><input name="ttsTargetCharsPerSecond" type="number" min="1" step="0.5" /></label>
+                    <label><span>Dùng text budget</span><select name="ttsUseDurationTextBudget"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label><span>Max speedup</span><input name="maxAudioSpeedupRatio" type="number" min="1" step="0.05" /></label>
+                    <label><span>Final speedup</span><input name="ttsFinalSpeedupRatio" type="number" min="1" step="0.05" /></label>
+                    <label><span>Quality max speedup</span><input name="ttsQualityMaxSpeedupRatio" type="number" min="1" step="0.01" /></label>
+                    <label><span>Quality final speedup</span><input name="ttsQualityFinalSpeedupRatio" type="number" min="1" step="0.01" /></label>
+                    <label><span>Emergency speedup</span><input name="ttsEmergencyFinalSpeedupRatio" type="number" min="1" step="0.05" /></label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-section" data-settings-panel="capcut">
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16l-6 8 6 8H4l6-8-6-8Z"/></svg></span>
+                  <span><strong>CapCut & thư mục</strong><small>Đường dẫn ứng dụng và nơi lưu project</small></span>
+                  <span id="capcutSettingsStatus" class="settings-status-badge">Cần kiểm tra</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body">
+                  <div class="settings-grid">
+                    <label class="span-3"><span>CapCut executable path</span><input name="capcutPath" /></label>
+                    <label class="span-3"><span>CapCut project directory</span><input name="capcutProjectDir" /></label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-section" data-settings-panel="publishing">
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg></span>
+                  <span><strong>Đăng TikTok & Facebook</strong><small>OAuth, access token và Fanpage</small></span>
+                  <span id="publishingSettingsStatus" class="settings-status-badge">Chưa cấu hình</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body">
+                  <div class="settings-subhead">
+                    <div><strong>TikTok Content Posting API</strong><small>Cần app Developer và scope video.publish.</small></div>
+                    <a href="https://developers.tiktok.com/apps/" target="_blank" rel="noreferrer">Mở TikTok Developer ↗</a>
+                  </div>
+                  <div class="settings-help-callout">
+                    <strong>Cách lấy thông tin:</strong>
+                    <span>1. Tạo app và thêm Login Kit + Content Posting API.</span>
+                    <span>2. Bật Direct Post, xin quyền <code>video.publish</code> và khai báo redirect URI desktop.</span>
+                    <span>3. Đăng nhập TikTok qua OAuth để nhận Access Token + Refresh Token.</span>
+                    <a href="https://developers.tiktok.com/docs/en/login-kit-desktop" target="_blank" rel="noreferrer">Xem hướng dẫn OAuth Desktop chính thức ↗</a>
+                  </div>
+                  <div class="settings-grid">
+                    <label><span>TikTok Client Key</span><input name="tiktokClientKey" /></label>
+                    <label><span>TikTok Client Secret</span><input name="tiktokClientSecret" type="password" placeholder="Để trống để giữ nguyên" /></label>
+                    <label><span>TikTok Access Token</span><input name="tiktokAccessToken" type="password" placeholder="Token có scope video.publish" /></label>
+                    <label><span>TikTok Refresh Token</span><input name="tiktokRefreshToken" type="password" placeholder="Dùng để tự gia hạn access token" /></label>
+                  </div>
+                  <div class="settings-subhead mt-5">
+                    <div><strong>Facebook Page Reels API</strong><small>Cần Page ID và Page Access Token.</small></div>
+                    <a href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer">Mở Meta Developer ↗</a>
+                  </div>
+                  <div class="settings-help-callout">
+                    <strong>Cách lấy thông tin:</strong>
+                    <span>1. Tạo Meta app và cấp quyền quản lý nội dung cho Fanpage.</span>
+                    <span>2. Tạo User Access Token, sau đó gọi <code>/me/accounts?fields=name,access_token,tasks</code>.</span>
+                    <span>3. Copy <code>id</code> và <code>access_token</code> của đúng Fanpage vào hai ô bên dưới.</span>
+                    <a href="https://www.postman.com/meta/facebook/documentation/r56bjfd/facebook-api" target="_blank" rel="noreferrer">Xem tài liệu Facebook API chính thức ↗</a>
+                  </div>
+                  <div class="settings-grid">
+                    <label><span>Facebook Page ID</span><input name="facebookPageId" /></label>
+                    <label><span>Facebook Page Access Token</span><input name="facebookPageAccessToken" type="password" placeholder="Để trống để giữ nguyên" /></label>
+                    <label><span>Meta Graph version</span><input name="metaGraphVersion" placeholder="v26.0" /></label>
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-section" data-settings-panel="prompts">
+                <summary>
+                  <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M12 3 9.5 9.5 3 12l6.5 2.5L12 21l2.5-6.5L21 12l-6.5-2.5L12 3Z"/><path d="M19 3v4"/><path d="M17 5h4"/></svg></span>
+                  <span><strong>Prompt Studio</strong><small>Kịch bản, caption, voice director và comment</small></span>
+                  <span class="settings-status-badge ready">4 prompts</span>
+                  <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+                </summary>
+                <div class="settings-section-body prompt-settings-stack">
+                  <label class="prompt-field"><span>Prompt rewrite SRT / kịch bản lồng tiếng</span><textarea name="geminiRewritePrompt" spellcheck="false"></textarea></label>
+                  <label class="prompt-field"><span>Prompt caption đăng bài</span><textarea name="geminiPostPrompt" spellcheck="false"></textarea></label>
+                  <label class="prompt-field"><span>Prompt TTS Enhance / voice director</span><textarea name="ttsEnhancePrompt" spellcheck="false"></textarea></label>
+                  <label class="prompt-field"><span>Prompt gợi ý comment sản phẩm</span><textarea name="shopeeProductPrompt" spellcheck="false"></textarea></label>
+                </div>
+              </details>
+            </form>
+          </article>
         </section>
 
         <section id="logsView" class="view">

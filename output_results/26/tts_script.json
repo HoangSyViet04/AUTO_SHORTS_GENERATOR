@@ -1,0 +1,173 @@
+{
+  "video_duration_ms": 15100,
+  "audio_duration_ms": 15100,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ! Ai đi công tác hay du lịch mà ngại mang xà phòng ướt nhẹp như tui không? Thề luôn, em hộp đựng xà phòng này như cứu tinh vậy á, có lỗ thoát khí nè.",
+      "enhanced_text": "Tán gái khó? Xà phòng ướt nhẹp thì có hộp này lo! [curious]",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Không sợ xà phòng bị nhũn hay ẩm mốc đâu nha. Mấy hình con vật siêu cưng nữa chứ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4480,
+      "actual_duration_ms": 4000,
+      "rendered_duration_ms": 4000,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "9c3a749b6342",
+      "audio_file": "chunk_0001_9c3a749b6342.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Không sợ xà phòng bị nhũn hay ẩm mốc đâu nha. Mấy hình con vật siêu cưng nữa chứ.",
+      "enhanced_text": "[excited] Xà phòng không nhũn, không mốc.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ! Ai đi công tác hay du lịch mà ngại mang xà phòng ướt nhẹp như tui không? Thề luôn, em hộp đựng xà phòng này như cứu tinh vậy á, có lỗ thoát khí nè.",
+      "context_after": "Bên trong còn có cả khay lọc nước nhỏ xíu. Vừa đựng xà phòng, vừa giúp ráo nước cực đỉnh.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2520,
+      "actual_duration_ms": 2000,
+      "rendered_duration_ms": 2000,
+      "position_ms": 4380,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "c787ba105648",
+      "audio_file": "chunk_0002_c787ba105648.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5,
+        6
+      ],
+      "raw_text": "Bên trong còn có cả khay lọc nước nhỏ xíu. Vừa đựng xà phòng, vừa giúp ráo nước cực đỉnh.",
+      "enhanced_text": "[excited] Khay lọc nước nhỏ bên trong.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Không sợ xà phòng bị nhũn hay ẩm mốc đâu nha. Mấy hình con vật siêu cưng nữa chứ.",
+      "context_after": "À, mà cái chốt khóa cực chắc chắn nha. Yên tâm mang đi khắp nơi không sợ đổ hay rớt xà phòng đâu.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2720,
+      "actual_duration_ms": 1680,
+      "rendered_duration_ms": 1680,
+      "position_ms": 6760,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "8adbb63f987e",
+      "audio_file": "chunk_0003_8adbb63f987e.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        7,
+        8
+      ],
+      "raw_text": "À, mà cái chốt khóa cực chắc chắn nha. Yên tâm mang đi khắp nơi không sợ đổ hay rớt xà phòng đâu.",
+      "enhanced_text": "[excited] Chốt khóa chắc chắn.",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Bên trong còn có cả khay lọc nước nhỏ xíu. Vừa đựng xà phòng, vừa giúp ráo nước cực đỉnh.",
+      "context_after": "Dùng xong cứ thế đóng lại là xong. Vừa sạch sẽ, vệ sinh lại cực kì tiện mang đi.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2520,
+      "actual_duration_ms": 1920,
+      "rendered_duration_ms": 1920,
+      "position_ms": 8820,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "7fd4d75865d4",
+      "audio_file": "chunk_0004_7fd4d75865d4.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        9,
+        10
+      ],
+      "raw_text": "Dùng xong cứ thế đóng lại là xong. Vừa sạch sẽ, vệ sinh lại cực kì tiện mang đi.",
+      "enhanced_text": "[confident] Dùng xong đóng lại.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "À, mà cái chốt khóa cực chắc chắn nha. Yên tâm mang đi khắp nơi không sợ đổ hay rớt xà phòng đâu.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2720,
+      "actual_duration_ms": 1040,
+      "rendered_duration_ms": 1040,
+      "position_ms": 11120,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f4493eeec998",
+      "audio_file": "chunk_0005_f4493eeec998.mp3"
+    }
+  ]
+}

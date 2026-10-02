@@ -1,0 +1,108 @@
+{
+  "video_duration_ms": 26600,
+  "audio_duration_ms": 26600,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ! Trời ơi, bỏ ra nhiêu đây tiền mà mua được cái nồi điện đa năng xịn xò, vừa hấp vừa nấu, lại còn chiên xào, hầm đủ thứ nữa! Ban đầu chỉ vì nó đẹp thôi, ai dè dùng xong thì tiện lợi muốn xỉu luôn á! Nấu cơm hay chiên trứng thì tui đã thử hết cho mấy bà rồi nha.",
+      "enhanced_text": "[curious] Cơm ngon, tình yêu! Bỏ nhiêu đây tiền có ngay nồi điện đa năng xịn xò: hấp, nấu, chiên, xào, hầm. Tiện lợi muốn xỉu!",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Đảm bảo chống dính cực tốt, không bị cháy đáy luôn. Dung tích 2 lít vừa xinh, đủ cho 2-3 người ăn. Bình thường muốn nấu cháo, xào rau hay luộc mì là siêu tiện luôn, vài phút là có ngay bữa nóng hổi. Tui mua loại có xửng ",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 9200,
+      "actual_duration_ms": 9600,
+      "rendered_duration_ms": 9600,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f3d22a6c1cdf",
+      "audio_file": "chunk_0001_f3d22a6c1cdf.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Đảm bảo chống dính cực tốt, không bị cháy đáy luôn. Dung tích 2 lít vừa xinh, đủ cho 2-3 người ăn. Bình thường muốn nấu cháo, xào rau hay luộc mì là siêu tiện luôn, vài phút là có ngay bữa nóng hổi. Tui mua loại có xửng hấp nè, sáng ra hấp trên nấu dưới là xong bữa sáng siêu nhanh, tiết kiệm thời gian lắm. Có thể điều chỉnh lửa lớn nhỏ tùy ý, mà tốc độ nóng thì phải nói là siêu nhanh. Tối về còn làm nồi lẩu nhỏ xì xụp nữa chứ!",
+      "enhanced_text": "[excited] Chống dính tốt, không lo cháy đáy. Dung tích 2 lít, đủ 2-3 người. Nấu cháo, xào, luộc mì tiện, vài phút có bữa nóng hổi. Có xửng hấp, sáng hấp trên nấu dưới xong bữa sáng nhanh.",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Đèo mẹ! Trời ơi, bỏ ra nhiêu đây tiền mà mua được cái nồi điện đa năng xịn xò, vừa hấp vừa nấu, lại còn chiên xào, hầm đủ thứ nữa! Ban đầu chỉ vì nó đẹp thôi, ai dè dùng xong thì tiện lợi muốn xỉu luôn á! Nấu cơm hay chi",
+      "context_after": "Đang có ưu đãi ra mắt nên giá cực kỳ hời luôn đó. Mấy bà nào ở một mình hay thuê trọ thì phải nói là nhắm mắt cũng phải rước em nó về ngay!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 13320,
+      "actual_duration_ms": 13600,
+      "rendered_duration_ms": 13600,
+      "position_ms": 9680,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "9c6fe887817a",
+      "audio_file": "chunk_0002_9c6fe887817a.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5
+      ],
+      "raw_text": "Đang có ưu đãi ra mắt nên giá cực kỳ hời luôn đó. Mấy bà nào ở một mình hay thuê trọ thì phải nói là nhắm mắt cũng phải rước em nó về ngay!",
+      "enhanced_text": "[excited] Giá ưu đãi hời. Ai ở trọ, rước ngay!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đảm bảo chống dính cực tốt, không bị cháy đáy luôn. Dung tích 2 lít vừa xinh, đủ cho 2-3 người ăn. Bình thường muốn nấu cháo, xào rau hay luộc mì là siêu tiện luôn, vài phút là có ngay bữa nóng hổi. Tui mua loại có xửng ",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3400,
+      "actual_duration_ms": 3120,
+      "rendered_duration_ms": 3120,
+      "position_ms": 23310,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "d4f2e62f220f",
+      "audio_file": "chunk_0003_d4f2e62f220f.mp3"
+    }
+  ]
+}

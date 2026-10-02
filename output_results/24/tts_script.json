@@ -1,0 +1,338 @@
+{
+  "video_duration_ms": 33233,
+  "audio_duration_ms": 33233,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ, có ai mà cứ phải loay hoay mãi... mỗi lần rửa rau, vo gạo, vớt đồ ăn như tôi không?",
+      "enhanced_text": "[curious] Tán gái khó, rửa rau vo gạo cũng khó?",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Ai mà phát minh ra cái rổ siêu to khổng lồ này đỉnh ghê! Vừa chần rau, vớt mì, lại còn vo gạo, rửa rau...",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2880,
+      "actual_duration_ms": 2800,
+      "rendered_duration_ms": 2800,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "52ade9dad94c",
+      "audio_file": "chunk_0001_52ade9dad94c.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4,
+        5
+      ],
+      "raw_text": "Ai mà phát minh ra cái rổ siêu to khổng lồ này đỉnh ghê! Vừa chần rau, vớt mì, lại còn vo gạo, rửa rau...",
+      "enhanced_text": "Rổ to khổng lồ này đỉnh ghê! đa năng!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ, có ai mà cứ phải loay hoay mãi... mỗi lần rửa rau, vo gạo, vớt đồ ăn như tôi không?",
+      "context_after": "Làm món Oden hay lẩu xong vớt đồ cực kỳ tiện luôn. Mà thiết kế lỗ thoát nước liền mạch rửa cái là sạch bong!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4040,
+      "actual_duration_ms": 2880,
+      "rendered_duration_ms": 2880,
+      "position_ms": 2880,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "9142735bddb5",
+      "audio_file": "chunk_0002_9142735bddb5.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        6,
+        7,
+        8
+      ],
+      "raw_text": "Làm món Oden hay lẩu xong vớt đồ cực kỳ tiện luôn. Mà thiết kế lỗ thoát nước liền mạch rửa cái là sạch bong!",
+      "enhanced_text": "Vớt Oden, lẩu tiện.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Ai mà phát minh ra cái rổ siêu to khổng lồ này đỉnh ghê! Vừa chần rau, vớt mì, lại còn vo gạo, rửa rau...",
+      "context_after": "Xịn hơn mấy cái rổ nhựa thông thường tôi dùng trước đây nhiều! Dùng nó để chần rau củ, vớt mì hay thậm chí chiên ngập dầu đều được.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3520,
+      "actual_duration_ms": 1760,
+      "rendered_duration_ms": 1760,
+      "position_ms": 6140,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "5abe89b414e6",
+      "audio_file": "chunk_0003_5abe89b414e6.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        9,
+        10,
+        11
+      ],
+      "raw_text": "Xịn hơn mấy cái rổ nhựa thông thường tôi dùng trước đây nhiều! Dùng nó để chần rau củ, vớt mì hay thậm chí chiên ngập dầu đều được.",
+      "enhanced_text": "Xịn hơn rổ nhựa thường! Chần, vớt, chiên ngập dầu…",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Làm món Oden hay lẩu xong vớt đồ cực kỳ tiện luôn. Mà thiết kế lỗ thoát nước liền mạch rửa cái là sạch bong!",
+      "context_after": "Không còn phải lỉnh kỉnh hết thau này đến cái rổ khác nữa.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4360,
+      "actual_duration_ms": 4240,
+      "rendered_duration_ms": 4240,
+      "position_ms": 8280,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "1a3f087f2939",
+      "audio_file": "chunk_0004_1a3f087f2939.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        12,
+        13
+      ],
+      "raw_text": "Không còn phải lỉnh kỉnh hết thau này đến cái rổ khác nữa.",
+      "enhanced_text": "[excited] Không còn lỉnh kỉnh thau rổ nữa.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Xịn hơn mấy cái rổ nhựa thông thường tôi dùng trước đây nhiều! Dùng nó để chần rau củ, vớt mì hay thậm chí chiên ngập dầu đều được.",
+      "context_after": "Làm gỏi trộn salad thì nhúng nước lạnh thẳng tay luôn. Năng suất bếp núc tăng vèo vèo.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 1840,
+      "actual_duration_ms": 1840,
+      "rendered_duration_ms": 1840,
+      "position_ms": 12900,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "b2d735bc2baa",
+      "audio_file": "chunk_0005_b2d735bc2baa.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        14,
+        15
+      ],
+      "raw_text": "Làm gỏi trộn salad thì nhúng nước lạnh thẳng tay luôn. Năng suất bếp núc tăng vèo vèo.",
+      "enhanced_text": "[excited] Salad nhúng lạnh, năng suất tăng!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Không còn phải lỉnh kỉnh hết thau này đến cái rổ khác nữa.",
+      "context_after": "Có móc treo tiện lợi, đang nấu có thể móc vào nồi để ráo nước.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2440,
+      "actual_duration_ms": 2160,
+      "rendered_duration_ms": 2160,
+      "position_ms": 15120,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "d47ad15fc3b1",
+      "audio_file": "chunk_0006_d47ad15fc3b1.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        16,
+        17
+      ],
+      "raw_text": "Có móc treo tiện lợi, đang nấu có thể móc vào nồi để ráo nước.",
+      "enhanced_text": "Móc treo tiện lợi, móc nồi ráo.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Làm gỏi trộn salad thì nhúng nước lạnh thẳng tay luôn. Năng suất bếp núc tăng vèo vèo.",
+      "context_after": "Ngày thường thì dùng làm rổ ráo nước. Vo gạo, rửa rau, rửa trái cây, cân hết!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2080,
+      "actual_duration_ms": 2640,
+      "rendered_duration_ms": 2640,
+      "position_ms": 17660,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "c9a7ffbc5318",
+      "audio_file": "chunk_0007_c9a7ffbc5318.mp3"
+    },
+    {
+      "chunk_id": 8,
+      "segment_indexes": [
+        18,
+        19
+      ],
+      "raw_text": "Ngày thường thì dùng làm rổ ráo nước. Vo gạo, rửa rau, rửa trái cây, cân hết!",
+      "enhanced_text": "Ráo nước, vo gạo, rửa rau, trái cây. Cân hết!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Có móc treo tiện lợi, đang nấu có thể móc vào nồi để ráo nước.",
+      "context_after": "Chùi rửa cực dễ, không bám dính thức ăn thừa tí nào. Chất liệu inox 304 xịn xò, dùng cực kỳ chắc chắn, không lo cong vênh.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3360,
+      "actual_duration_ms": 4480,
+      "rendered_duration_ms": 4480,
+      "position_ms": 20680,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "c925fa39973f",
+      "audio_file": "chunk_0008_c925fa39973f.mp3"
+    },
+    {
+      "chunk_id": 9,
+      "segment_indexes": [
+        20,
+        21,
+        22
+      ],
+      "raw_text": "Chùi rửa cực dễ, không bám dính thức ăn thừa tí nào. Chất liệu inox 304 xịn xò, dùng cực kỳ chắc chắn, không lo cong vênh.",
+      "enhanced_text": "Rửa dễ, không dính. Inox 304, bền, không vênh!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Ngày thường thì dùng làm rổ ráo nước. Vo gạo, rửa rau, rửa trái cây, cân hết!",
+      "context_after": "Tay cầm vân gỗ cách nhiệt, chống bỏng. Ai định mua thì cứ chọn loại lớn này nhé, vừa với hầu hết các loại nồi luôn đó.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4120,
+      "actual_duration_ms": 5040,
+      "rendered_duration_ms": 5040,
+      "position_ms": 25190,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "c2ef2742a196",
+      "audio_file": "chunk_0009_c2ef2742a196.mp3"
+    },
+    {
+      "chunk_id": 10,
+      "segment_indexes": [
+        23,
+        24,
+        25
+      ],
+      "raw_text": "Tay cầm vân gỗ cách nhiệt, chống bỏng. Ai định mua thì cứ chọn loại lớn này nhé, vừa với hầu hết các loại nồi luôn đó.",
+      "enhanced_text": "[confident] Tay cầm vân gỗ cách nhiệt. Loại lớn vừa hết nồi .",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Chùi rửa cực dễ, không bám dính thức ăn thừa tí nào. Chất liệu inox 304 xịn xò, dùng cực kỳ chắc chắn, không lo cong vênh.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4560,
+      "actual_duration_ms": 3920,
+      "rendered_duration_ms": 3920,
+      "position_ms": 30260,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "6754c6f50bc5",
+      "audio_file": "chunk_0010_6754c6f50bc5.mp3"
+    }
+  ]
+}

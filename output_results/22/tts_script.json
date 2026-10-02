@@ -1,0 +1,270 @@
+{
+  "video_duration_ms": 22600,
+  "audio_duration_ms": 22600,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2,
+        3
+      ],
+      "raw_text": "Đèo mẹ! Bạn với người yêu có hay tranh nhau gối không? Cái gối đôi dài này nè giải quyết hết mọi xung đột.",
+      "enhanced_text": "[curious] Tình yêu, gối có êm? Tranh gối ư?",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Nó phủ kín cả đầu giường luôn. Tối muốn nằm kiểu gì thì nằm.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4520,
+      "actual_duration_ms": 3280,
+      "rendered_duration_ms": 3280,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "ec8b0a624dfe",
+      "audio_file": "chunk_0001_ec8b0a624dfe.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        4,
+        5
+      ],
+      "raw_text": "Nó phủ kín cả đầu giường luôn. Tối muốn nằm kiểu gì thì nằm.",
+      "enhanced_text": "Nó phủ kín cả đầu giường .",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ! Bạn với người yêu có hay tranh nhau gối không? Cái gối đôi dài này nè giải quyết hết mọi xung đột.",
+      "context_after": "Chẳng lo ai giật gối nữa. Bên trong là mút hoạt tính mật độ cao mềm ơi là mềm.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2520,
+      "actual_duration_ms": 1840,
+      "rendered_duration_ms": 1840,
+      "position_ms": 3660,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "9b0c554575ec",
+      "audio_file": "chunk_0002_9b0c554575ec.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        6,
+        7
+      ],
+      "raw_text": "Chẳng lo ai giật gối nữa. Bên trong là mút hoạt tính mật độ cao mềm ơi là mềm.",
+      "enhanced_text": "Chẳng lo ai giật gối nữa!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Nó phủ kín cả đầu giường luôn. Tối muốn nằm kiểu gì thì nằm.",
+      "context_after": "Thiết kế uốn lượn trước cao sau thấp ôm sát đầu cực kỳ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3000,
+      "actual_duration_ms": 2000,
+      "rendered_duration_ms": 2000,
+      "position_ms": 5880,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "e0fcce5eb6ae",
+      "audio_file": "chunk_0003_e0fcce5eb6ae.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        8,
+        9
+      ],
+      "raw_text": "Thiết kế uốn lượn trước cao sau thấp ôm sát đầu cực kỳ.",
+      "enhanced_text": "[excited] Thiết kế uốn lượn: trước cao, sau…",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Chẳng lo ai giật gối nữa. Bên trong là mút hoạt tính mật độ cao mềm ơi là mềm.",
+      "context_after": "Đàn hồi, nâng đỡ vai gáy siêu tốt luôn. Nằm lên vừa êm ái lại còn có lực đỡ nữa chứ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2680,
+      "actual_duration_ms": 2880,
+      "rendered_duration_ms": 2720,
+      "position_ms": 8260,
+      "speed_adjustment_ratio": 1.0588,
+      "request_status": "generated",
+      "cache_key": "b74ff785f92d",
+      "audio_file": "chunk_0004_b74ff785f92d.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        10,
+        11
+      ],
+      "raw_text": "Đàn hồi, nâng đỡ vai gáy siêu tốt luôn. Nằm lên vừa êm ái lại còn có lực đỡ nữa chứ.",
+      "enhanced_text": "[excited] Đàn hồi, nâng đỡ vai gáy tốt !",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Thiết kế uốn lượn trước cao sau thấp ôm sát đầu cực kỳ.",
+      "context_after": "Ngủ một mạch tới sáng vẫn phê. Nhất là mấy nhà có vợ chồng không cần xếp một đống gối lộn xộn nữa.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3200,
+      "actual_duration_ms": 2960,
+      "rendered_duration_ms": 2960,
+      "position_ms": 11360,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f07b7e633e59",
+      "audio_file": "chunk_0005_f07b7e633e59.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        12,
+        13,
+        14
+      ],
+      "raw_text": "Ngủ một mạch tới sáng vẫn phê. Nhất là mấy nhà có vợ chồng không cần xếp một đống gối lộn xộn nữa.",
+      "enhanced_text": "Ngủ một mạch tới sáng vẫn phê.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đàn hồi, nâng đỡ vai gáy siêu tốt luôn. Nằm lên vừa êm ái lại còn có lực đỡ nữa chứ.",
+      "context_after": "Vừa tốn chỗ vừa xấu. Một cái này bằng ba cái luôn.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3840,
+      "actual_duration_ms": 2160,
+      "rendered_duration_ms": 2160,
+      "position_ms": 14700,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "3d8ca4f60f93",
+      "audio_file": "chunk_0006_3d8ca4f60f93.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        15,
+        16
+      ],
+      "raw_text": "Vừa tốn chỗ vừa xấu. Một cái này bằng ba cái luôn.",
+      "enhanced_text": "Vừa tốn chỗ vừa xấu.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Ngủ một mạch tới sáng vẫn phê. Nhất là mấy nhà có vợ chồng không cần xếp một đống gối lộn xộn nữa.",
+      "context_after": "Quá hời!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2000,
+      "actual_duration_ms": 1600,
+      "rendered_duration_ms": 1600,
+      "position_ms": 17240,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "c40b2dd22ff1",
+      "audio_file": "chunk_0007_c40b2dd22ff1.mp3"
+    },
+    {
+      "chunk_id": 8,
+      "segment_indexes": [
+        17
+      ],
+      "raw_text": "Quá hời!",
+      "enhanced_text": "Quá hời! [excited]",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Vừa tốn chỗ vừa xấu. Một cái này bằng ba cái luôn.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 760,
+      "actual_duration_ms": 1120,
+      "rendered_duration_ms": 1120,
+      "position_ms": 19220,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "db02afd4fa9b",
+      "audio_file": "chunk_0008_db02afd4fa9b.mp3"
+    }
+  ]
+}

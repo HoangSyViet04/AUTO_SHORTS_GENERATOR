@@ -1,0 +1,463 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Auto Shorts Generator · Luồng End-to-End",
+    "subtitle": "Từ video nguồn đến TikTok và Facebook Page Reels",
+    "output": "archify/auto-shorts-e2e-workflow.html",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "happy_path",
+        "label": "Luồng xử lý chính",
+        "focus": ["source_video", "desktop_ui", "upload_api", "input_store", "pipeline_worker", "whisper", "zh_srt", "gemini_rewrite", "vi_srt", "tts_enhance", "elevenlabs", "timeline_fit", "output_bundle", "capcut", "final_video", "publish_center"],
+        "note": "Theo dõi video đi từ đầu vào tới bản final sẵn sàng đăng."
+      },
+      {
+        "id": "fallbacks",
+        "label": "Fallback & retry",
+        "focus": ["vad_retry", "google_fallback", "manual_import", "token_refresh"],
+        "note": "Các nhánh phục hồi khi VAD, Gemini, CapCut hoặc TikTok token gặp lỗi."
+      },
+      {
+        "id": "tiktok_route",
+        "label": "Luồng đăng TikTok",
+        "focus": ["final_video", "final_upload", "publish_center", "token_refresh", "tiktok"],
+        "note": "Direct Post, tự refresh token khi API trả về 401."
+      },
+      {
+        "id": "facebook_route",
+        "label": "Luồng đăng Facebook",
+        "focus": ["final_video", "final_upload", "publish_center", "facebook"],
+        "note": "Upload video final bằng Facebook Page Reels API."
+      }
+    ],
+    "legend": {
+      "mode": "all",
+      "entries": {
+        "frontend": { "label": "Giao diện Desktop" },
+        "backend": { "label": "Xử lý local" },
+        "database": { "label": "File / thư mục" },
+        "cloud": { "label": "AI / nền tảng ngoài" },
+        "security": { "label": "Điều kiện / token" },
+        "messagebus": { "label": "Retry / điều phối" },
+        "external": { "label": "Người dùng / công cụ" }
+      }
+    }
+  },
+  "lanes": [
+    { "id": "intake", "label": "01 · Thu nhận video" },
+    { "id": "orchestration", "label": "02 · Điều phối pipeline" },
+    { "id": "transcription", "label": "03 · Tách phụ đề tiếng Trung" },
+    { "id": "content_ai", "label": "04 · Dịch & tạo nội dung" },
+    { "id": "voice", "label": "05 · Sinh giọng & đồng bộ" },
+    { "id": "editing", "label": "06 · Đóng gói & chỉnh sửa" },
+    { "id": "publishing", "label": "07 · Publish Center" },
+    { "id": "platforms", "label": "08 · Nền tảng đích" }
+  ],
+  "groups": [
+    { "id": "intake_group", "label": "Video input", "lane": "intake", "fromCol": 1, "toCol": 3, "variant": "default" },
+    { "id": "whisper_group", "label": "Whisper + VAD retry", "lane": "transcription", "fromCol": 1, "toCol": 4, "variant": "dashed" },
+    { "id": "ai_group", "label": "Gemini + translation fallback", "lane": "content_ai", "fromCol": 0, "toCol": 4, "variant": "emphasis" },
+    { "id": "voice_group", "label": "Voice production", "lane": "voice", "fromCol": 1, "toCol": 3, "variant": "emphasis" },
+    { "id": "edit_group", "label": "4 assets → CapCut → final MP4", "lane": "editing", "fromCol": 1, "toCol": 4, "variant": "default" },
+    { "id": "publish_group", "label": "Confirm + credential gate", "lane": "publishing", "fromCol": 1, "toCol": 4, "variant": "security" }
+  ],
+  "semanticChecks": {
+    "allowedRoots": ["source_video"],
+    "allowedTerminals": ["manual_import", "tiktok", "facebook"],
+    "requiredPaths": [
+      { "from": "source_video", "to": "tiktok" },
+      { "from": "source_video", "to": "facebook" },
+      { "from": "whisper", "to": "output_bundle" },
+      { "from": "final_video", "to": "publish_center" }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "source_video",
+      "lane": "intake",
+      "col": 2,
+      "yOffset": -150,
+      "type": "external",
+      "label": "Video nguồn",
+      "sublabel": "MP4 / MKV từ Douyin",
+      "icon": "start",
+      "width": 148,
+      "height": 68
+    },
+    {
+      "id": "desktop_ui",
+      "lane": "intake",
+      "col": 2,
+      "yOffset": -50,
+      "type": "frontend",
+      "label": "Desktop UI",
+      "sublabel": "chọn file + project",
+      "width": 142,
+      "height": 68
+    },
+    {
+      "id": "upload_api",
+      "lane": "intake",
+      "col": 2,
+      "yOffset": 50,
+      "type": "backend",
+      "label": "Upload API",
+      "sublabel": "kiểm tra định dạng",
+      "tag": "POST /api/upload",
+      "width": 150,
+      "height": 68
+    },
+    {
+      "id": "input_store",
+      "lane": "intake",
+      "col": 2,
+      "yOffset": 150,
+      "type": "database",
+      "label": "input_videos/",
+      "sublabel": "video nguồn đã lưu",
+      "width": 142,
+      "height": 68
+    },
+    {
+      "id": "run_api",
+      "lane": "orchestration",
+      "col": 2,
+      "yOffset": -100,
+      "type": "backend",
+      "label": "Run Pipeline",
+      "sublabel": "khóa job đang chạy",
+      "tag": "POST /api/run",
+      "width": 150,
+      "height": 68
+    },
+    {
+      "id": "pipeline_worker",
+      "lane": "orchestration",
+      "col": 2,
+      "yOffset": 0,
+      "type": "messagebus",
+      "label": "Pipeline Worker",
+      "sublabel": "subprocess + realtime logs",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "pipeline_core",
+      "lane": "orchestration",
+      "col": 2,
+      "yOffset": 100,
+      "type": "backend",
+      "label": "VideoTranslationPipeline",
+      "sublabel": "xử lý từng video",
+      "width": 174,
+      "height": 68
+    },
+    {
+      "id": "whisper",
+      "lane": "transcription",
+      "col": 2,
+      "yOffset": -60,
+      "type": "backend",
+      "label": "Faster Whisper",
+      "sublabel": "nhận dạng tiếng Trung",
+      "tag": "VAD on",
+      "width": 152,
+      "height": 68
+    },
+    {
+      "id": "vad_retry",
+      "lane": "transcription",
+      "col": 4,
+      "yOffset": 0,
+      "type": "messagebus",
+      "label": "VAD Retry",
+      "sublabel": "thử lại không VAD",
+      "tag": "fallback",
+      "width": 142,
+      "height": 68
+    },
+    {
+      "id": "zh_srt",
+      "lane": "transcription",
+      "col": 2,
+      "yOffset": 60,
+      "type": "database",
+      "label": "sub_trung.srt",
+      "sublabel": "timestamp + Chinese text",
+      "width": 152,
+      "height": 68
+    },
+    {
+      "id": "gemini_rewrite",
+      "lane": "content_ai",
+      "col": 2,
+      "yOffset": -80,
+      "type": "cloud",
+      "label": "Gemini Rewrite",
+      "sublabel": "dịch + giữ timestamp",
+      "tag": "tối đa 3 lần",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "google_fallback",
+      "lane": "content_ai",
+      "col": 0,
+      "yOffset": -80,
+      "type": "messagebus",
+      "label": "Google Translate",
+      "sublabel": "fallback khi Gemini lỗi",
+      "tag": "optional",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "vi_srt",
+      "lane": "content_ai",
+      "col": 2,
+      "yOffset": 80,
+      "type": "database",
+      "label": "sub_viet.srt",
+      "sublabel": "SRT Việt đã validate",
+      "width": 150,
+      "height": 68
+    },
+    {
+      "id": "content_assets",
+      "lane": "content_ai",
+      "col": 4,
+      "yOffset": 80,
+      "type": "database",
+      "label": "Nội dung đăng bài",
+      "sublabel": "caption + gợi ý comment",
+      "tag": "Gemini / local fallback",
+      "width": 174,
+      "height": 68
+    },
+    {
+      "id": "tts_enhance",
+      "lane": "voice",
+      "col": 2,
+      "yOffset": -150,
+      "type": "backend",
+      "label": "TTS Enhance",
+      "sublabel": "semantic chunks + cảm xúc",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "elevenlabs",
+      "lane": "voice",
+      "col": 2,
+      "yOffset": -50,
+      "type": "cloud",
+      "label": "ElevenLabs TTS",
+      "sublabel": "Adam voice + model fallback",
+      "tag": "retry API",
+      "width": 164,
+      "height": 68
+    },
+    {
+      "id": "timeline_fit",
+      "lane": "voice",
+      "col": 2,
+      "yOffset": 50,
+      "type": "backend",
+      "label": "Timeline Fit",
+      "sublabel": "cache + speed + silence",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "voice_audio",
+      "lane": "voice",
+      "col": 2,
+      "yOffset": 150,
+      "type": "database",
+      "label": "giong_doc_viet.mp3",
+      "sublabel": "voice đã khớp timeline",
+      "width": 166,
+      "height": 68
+    },
+    {
+      "id": "output_bundle",
+      "lane": "editing",
+      "col": 2,
+      "yOffset": -150,
+      "type": "database",
+      "label": "Output bundle",
+      "sublabel": "video + SRT + voice + logo",
+      "tag": "4 assets",
+      "width": 166,
+      "height": 68
+    },
+    {
+      "id": "capcut",
+      "lane": "editing",
+      "col": 2,
+      "yOffset": -50,
+      "type": "external",
+      "label": "CapCut Desktop",
+      "sublabel": "import 4 assets + edit",
+      "width": 158,
+      "height": 68
+    },
+    {
+      "id": "manual_import",
+      "lane": "editing",
+      "col": 4,
+      "type": "messagebus",
+      "label": "Manual Import",
+      "sublabel": "mở output khi thiếu path",
+      "tag": "fallback",
+      "width": 158,
+      "yOffset": -50,
+      "height": 68
+    },
+    {
+      "id": "final_video",
+      "lane": "editing",
+      "col": 2,
+      "yOffset": 150,
+      "type": "database",
+      "label": "video_final.mp4",
+      "sublabel": "bản đã chỉnh sửa",
+      "icon": "success",
+      "width": 154,
+      "height": 68
+    },
+    {
+      "id": "final_upload",
+      "lane": "publishing",
+      "col": 2,
+      "yOffset": -50,
+      "type": "frontend",
+      "label": "Upload Final",
+      "sublabel": "chọn MP4 từ CapCut",
+      "tag": "confirm",
+      "width": 152,
+      "height": 68
+    },
+    {
+      "id": "publish_center",
+      "lane": "publishing",
+      "col": 2,
+      "yOffset": 50,
+      "type": "backend",
+      "label": "Publish Center",
+      "sublabel": "caption + platform gate",
+      "tag": "user confirms",
+      "width": 164,
+      "height": 68
+    },
+    {
+      "id": "token_refresh",
+      "lane": "publishing",
+      "col": 4,
+      "yOffset": 50,
+      "type": "security",
+      "label": "TikTok Token Refresh",
+      "sublabel": "refresh rồi retry post",
+      "tag": "HTTP 401",
+      "width": 174,
+      "height": 68
+    },
+    {
+      "id": "tiktok",
+      "lane": "platforms",
+      "col": 4,
+      "type": "cloud",
+      "label": "TikTok Direct Post",
+      "sublabel": "chunk upload + publish status",
+      "tag": "video.publish",
+      "width": 176,
+      "height": 68
+    },
+    {
+      "id": "facebook",
+      "lane": "platforms",
+      "col": 2,
+      "type": "cloud",
+      "label": "Facebook Page Reels",
+      "sublabel": "start → upload → finish",
+      "tag": "Page token",
+      "width": 180,
+      "height": 68
+    }
+  ],
+  "edges": [
+    { "id": "source-to-ui", "from": "source_video", "to": "desktop_ui", "label": "chọn / kéo thả", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "ui-to-upload", "from": "desktop_ui", "to": "upload_api", "label": "multipart MP4/MKV", "variant": "default", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "upload-to-store", "from": "upload_api", "to": "input_store", "label": "ghi file", "variant": "default", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "store-to-run", "from": "input_store", "to": "run_api", "label": "RUN PIPELINE", "variant": "emphasis", "role": "main" },
+    { "id": "run-to-worker", "from": "run_api", "to": "pipeline_worker", "label": "background thread", "variant": "default", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "worker-to-core", "from": "pipeline_worker", "to": "pipeline_core", "label": "python -m app.pipeline", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "core-to-whisper", "from": "pipeline_core", "to": "whisper", "label": "video + audio gốc", "variant": "emphasis", "role": "main" },
+    { "id": "whisper-to-srt", "from": "whisper", "to": "zh_srt", "label": "caption hợp lệ", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "whisper-to-retry", "from": "whisper", "to": "vad_retry", "label": "không có caption", "variant": "dashed", "role": "branch" },
+    { "id": "retry-to-srt", "from": "vad_retry", "to": "zh_srt", "label": "transcribe không VAD", "variant": "dashed", "role": "return" },
+    { "id": "srt-to-gemini", "from": "zh_srt", "to": "gemini_rewrite", "label": "toàn bộ SRT Trung", "variant": "emphasis", "role": "main" },
+    { "id": "gemini-to-vi", "from": "gemini_rewrite", "to": "vi_srt", "label": "SRT Việt validated", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "gemini-to-google", "from": "gemini_rewrite", "to": "google_fallback", "label": "3 lần vẫn lỗi", "variant": "dashed", "role": "error", "fromSide": "left", "toSide": "right", "route": "straight" },
+    { "id": "google-to-vi", "from": "google_fallback", "to": "vi_srt", "label": "dịch + fit voice budget", "variant": "dashed", "role": "return" },
+    { "id": "vi-to-assets", "from": "vi_srt", "to": "content_assets", "label": "caption", "variant": "default", "role": "branch", "fromSide": "right", "toSide": "left", "route": "straight" },
+    { "id": "vi-to-enhance", "from": "vi_srt", "to": "tts_enhance", "label": "semantic text chunks", "variant": "emphasis", "role": "main" },
+    { "id": "enhance-to-tts", "from": "tts_enhance", "to": "elevenlabs", "label": "text + emotion + context", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "tts-to-fit", "from": "elevenlabs", "to": "timeline_fit", "label": "MP3 chunks", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "fit-to-audio", "from": "timeline_fit", "to": "voice_audio", "label": "audio đã fit duration", "variant": "default", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "audio-to-bundle", "from": "voice_audio", "to": "output_bundle", "label": "voice + metadata", "variant": "emphasis", "role": "main" },
+    { "id": "assets-to-bundle", "from": "content_assets", "to": "output_bundle", "label": "caption + comment files", "variant": "dashed", "role": "branch" },
+    { "id": "bundle-to-capcut", "from": "output_bundle", "to": "capcut", "label": "import 4 assets", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "bundle-to-manual", "from": "output_bundle", "to": "manual_import", "label": "thiếu CAPCUT_PATH", "variant": "dashed", "role": "branch" },
+    { "id": "capcut-to-final", "from": "capcut", "to": "final_video", "label": "edit + export", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "final-to-upload", "from": "final_video", "to": "final_upload", "label": "chọn video_final.mp4", "variant": "emphasis", "role": "main" },
+    { "id": "upload-to-publish", "from": "final_upload", "to": "publish_center", "label": "video + caption", "variant": "emphasis", "role": "main", "fromSide": "bottom", "toSide": "top", "route": "straight" },
+    { "id": "publish-to-refresh", "from": "publish_center", "to": "token_refresh", "label": "kiểm tra token / refresh 401", "variant": "security", "role": "main" },
+    { "id": "refresh-to-tiktok", "from": "token_refresh", "to": "tiktok", "label": "Direct Post + chunks", "variant": "security", "role": "main" },
+    { "id": "publish-to-facebook", "from": "publish_center", "to": "facebook", "label": "start → upload → finish", "variant": "emphasis", "role": "main" }
+  ],
+  "cards": [
+    {
+      "dot": "violet",
+      "title": "Luồng dữ liệu chính",
+      "items": [
+        "Video được lưu local trước khi pipeline chạy trong subprocess riêng.",
+        "Whisper tạo SRT Trung; Gemini rewrite toàn bộ SRT và giữ nguyên timestamp.",
+        "ElevenLabs tạo voice theo semantic chunks, sau đó timeline fitter căn duration video."
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Bộ output đưa vào CapCut",
+      "items": [
+        "video_goc.mp4 hoặc MKV",
+        "sub_viet.srt và giong_doc_viet.mp3",
+        "logo.png luôn được copy khi file nguồn tồn tại",
+        "Caption/comment được lưu cùng project để dùng lúc đăng bài."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Nhánh phục hồi",
+      "items": [
+        "Whisper thử lại không VAD nếu lần đầu không có caption.",
+        "Gemini retry ba lần rồi mới dùng Google Translate fallback.",
+        "Thiếu CAPCUT_PATH thì mở thư mục output để import thủ công.",
+        "TikTok token hết hạn sẽ refresh và retry một lần."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Điều kiện xuất bản",
+      "items": [
+        "Người dùng phải có video_final.mp4 và caption trước khi nút đăng được bật.",
+        "TikTok cần Access Token; Facebook cần Page ID + Page Access Token.",
+        "Mỗi nền tảng nhận video final từ Publish Center qua API riêng."
+      ]
+    }
+  ]
+}

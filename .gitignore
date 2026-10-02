@@ -2,3 +2,5 @@
 venv/
 ycau.md
 .agents
+__pycache__/
+*.py[cod]

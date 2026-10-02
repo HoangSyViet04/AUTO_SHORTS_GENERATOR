@@ -1,0 +1,269 @@
+{
+  "video_duration_ms": 21600,
+  "audio_duration_ms": 21600,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ, cái ghế đẩu tui mua đại mà mẹ tui còn phải bất ngờ luôn nè! Nhận hàng về chất lượng đỉnh của chóp luôn á.",
+      "enhanced_text": "[curious] Em ghế đẹp sang nhà, mẹ tôi bất ngờ ! Chất lượng đỉnh của chóp!",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Thiết kế vân da xịn sò, nhìn sang chảnh cực kỳ nha. Lỡ mà dính bẩn á, chỉ cần lau nhẹ cái là sạch bong.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4960,
+      "actual_duration_ms": 4160,
+      "rendered_duration_ms": 4160,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "adb70e852b0d",
+      "audio_file": "chunk_0001_adb70e852b0d.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Thiết kế vân da xịn sò, nhìn sang chảnh cực kỳ nha. Lỡ mà dính bẩn á, chỉ cần lau nhẹ cái là sạch bong.",
+      "enhanced_text": "Vân da xịn sò, nhìn sang chảnh. Dính bẩn?",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ, cái ghế đẩu tui mua đại mà mẹ tui còn phải bất ngờ luôn nè! Nhận hàng về chất lượng đỉnh của chóp luôn á.",
+      "context_after": "Dễ vệ sinh lắm, mà giá rẻ vậy chứ đừng có khinh thường nha. Chất liệu thì dày dặn, chắc chắn cực kỳ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3760,
+      "actual_duration_ms": 3360,
+      "rendered_duration_ms": 3360,
+      "position_ms": 4540,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "764d3fa72388",
+      "audio_file": "chunk_0002_764d3fa72388.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5,
+        6
+      ],
+      "raw_text": "Dễ vệ sinh lắm, mà giá rẻ vậy chứ đừng có khinh thường nha. Chất liệu thì dày dặn, chắc chắn cực kỳ.",
+      "enhanced_text": "Giá rẻ, đừng khinh thường.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Thiết kế vân da xịn sò, nhìn sang chảnh cực kỳ nha. Lỡ mà dính bẩn á, chỉ cần lau nhẹ cái là sạch bong.",
+      "context_after": "Cứ ngồi lên rồi thoải mái lắc lư nè. Yên tâm luôn.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3200,
+      "actual_duration_ms": 1840,
+      "rendered_duration_ms": 1840,
+      "position_ms": 8280,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "3d7cc1b4290a",
+      "audio_file": "chunk_0003_3d7cc1b4290a.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        7,
+        8,
+        9
+      ],
+      "raw_text": "Cứ ngồi lên rồi thoải mái lắc lư nè. Yên tâm luôn.",
+      "enhanced_text": "[excited] Cứ ngồi, thoải mái! Yên tâm.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Dễ vệ sinh lắm, mà giá rẻ vậy chứ đừng có khinh thường nha. Chất liệu thì dày dặn, chắc chắn cực kỳ.",
+      "context_after": "Bốn cái chân còn có đệm chống trượt, chống ồn nữa. Ngồi không sợ xê dịch.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2360,
+      "actual_duration_ms": 2320,
+      "rendered_duration_ms": 2320,
+      "position_ms": 10500,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f3493d0cba61",
+      "audio_file": "chunk_0004_f3493d0cba61.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        10,
+        11
+      ],
+      "raw_text": "Bốn cái chân còn có đệm chống trượt, chống ồn nữa. Ngồi không sợ xê dịch.",
+      "enhanced_text": "[excited] Chân đệm, chống trượt, chống ồn.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Cứ ngồi lên rồi thoải mái lắc lư nè. Yên tâm luôn.",
+      "context_after": "Di chuyển cũng êm ru à. Lúc không dùng thì cứ xếp chồng lên, chả tốn tí diện tích nào.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2200,
+      "actual_duration_ms": 2160,
+      "rendered_duration_ms": 2160,
+      "position_ms": 13200,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "2fa4afbc16f4",
+      "audio_file": "chunk_0005_2fa4afbc16f4.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        12,
+        13
+      ],
+      "raw_text": "Di chuyển cũng êm ru à. Lúc không dùng thì cứ xếp chồng lên, chả tốn tí diện tích nào.",
+      "enhanced_text": "Di chuyển êm. Xếp chồng, chả tốn chỗ.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Bốn cái chân còn có đệm chống trượt, chống ồn nữa. Ngồi không sợ xê dịch.",
+      "context_after": "Đã đẹp lại còn bền.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2840,
+      "actual_duration_ms": 2800,
+      "rendered_duration_ms": 2800,
+      "position_ms": 15740,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "4256c63aedaf",
+      "audio_file": "chunk_0006_4256c63aedaf.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        14,
+        15
+      ],
+      "raw_text": "Đã đẹp lại còn bền.",
+      "enhanced_text": "Đã đẹp, [excited] lại còn bền!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Di chuyển cũng êm ru à. Lúc không dùng thì cứ xếp chồng lên, chả tốn tí diện tích nào.",
+      "context_after": "Thề luôn, mua cái này đúng là quá hời!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 1160,
+      "actual_duration_ms": 2000,
+      "rendered_duration_ms": 2000,
+      "position_ms": 18920,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "b3f5cd72c94a",
+      "audio_file": "chunk_0007_b3f5cd72c94a.mp3"
+    },
+    {
+      "chunk_id": 8,
+      "segment_indexes": [
+        16
+      ],
+      "raw_text": "Thề luôn, mua cái này đúng là quá hời!",
+      "enhanced_text": "[confident] Thề , mua này quá hời!",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Đã đẹp lại còn bền.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 1080,
+      "actual_duration_ms": 2160,
+      "rendered_duration_ms": 2160,
+      "position_ms": 20950,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f11897815b32",
+      "audio_file": "chunk_0008_f11897815b32.mp3"
+    }
+  ]
+}

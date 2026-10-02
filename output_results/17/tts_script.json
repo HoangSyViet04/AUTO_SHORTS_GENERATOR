@@ -1,0 +1,238 @@
+{
+  "video_duration_ms": 21667,
+  "audio_duration_ms": 21667,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ, còn ai đi chơi nước mà không mang túi chống nước cho điện thoại không? Ra đến nơi mua là y rằng bị chặt chém liền!",
+      "enhanced_text": "Đi chơi nước, có túi chống nước chưa? [curious]",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Cái này có mấy chục cành thôi chứ mấy. Đeo chéo, đeo vai đều được, còn đựng thêm son phấn nữa chứ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3640,
+      "actual_duration_ms": 2960,
+      "rendered_duration_ms": 2960,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "9e0430f313a1",
+      "audio_file": "chunk_0001_9e0430f313a1.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Cái này có mấy chục cành thôi chứ mấy. Đeo chéo, đeo vai đều được, còn đựng thêm son phấn nữa chứ.",
+      "enhanced_text": "Chỉ mấy chục cành.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ, còn ai đi chơi nước mà không mang túi chống nước cho điện thoại không? Ra đến nơi mua là y rằng bị chặt chém liền!",
+      "context_after": "Ra mấy khu du lịch làm gì có giá hời vậy. Quan trọng nhất là nó có ba lớp khóa niêm phong cực chặt, đảm bảo chống nước kép.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3280,
+      "actual_duration_ms": 1040,
+      "rendered_duration_ms": 1040,
+      "position_ms": 3340,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "a3c4b21ed7c6",
+      "audio_file": "chunk_0002_a3c4b21ed7c6.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5,
+        6,
+        7
+      ],
+      "raw_text": "Ra mấy khu du lịch làm gì có giá hời vậy. Quan trọng nhất là nó có ba lớp khóa niêm phong cực chặt, đảm bảo chống nước kép.",
+      "enhanced_text": "Ba lớp khóa niêm phong cực chặt. [confident] Chống nước kép!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Cái này có mấy chục cành thôi chứ mấy. Đeo chéo, đeo vai đều được, còn đựng thêm son phấn nữa chứ.",
+      "context_after": "Bốn xung quanh còn có túi khí nữa. Lỡ tay làm rớt xuống nước là nổi lềnh bềnh ngay.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 4680,
+      "actual_duration_ms": 3440,
+      "rendered_duration_ms": 3440,
+      "position_ms": 4760,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "a6139bb25aa2",
+      "audio_file": "chunk_0003_a6139bb25aa2.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        8,
+        9
+      ],
+      "raw_text": "Bốn xung quanh còn có túi khí nữa. Lỡ tay làm rớt xuống nước là nổi lềnh bềnh ngay.",
+      "enhanced_text": "Túi khí, rớt nước là nổi! [soft]",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Ra mấy khu du lịch làm gì có giá hời vậy. Quan trọng nhất là nó có ba lớp khóa niêm phong cực chặt, đảm bảo chống nước kép.",
+      "context_after": "Nước muốn vào cũng khó luôn. Cứ thoải mái nhắn tin, xem video vô tư, chẳng ảnh hưởng gì đâu.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2560,
+      "actual_duration_ms": 2880,
+      "rendered_duration_ms": 2880,
+      "position_ms": 8580,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "53fa8b2f81ad",
+      "audio_file": "chunk_0004_53fa8b2f81ad.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        10,
+        11,
+        12
+      ],
+      "raw_text": "Nước muốn vào cũng khó luôn. Cứ thoải mái nhắn tin, xem video vô tư, chẳng ảnh hưởng gì đâu.",
+      "enhanced_text": "Nước khó vào.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Bốn xung quanh còn có túi khí nữa. Lỡ tay làm rớt xuống nước là nổi lềnh bềnh ngay.",
+      "context_after": "Mùa hè này mà đi biển, hay công viên nước thì cứ thủ sẵn vài cái đi.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3200,
+      "actual_duration_ms": 1360,
+      "rendered_duration_ms": 1360,
+      "position_ms": 11840,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "327f38730fc0",
+      "audio_file": "chunk_0005_327f38730fc0.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        13,
+        14
+      ],
+      "raw_text": "Mùa hè này mà đi biển, hay công viên nước thì cứ thủ sẵn vài cái đi.",
+      "enhanced_text": "Hè này đi biển, thủ sẵn đi! [warm]",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Nước muốn vào cũng khó luôn. Cứ thoải mái nhắn tin, xem video vô tư, chẳng ảnh hưởng gì đâu.",
+      "context_after": "Đừng để ra đến nơi rồi mua đắt, lại tiếc hùi hụi nha!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2600,
+      "actual_duration_ms": 3040,
+      "rendered_duration_ms": 3040,
+      "position_ms": 13580,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "dd0049274eef",
+      "audio_file": "chunk_0006_dd0049274eef.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        15
+      ],
+      "raw_text": "Đừng để ra đến nơi rồi mua đắt, lại tiếc hùi hụi nha!",
+      "enhanced_text": "[confident] Đừng để mua đắt, tiếc!",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Mùa hè này mà đi biển, hay công viên nước thì cứ thủ sẵn vài cái đi.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 1680,
+      "actual_duration_ms": 1360,
+      "rendered_duration_ms": 1360,
+      "position_ms": 17000,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "3ad2c65c326e",
+      "audio_file": "chunk_0007_3ad2c65c326e.mp3"
+    }
+  ]
+}

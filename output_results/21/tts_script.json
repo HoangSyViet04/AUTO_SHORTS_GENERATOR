@@ -1,0 +1,238 @@
+{
+  "video_duration_ms": 22200,
+  "audio_duration_ms": 22200,
+  "tts_mode": "quality",
+  "tts_enhance_enabled": true,
+  "tts_semantic_chunk_enabled": true,
+  "tts_audio_first": false,
+  "tts_fit_audio_to_video": true,
+  "tts_use_duration_text_budget": true,
+  "tts_target_chars_per_second": 13.5,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "segment_indexes": [
+        1,
+        2
+      ],
+      "raw_text": "Đèo mẹ! Mấy bà ơi, xem con bạn thân tui nó bày cho cái hũ đựng đồ khô này nè, đỉnh của chóp! Chất lượng phải nói là siêu bền.",
+      "enhanced_text": "[curious] Sắc đẹp bền lâu… Hũ đồ khô này đỉnh của chóp! bền!",
+      "emotion_intent": "hook_tò_mò",
+      "context_before": "",
+      "context_after": "Đựng gạo, mì hay các loại hạt đều gọn gàng. Miệng hũ rộng, dễ dàng đổ vô lắm.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3760,
+      "actual_duration_ms": 3760,
+      "rendered_duration_ms": 3760,
+      "position_ms": 0,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "f241c3fe1f64",
+      "audio_file": "chunk_0001_f241c3fe1f64.mp3"
+    },
+    {
+      "chunk_id": 2,
+      "segment_indexes": [
+        3,
+        4
+      ],
+      "raw_text": "Đựng gạo, mì hay các loại hạt đều gọn gàng. Miệng hũ rộng, dễ dàng đổ vô lắm.",
+      "enhanced_text": "Đựng gạo, mì, hạt đều gọn.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đèo mẹ! Mấy bà ơi, xem con bạn thân tui nó bày cho cái hũ đựng đồ khô này nè, đỉnh của chóp! Chất lượng phải nói là siêu bền.",
+      "context_after": "Mà nó còn có thêm ron cao su nữa chứ, đảm bảo kín hơi cực kỳ.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3800,
+      "actual_duration_ms": 2720,
+      "rendered_duration_ms": 2720,
+      "position_ms": 3790,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "05f3cc2ccf64",
+      "audio_file": "chunk_0002_05f3cc2ccf64.mp3"
+    },
+    {
+      "chunk_id": 3,
+      "segment_indexes": [
+        5,
+        6
+      ],
+      "raw_text": "Mà nó còn có thêm ron cao su nữa chứ, đảm bảo kín hơi cực kỳ.",
+      "enhanced_text": "[excited] Ron cao su giúp kín hơi cực kỳ.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Đựng gạo, mì hay các loại hạt đều gọn gàng. Miệng hũ rộng, dễ dàng đổ vô lắm.",
+      "context_after": "Không lo đồ ăn bị ẩm mốc, vón cục đâu. Cái nắp còn kiêm luôn ca đong luôn nè, kiểm soát lượng chuẩn đét.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2380,
+      "actual_duration_ms": 2480,
+      "rendered_duration_ms": 2480,
+      "position_ms": 6890,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "7b02e0eb010e",
+      "audio_file": "chunk_0003_7b02e0eb010e.mp3"
+    },
+    {
+      "chunk_id": 4,
+      "segment_indexes": [
+        7,
+        8,
+        9
+      ],
+      "raw_text": "Không lo đồ ăn bị ẩm mốc, vón cục đâu. Cái nắp còn kiêm luôn ca đong luôn nè, kiểm soát lượng chuẩn đét.",
+      "enhanced_text": "[excited] Không lo ẩm mốc.",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Mà nó còn có thêm ron cao su nữa chứ, đảm bảo kín hơi cực kỳ.",
+      "context_after": "Có tay cầm nên cầm nắm chắc chắn, tiện lợi lắm. Cái chất liệu cầm lên là thấy xịn liền à.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3740,
+      "actual_duration_ms": 1120,
+      "rendered_duration_ms": 1120,
+      "position_ms": 9750,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "fb16dd31d4ba",
+      "audio_file": "chunk_0004_fb16dd31d4ba.mp3"
+    },
+    {
+      "chunk_id": 5,
+      "segment_indexes": [
+        10,
+        11
+      ],
+      "raw_text": "Có tay cầm nên cầm nắm chắc chắn, tiện lợi lắm. Cái chất liệu cầm lên là thấy xịn liền à.",
+      "enhanced_text": "Tay cầm chắc chắn, tiện lợi. Chất liệu xịn liền!",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Không lo đồ ăn bị ẩm mốc, vón cục đâu. Cái nắp còn kiêm luôn ca đong luôn nè, kiểm soát lượng chuẩn đét.",
+      "context_after": "Thân bình có vạch chia, còn bao nhiêu nhìn cái là biết ngay.",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 3620,
+      "actual_duration_ms": 3680,
+      "rendered_duration_ms": 3680,
+      "position_ms": 11250,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "54b15f7e5d08",
+      "audio_file": "chunk_0005_54b15f7e5d08.mp3"
+    },
+    {
+      "chunk_id": 6,
+      "segment_indexes": [
+        12,
+        13
+      ],
+      "raw_text": "Thân bình có vạch chia, còn bao nhiêu nhìn cái là biết ngay.",
+      "enhanced_text": "Có vạch chia, biết lượng còn…",
+      "emotion_intent": "review_tự_nhiên",
+      "context_before": "Có tay cầm nên cầm nắm chắc chắn, tiện lợi lắm. Cái chất liệu cầm lên là thấy xịn liền à.",
+      "context_after": "Có hai kích thước cho mấy bà lựa chọn nha. Mấy bà mà mua về dùng là mê mẩn luôn đó!",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2340,
+      "actual_duration_ms": 2000,
+      "rendered_duration_ms": 2000,
+      "position_ms": 15310,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "d082a878fc0a",
+      "audio_file": "chunk_0006_d082a878fc0a.mp3"
+    },
+    {
+      "chunk_id": 7,
+      "segment_indexes": [
+        14,
+        15
+      ],
+      "raw_text": "Có hai kích thước cho mấy bà lựa chọn nha. Mấy bà mà mua về dùng là mê mẩn luôn đó!",
+      "enhanced_text": "[confident] Hai kích thước. Mua về là mê liền!",
+      "emotion_intent": "cta_tự_tin",
+      "context_before": "Thân bình có vạch chia, còn bao nhiêu nhìn cái là biết ngay.",
+      "context_after": "",
+      "model_id": "eleven_flash_v2_5",
+      "actual_model_id": "eleven_v3",
+      "model_candidates": [
+        "eleven_v3",
+        "eleven_flash_v2_5"
+      ],
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "voice_settings": {
+        "stability": 0.42,
+        "similarity_boost": 0.82,
+        "style": 0.35
+      },
+      "target_duration_ms": 2500,
+      "actual_duration_ms": 2560,
+      "rendered_duration_ms": 2560,
+      "position_ms": 17690,
+      "speed_adjustment_ratio": 1.0,
+      "request_status": "generated",
+      "cache_key": "68de4df00683",
+      "audio_file": "chunk_0007_68de4df00683.mp3"
+    }
+  ]
+}

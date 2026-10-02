@@ -13,11 +13,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import pipeline
+from app import pipeline, publishers
 
 STATIC_DIR = pipeline.BASE_DIR / "app" / "static"
 ENV_PATH = pipeline.BASE_DIR / ".env"
@@ -32,23 +32,51 @@ SETTING_ENV_KEYS = {
     "googleTranslateFallback": "GOOGLE_TRANSLATE_FALLBACK",
     "geminiRewritePrompt": "GEMINI_REWRITE_PROMPT",
     "geminiPostPrompt": "GEMINI_POST_PROMPT",
+    "ttsEnhancePrompt": "TTS_ENHANCE_PROMPT",
     "shopeeProductPrompt": "SHOPEE_PRODUCT_PROMPT",
     "shopeeAffiliateId": "SHOPEE_AFFILIATE_ID",
     "shopeeSubIdPrefix": "SHOPEE_SUB_ID_PREFIX",
     "shopeeLinkLimit": "SHOPEE_LINK_LIMIT",
     "ttsApiUrl": "TTS_API_URL",
+    "ttsApiKey": "TTS_API_KEY",
+    "ttsMode": "TTS_MODE",
+    "ttsEnhanceEnabled": "TTS_ENHANCE_ENABLED",
+    "ttsSemanticChunkEnabled": "TTS_SEMANTIC_CHUNK_ENABLED",
+    "ttsAudioFirst": "TTS_AUDIO_FIRST",
+    "ttsQualityModelId": "TTS_QUALITY_MODEL_ID",
+    "ttsFastModelId": "TTS_FAST_MODEL_ID",
     "ttsVoiceId": "TTS_VOICE_ID",
     "ttsModelId": "TTS_MODEL_ID",
     "ttsTimeoutSeconds": "TTS_TIMEOUT_SECONDS",
     "ttsMaxRetries": "TTS_MAX_RETRIES",
     "maxAudioSpeedupRatio": "MAX_AUDIO_SPEEDUP_RATIO",
     "ttsFinalSpeedupRatio": "TTS_FINAL_SPEEDUP_RATIO",
+    "ttsQualityMaxSpeedupRatio": "TTS_QUALITY_MAX_SPEEDUP_RATIO",
+    "ttsQualityFinalSpeedupRatio": "TTS_QUALITY_FINAL_SPEEDUP_RATIO",
     "ttsStrictTimeline": "TTS_STRICT_TIMELINE",
     "ttsSegmentGapMs": "TTS_SEGMENT_GAP_MS",
     "ttsMaxSilenceGapMs": "TTS_MAX_SILENCE_GAP_MS",
     "ttsReuseSegments": "TTS_REUSE_SEGMENTS",
+    "ttsChunkMaxChars": "TTS_CHUNK_MAX_CHARS",
+    "ttsChunkMaxSegments": "TTS_CHUNK_MAX_SEGMENTS",
+    "ttsTargetCharsPerSecond": "TTS_TARGET_CHARS_PER_SECOND",
+    "ttsUseDurationTextBudget": "TTS_USE_DURATION_TEXT_BUDGET",
+    "ttsFitAudioToVideo": "TTS_FIT_AUDIO_TO_VIDEO",
+    "ttsEmergencyFinalSpeedupRatio": "TTS_EMERGENCY_FINAL_SPEEDUP_RATIO",
+    "ttsVoiceStability": "TTS_VOICE_STABILITY",
+    "ttsVoiceSimilarity": "TTS_VOICE_SIMILARITY",
+    "ttsVoiceStyle": "TTS_VOICE_STYLE",
+    "ttsPreserveScript": "TTS_PRESERVE_SCRIPT",
+    "ttsLeadInMs": "TTS_LEAD_IN_MS",
     "capcutPath": "CAPCUT_PATH",
     "capcutProjectDir": "CAPCUT_PROJECT_DIR",
+    "tiktokClientKey": "TIKTOK_CLIENT_KEY",
+    "tiktokClientSecret": "TIKTOK_CLIENT_SECRET",
+    "tiktokAccessToken": "TIKTOK_ACCESS_TOKEN",
+    "tiktokRefreshToken": "TIKTOK_REFRESH_TOKEN",
+    "facebookPageId": "FACEBOOK_PAGE_ID",
+    "facebookPageAccessToken": "FACEBOOK_PAGE_ACCESS_TOKEN",
+    "metaGraphVersion": "META_GRAPH_VERSION",
 }
 
 
@@ -90,6 +118,7 @@ def video_payload(path: Path) -> dict[str, Any]:
         "logo": (output_dir / "logo.png").exists(),
         "campaign": (output_dir / "chien_dich_dang_bai.txt").exists(),
         "shopee": (output_dir / "shopee_links.txt").exists(),
+        "finalVideo": (output_dir / "video_final.mp4").exists(),
     }
 
     return {
@@ -163,7 +192,11 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
     if compute_type not in allowed_compute_types:
         raise HTTPException(status_code=400, detail="WHISPER_COMPUTE_TYPE khong hop le")
 
-    for key in ("ttsTimeoutSeconds", "ttsMaxRetries"):
+    tts_mode = str(values.get("ttsMode", pipeline.TTS_MODE)).strip().lower()
+    if tts_mode not in {"quality", "fast"}:
+        raise HTTPException(status_code=400, detail="TTS_MODE chi nhan quality hoac fast")
+
+    for key in ("ttsTimeoutSeconds", "ttsMaxRetries", "ttsChunkMaxChars", "ttsChunkMaxSegments"):
         if key in values and int(values[key]) <= 0:
             raise HTTPException(status_code=400, detail=f"{key} phai lon hon 0")
     if "ttsSegmentGapMs" in values and int(values["ttsSegmentGapMs"]) < 0:
@@ -172,11 +205,23 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
     if "shopeeLinkLimit" in values and int(values["shopeeLinkLimit"]) <= 0:
         raise HTTPException(status_code=400, detail="SHOPEE_LINK_LIMIT phai lon hon 0")
 
-    for key in ("maxAudioSpeedupRatio", "ttsFinalSpeedupRatio"):
+    for key in (
+        "maxAudioSpeedupRatio",
+        "ttsFinalSpeedupRatio",
+        "ttsQualityMaxSpeedupRatio",
+        "ttsQualityFinalSpeedupRatio",
+        "ttsTargetCharsPerSecond",
+        "ttsEmergencyFinalSpeedupRatio",
+    ):
         if key in values and float(values[key]) < 1:
             raise HTTPException(status_code=400, detail=f"{SETTING_ENV_KEYS[key]} phai >= 1")
+    for key in ("ttsVoiceStability", "ttsVoiceSimilarity", "ttsVoiceStyle"):
+        if key in values and not 0 <= float(values[key]) <= 1:
+            raise HTTPException(status_code=400, detail=f"{SETTING_ENV_KEYS[key]} phai trong khoang 0-1")
     if "ttsMaxSilenceGapMs" in values and int(values["ttsMaxSilenceGapMs"]) < 0:
         raise HTTPException(status_code=400, detail="TTS_MAX_SILENCE_GAP_MS phai >= 0")
+    if "ttsLeadInMs" in values and int(values["ttsLeadInMs"]) < 0:
+        raise HTTPException(status_code=400, detail="TTS_LEAD_IN_MS phai >= 0")
 
 
 def selected_output_dir(project: str | None) -> Path:
@@ -190,6 +235,21 @@ def selected_output_dir(project: str | None) -> Path:
         reverse=True,
     )
     return latest_dirs[0] if latest_dirs else pipeline.OUTPUT_DIR
+
+
+def selected_final_video(project: str | None) -> Path:
+    if not project:
+        raise HTTPException(status_code=400, detail="Chua chon project de xuat ban.")
+    output_dir = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project)
+    if not output_dir.exists():
+        raise HTTPException(status_code=404, detail="Khong tim thay output cua project.")
+    final_video = output_dir / "video_final.mp4"
+    if not final_video.exists() or not final_video.is_file():
+        raise HTTPException(
+            status_code=409,
+            detail="Chua co video_final.mp4. Hay export video tu CapCut roi tai vao tab Xuat ban.",
+        )
+    return final_video
 
 
 def open_path(path: Path) -> None:
@@ -317,6 +377,7 @@ def config() -> dict[str, Any]:
             "gemini": bool(pipeline.GEMINI_API_KEY),
             "geminiKeyCount": len(pipeline.GEMINI_API_KEYS),
             "tts": bool(pipeline.API_KEY),
+            **publishers.publishing_config(),
         },
         "settings": {
             "whisperModel": pipeline.WHISPER_MODEL_NAME,
@@ -328,23 +389,46 @@ def config() -> dict[str, Any]:
             "googleTranslateFallback": pipeline.GOOGLE_TRANSLATE_FALLBACK,
             "geminiRewritePrompt": pipeline.GEMINI_REWRITE_PROMPT,
             "geminiPostPrompt": pipeline.GEMINI_POST_PROMPT,
+            "ttsEnhancePrompt": pipeline.TTS_ENHANCE_PROMPT,
             "shopeeProductPrompt": pipeline.SHOPEE_PRODUCT_PROMPT,
             "shopeeAffiliateId": pipeline.SHOPEE_AFFILIATE_ID,
             "shopeeSubIdPrefix": pipeline.SHOPEE_SUB_ID_PREFIX,
             "shopeeLinkLimit": pipeline.SHOPEE_LINK_LIMIT,
             "ttsApiUrl": pipeline.API_URL,
+            "ttsMode": pipeline.TTS_MODE,
+            "ttsEnhanceEnabled": pipeline.TTS_ENHANCE_ENABLED,
+            "ttsSemanticChunkEnabled": pipeline.TTS_SEMANTIC_CHUNK_ENABLED,
+            "ttsAudioFirst": pipeline.TTS_AUDIO_FIRST,
+            "ttsQualityModelId": pipeline.TTS_QUALITY_MODEL_ID,
+            "ttsFastModelId": pipeline.TTS_FAST_MODEL_ID,
             "ttsVoiceId": pipeline.VOICE_ID,
             "ttsModelId": pipeline.TTS_MODEL_ID,
             "ttsTimeoutSeconds": pipeline.TTS_TIMEOUT_SECONDS,
             "ttsMaxRetries": pipeline.TTS_MAX_RETRIES,
             "maxAudioSpeedupRatio": pipeline.MAX_AUDIO_SPEEDUP_RATIO,
             "ttsFinalSpeedupRatio": pipeline.TTS_FINAL_SPEEDUP_RATIO,
+            "ttsQualityMaxSpeedupRatio": pipeline.TTS_QUALITY_MAX_SPEEDUP_RATIO,
+            "ttsQualityFinalSpeedupRatio": pipeline.TTS_QUALITY_FINAL_SPEEDUP_RATIO,
             "ttsStrictTimeline": pipeline.TTS_STRICT_TIMELINE,
             "ttsSegmentGapMs": pipeline.TTS_SEGMENT_GAP_MS,
             "ttsMaxSilenceGapMs": pipeline.TTS_MAX_SILENCE_GAP_MS,
             "ttsReuseSegments": pipeline.TTS_REUSE_SEGMENTS,
+            "ttsChunkMaxChars": pipeline.TTS_CHUNK_MAX_CHARS,
+            "ttsChunkMaxSegments": pipeline.TTS_CHUNK_MAX_SEGMENTS,
+            "ttsTargetCharsPerSecond": pipeline.TTS_TARGET_CHARS_PER_SECOND,
+            "ttsUseDurationTextBudget": pipeline.TTS_USE_DURATION_TEXT_BUDGET,
+            "ttsFitAudioToVideo": pipeline.TTS_FIT_AUDIO_TO_VIDEO,
+            "ttsEmergencyFinalSpeedupRatio": pipeline.TTS_EMERGENCY_FINAL_SPEEDUP_RATIO,
+            "ttsVoiceStability": pipeline.TTS_VOICE_STABILITY,
+            "ttsVoiceSimilarity": pipeline.TTS_VOICE_SIMILARITY,
+            "ttsVoiceStyle": pipeline.TTS_VOICE_STYLE,
+            "ttsPreserveScript": pipeline.TTS_PRESERVE_SCRIPT,
+            "ttsLeadInMs": pipeline.TTS_LEAD_IN_MS,
             "capcutPath": os.getenv("CAPCUT_PATH", "").strip(),
             "capcutProjectDir": os.getenv("CAPCUT_PROJECT_DIR", "").strip(),
+            "tiktokClientKey": os.getenv("TIKTOK_CLIENT_KEY", "").strip(),
+            "facebookPageId": os.getenv("FACEBOOK_PAGE_ID", "").strip(),
+            "metaGraphVersion": os.getenv("META_GRAPH_VERSION", "v26.0").strip() or "v26.0",
         },
     }
 
@@ -381,6 +465,104 @@ async def upload_video(file: UploadFile = File(...)) -> dict[str, Any]:
         shutil.copyfileobj(file.file, output_file)
 
     return {"video": video_payload(target_path)}
+
+
+@app.post("/api/publish/final-video")
+async def upload_final_video(project: str = Form(...), file: UploadFile = File(...)) -> dict[str, Any]:
+    suffix = Path(file.filename or "").suffix.lower()
+    if suffix != ".mp4":
+        raise HTTPException(status_code=400, detail="Video final de dang bai phai la file .mp4")
+    output_dir = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project)
+    if not output_dir.exists():
+        raise HTTPException(status_code=404, detail="Khong tim thay output cua project")
+
+    target_path = output_dir / "video_final.mp4"
+    temporary_path = output_dir / "video_final.uploading.mp4"
+    with temporary_path.open("wb") as output_file:
+        shutil.copyfileobj(file.file, output_file)
+    if temporary_path.stat().st_size <= 0:
+        temporary_path.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail="File video final rong")
+    temporary_path.replace(target_path)
+    return {
+        "status": "ready",
+        "name": target_path.name,
+        "size": target_path.stat().st_size,
+        "url": f"/api/output/{pipeline.sanitize_folder_name(project)}/{target_path.name}",
+    }
+
+
+@app.get("/api/publish/config")
+def publish_config() -> dict[str, Any]:
+    return publishers.publishing_config()
+
+
+@app.post("/api/publish/tiktok")
+def publish_tiktok(payload: dict[str, Any]) -> dict[str, Any]:
+    video_path = selected_final_video(payload.get("project"))
+    title = str(payload.get("caption") or "").strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Caption TikTok khong duoc de trong")
+    privacy_level = str(payload.get("privacyLevel") or "SELF_ONLY").strip()
+    try:
+        def execute(access_token: str) -> dict[str, Any]:
+            publisher = publishers.TikTokPublisher(access_token)
+            return publisher.publish_video(
+                video_path,
+                title=title,
+                privacy_level=privacy_level,
+                is_aigc=bool(payload.get("isAigc", True)),
+            )
+
+        access_token = os.getenv("TIKTOK_ACCESS_TOKEN", "").strip()
+        try:
+            return execute(access_token)
+        except publishers.PublishError as exc:
+            if exc.status_code != 401:
+                raise
+            refreshed = publishers.refresh_tiktok_access_token(
+                client_key=os.getenv("TIKTOK_CLIENT_KEY", "").strip(),
+                client_secret=os.getenv("TIKTOK_CLIENT_SECRET", "").strip(),
+                refresh_token=os.getenv("TIKTOK_REFRESH_TOKEN", "").strip(),
+            )
+            write_env_settings(
+                {
+                    "tiktokAccessToken": refreshed["access_token"],
+                    "tiktokRefreshToken": refreshed["refresh_token"],
+                }
+            )
+            return execute(refreshed["access_token"])
+    except publishers.PublishError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@app.post("/api/publish/tiktok/status")
+def publish_tiktok_status(payload: dict[str, Any]) -> dict[str, Any]:
+    publish_id = str(payload.get("publishId") or "").strip()
+    if not publish_id:
+        raise HTTPException(status_code=400, detail="Thieu publishId")
+    try:
+        publisher = publishers.TikTokPublisher(os.getenv("TIKTOK_ACCESS_TOKEN", "").strip())
+        return publisher.fetch_status(publish_id)
+    except publishers.PublishError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@app.post("/api/publish/facebook")
+def publish_facebook(payload: dict[str, Any]) -> dict[str, Any]:
+    video_path = selected_final_video(payload.get("project"))
+    caption = str(payload.get("caption") or "").strip()
+    if not caption:
+        raise HTTPException(status_code=400, detail="Caption Facebook khong duoc de trong")
+    try:
+        publisher = publishers.FacebookReelsPublisher(
+            page_id=os.getenv("FACEBOOK_PAGE_ID", "").strip(),
+            page_access_token=os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "").strip(),
+            graph_version=os.getenv("META_GRAPH_VERSION", "v26.0").strip() or "v26.0",
+        )
+        return publisher.publish_video(video_path, description=caption, title=str(payload.get("title") or "").strip())
+    except publishers.PublishError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @app.post("/api/run")

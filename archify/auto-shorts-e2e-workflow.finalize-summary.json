@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.json",
+    "sha256": "fe927bfef726c90d221ccd7298427956734da90b551ace971a3664b5edfe3301",
+    "bytes": 17662
+  },
+  "artifact": {
+    "path": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.html",
+    "sha256": "8bd1282c8bf55df5ccc595e6c71cf6745fc7ab0c73ad9f0c93e08e79f06cb16e",
+    "bytes": 810056
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.finalize.json",
+    "summaryReceipt": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.finalize-summary.json",
+    "browserCheckReceipt": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "unavailable",
+    "installedVersion": null,
+    "availableVersion": null,
+    "releaseNotes": null,
+    "checkedAt": null,
+    "source": null,
+    "noticeRequired": false,
+    "noticeText": null,
+    "reason": "cache-unavailable"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3051,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 2,
+      "routesOverSuggestedStretch": 3
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "audio-to-bundle",
+            "from": "voice_audio",
+            "to": "output_bundle",
+            "label": "voice + metadata",
+            "collectionIndex": 1,
+            "artifactIndex": 2
+          },
+          "bends": 2,
+          "stretch": 4.94
+        },
+        {
+          "relationship": {
+            "id": "bundle-to-manual",
+            "from": "output_bundle",
+            "to": "manual_import",
+            "label": "thiếu CAPCUT_PATH",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 3,
+          "stretch": 2.584
+        },
+        {
+          "relationship": {
+            "id": "publish-to-refresh",
+            "from": "publish_center",
+            "to": "token_refresh",
+            "label": "kiểm tra token / refresh 401",
+            "collectionIndex": 13,
+            "artifactIndex": 14
+          },
+          "bends": 3,
+          "stretch": 1.219
+        },
+        {
+          "relationship": {
+            "id": "refresh-to-tiktok",
+            "from": "token_refresh",
+            "to": "tiktok",
+            "label": "Direct Post + chunks",
+            "collectionIndex": 14,
+            "artifactIndex": 15
+          },
+          "bends": 2,
+          "stretch": 2.594
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "voice_audio → output_bundle needs 2 bends: move node voice_audio or output_bundle so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "output_bundle → manual_import needs 3 bends: move node output_bundle or manual_import so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "publish_center → token_refresh needs 3 bends: move node publish_center or token_refresh so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "token_refresh → tiktok needs 2 bends: move node token_refresh or tiktok so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

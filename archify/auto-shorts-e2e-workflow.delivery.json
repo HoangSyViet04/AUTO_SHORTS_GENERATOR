@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c257e73c-9923-494f-adac-95abae87ffd3",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.json",
+  "output": "D:\\Project\\Auto_Shorts_Generator\\archify\\auto-shorts-e2e-workflow.html",
+  "specification": {
+    "sha256": "fe927bfef726c90d221ccd7298427956734da90b551ace971a3664b5edfe3301",
+    "bytes": 17662
+  },
+  "artifact": {
+    "sha256": "8bd1282c8bf55df5ccc595e6c71cf6745fc7ab0c73ad9f0c93e08e79f06cb16e",
+    "bytes": 810056
+  }
+}
