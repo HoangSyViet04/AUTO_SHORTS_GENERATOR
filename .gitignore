@@ -1,6 +1,9 @@
 .env
 venv/
-ycau.md
 .agents
 __pycache__/
 *.py[cod]
+
+ycau.md
+input_videos/
+output_videos/

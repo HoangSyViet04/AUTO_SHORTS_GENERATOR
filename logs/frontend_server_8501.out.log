@@ -1,0 +1,42 @@
+INFO:     127.0.0.1:63215 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63215 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63053 - "GET /assets/app.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63053 - "GET /assets/styles.css?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60333 - "GET /assets/app.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51527 - "GET /?v=postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51527 - "GET /assets/tailwindcss.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55763 - "GET /assets/styles.css?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60534 - "GET /assets/editor.css?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60534 - "GET /assets/voice-modules.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55763 - "GET /assets/app.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "GET /assets/editor.js?v=20261006-postzen HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51527 - "GET /api/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51527 - "GET /api/publish/postzen/status HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:59134 - "GET /api/videos HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59134 - "POST /api/publish/postzen/connect HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:60138 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/output/31/sub_viet.srt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/output/31/chien_dich_dang_bai.txt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/output/31/shopee_links.txt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/output/30/sub_viet.srt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60138 - "GET /api/output/30/giong_doc_viet.mp3 HTTP/1.1" 206 Partial Content
+INFO:     127.0.0.1:54178 - "GET /api/output/30/chien_dich_dang_bai.txt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/output/30/shopee_links.txt HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54178 - "POST /api/publish/postzen/connect HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:62239 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62239 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62239 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62239 - "GET /api/job HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62239 - "GET /api/job HTTP/1.1" 200 OK

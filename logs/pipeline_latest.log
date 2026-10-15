@@ -1,0 +1,257 @@
+[INFO] Khoi dong subprocess pipeline...
+[INFO] Tim thay 1 video can xu ly.
+[INFO] Bat dau xu ly: 37.mp4
+[INFO] Da copy video goc: D:\Project\Auto_Shorts_Generator\output_results\37\video_goc.mp4
+[INFO] Da copy logo mac dinh: D:\Project\Auto_Shorts_Generator\output_results\37\logo.png
+[INFO] Dang trich xuat subtitle tieng Trung: 37.mp4
+[INFO] Dang tai faster-whisper model 'base' (auto/int8)...
+[INFO] HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/revision/main "HTTP/1.1 200 OK"
+[INFO] Processing audio with duration 00:22.593
+[INFO] VAD filter removed 00:00.000 of audio
+[INFO] Whisper nhan dien ngon ngu: zh (xac suat 1.00)
+[WARNING] GPU/CUDA thieu thu vien cublas, tu dong chuyen Whisper sang CPU.
+[INFO] Dang tai faster-whisper model 'base' (cpu/int8)...
+[INFO] HTTP Request: GET https://huggingface.co/api/models/Systran/faster-whisper-base/revision/main "HTTP/1.1 200 OK"
+[INFO] Processing audio with duration 00:22.593
+[INFO] VAD filter removed 00:00.000 of audio
+[INFO] Whisper nhan dien ngon ngu: zh (xac suat 1.00)
+[INFO] Whisper tao duoc 16 caption.
+[INFO] Da luu sub Trung: D:\Project\Auto_Shorts_Generator\temp\translation_pipeline\37\sub_trung.srt
+[INFO] Dang dich subtitle sang tieng Viet...
+D:\Project\Auto_Shorts_Generator\app\pipeline.py:1054: FutureWarning:
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+[INFO] Dang rewrite SRT qua Gemini API (lan 1/3)...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho rewrite SRT...
+[WARNING] Gemini tra ve chua dat yeu cau: Script co doan qua day: chunk 1: 64/62
+[INFO] Dang rewrite SRT qua Gemini API (lan 2/3)...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho rewrite SRT...
+[WARNING] Gemini tra ve chua dat yeu cau: Script qua dai cho video: 353/328 ky tu.
+[INFO] Dang rewrite SRT qua Gemini API (lan 3/3)...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho rewrite SRT...
+[WARNING] Gemini tra ve chua dat yeu cau: Script qua dai cho video: 333/328 ky tu.
+[WARNING] Gemini khong dung duoc, fallback sang Google Translate de pipeline khong bi dung.
+[WARNING] Fallback dich qua dai, rut gon SRT de voice va subtitle luon khop nhau.
+[INFO] Da luu sub Viet: D:\Project\Auto_Shorts_Generator\output_results\37\sub_viet.srt
+[INFO] Dang tao chien dich dang bai qua Gemini API...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho caption dang bai...
+[INFO] Da luu chien dich dang bai: D:\Project\Auto_Shorts_Generator\output_results\37\chien_dich_dang_bai.txt
+[INFO] Dang nhan dien san pham de tao link Shopee...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho goi y comment san pham...
+[INFO] Da luu link san pham Shopee: D:\Project\Auto_Shorts_Generator\output_results\37\shopee_links.txt
+[INFO] Dang enhance text TTS qua Gemini API (8 chunk)...
+[INFO] Dang goi Gemini key #1/1, model gemini-2.5-flash cho TTS Enhance...
+[WARNING] Gemini TTS Enhance chunk 1 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 2 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 3 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 4 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 5 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 6 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 7 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[WARNING] Gemini TTS Enhance chunk 8 bo hoac thay chu; giu nguyen script va chi ap dung emotion cue.
+[INFO] Dang tao audio chunk 1/8 (hook_t�_m�)...
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (2, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+[WARNING] Audio caption 2 dai hon slot 2.40s, giu nguyen de fit global thay vi cat chu.
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (3, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (4, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+[WARNING] Audio caption 4 dai hon slot 2.84s, giu nguyen de fit global thay vi cat chu.
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (5, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+[WARNING] Audio caption 5 dai hon slot 2.40s, giu nguyen de fit global thay vi cat chu.
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (6, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+[WARNING] Audio caption 6 dai hon slot 2.44s, giu nguyen de fit global thay vi cat chu.
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (7, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\logging\__init__.py", line 1113, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\hsvie\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u1ef1' in position 41: character maps to <undefined>
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1697, in <module>
+    raise SystemExit(main())
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1686, in main
+    VideoTranslationPipeline().run(limit=args.limit, video_names=args.videos)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1661, in run
+    self.process_video(video_path)
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1629, in process_video
+    self.dubber.create_dubbed_audio(
+  File "D:\Project\Auto_Shorts_Generator\app\pipeline.py", line 1313, in create_dubbed_audio
+    logging.info("Dang tao audio chunk %s/%s (%s)...", chunk.chunk_id, len(chunks), chunk.emotion_intent)
+Message: 'Dang tao audio chunk %s/%s (%s)...'
+Arguments: (8, 8, 'review_t\u1ef1_nhi�n')
+[INFO] Dang goi TTS model eleven_v3 (quality mode)...
+[WARNING] TTS model eleven_v3 khong dung duoc (400), thu model fallback.
+[INFO] Dang goi TTS model eleven_flash_v2_5 (quality mode)...
+[WARNING] Audio caption 8 dai hon slot 1.00s, giu nguyen de fit global thay vi cat chu.
+[WARNING] Timeline voice dai hon video 1.75s; cho phep global-fit 1.08x (nguong 1.22x) de giu du chu.
+[WARNING] Tong voice dai 24.38s so voi video 22.63s, speedup global 1.08x de tranh cat chu.
+[INFO] Da luu audio long tieng: D:\Project\Auto_Shorts_Generator\output_results\37\giong_doc_viet.mp3 (22.63s / video 22.63s)
+[INFO] Da luu metadata TTS: D:\Project\Auto_Shorts_Generator\output_results\37\tts_script.json
+[INFO] Hoan tat: 37.mp4
+[EDITOR] Auto compose project: 37
+[EDITOR] Dang tao FFmpeg composition...
+[EDITOR] Dang render video 9:16, subtitle, logo va voice...
+[EDITOR] Da xuat video_final.mp4

@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, List, Optional
@@ -76,11 +77,9 @@ Yêu cầu bắt buộc:
 - Không bịa công dụng y tế, không hứa quá đà, không dùng từ thô.
 - Nếu caption gốc rời rạc, hãy rewrite thành kịch bản liền mạch nhưng vẫn khớp timestamp.
 """
-DEFAULT_GEMINI_POST_PROMPT = """Tạo nội dung đăng bài từ SRT tiếng Việt.
-Trả về đúng format:
-Caption: 1 câu ngắn gọn, tự nhiên, có 1 keyword SEO sản phẩm.
-Hashtag: 5-8 hashtag liên quan sản phẩm/video.
-Không viết dài, không chia nhiều tiêu đề, không thêm markdown.
+DEFAULT_GEMINI_POST_PROMPT = """Tạo tiêu đề đăng bài từ SRT tiếng Việt.
+Trả về đúng hai dòng: một tiêu đề ngắn có keyword SEO sản phẩm và một dòng đúng 3 hashtag liên quan.
+Không thêm nhãn, nội dung bài đăng, lời giải thích hay markdown.
 """
 DEFAULT_SHOPEE_PRODUCT_PROMPT = """Từ SRT tiếng Việt, nhận diện sản phẩm chính trong video để tìm trên Shopee.
 Trả về JSON thuần, không markdown:
@@ -420,10 +419,38 @@ def fallback_post_campaign(vietnamese_srt_content: str) -> str:
     keyword = fallback_product_data(vietnamese_srt_content)["keywords"][0]
     return "\n".join(
         [
-            f"Caption: Review nhanh {keyword}: {summary}...",
-            f"Hashtag: #{keyword.replace(' ', '')} #review #sanpham #douyin #tiktok #shopee",
+            f"Review nhanh {keyword}: {summary}...",
+            f"#{keyword.replace(' ', '')} #review #sanpham",
         ]
     )
+
+
+def normalize_post_campaign(campaign: str) -> str:
+    lines = [line.strip().strip("* ") for line in campaign.splitlines() if line.strip()]
+    title = next(
+        (re.sub(r"^(?:tiêu đề|caption|title)\s*:\s*", "", line, flags=re.IGNORECASE).strip()
+         for line in lines if re.match(r"^(?:tiêu đề|caption|title)\s*:", line, flags=re.IGNORECASE)),
+        "",
+    )
+    if not title:
+        title = next((line for line in lines if not line.startswith("#") and not re.match(r"^(?:hashtag|nội dung bài đăng)\s*:", line, flags=re.IGNORECASE)), "")
+    if not title:
+        return ""
+    hashtag_line = next((line for line in lines if re.match(r"^hashtag\s*:", line, flags=re.IGNORECASE)), "")
+    if not hashtag_line:
+        hashtag_line = next((line for line in lines if line.startswith("#")), "")
+    hashtags = []
+    for hashtag in re.findall(r"#[\wÀ-ỹ]+", hashtag_line):
+        if hashtag.casefold() not in {item.casefold() for item in hashtags}:
+            hashtags.append(hashtag)
+    product_words = re.findall(r"[\wÀ-ỹ]+", title)[:4]
+    product_tag = "".join(word.capitalize() for word in product_words)
+    product_tag = unicodedata.normalize("NFD", product_tag.replace("Đ", "D").replace("đ", "d"))
+    product_tag = re.sub(r"[^A-Za-z0-9]", "", product_tag)
+    for hashtag in (f"#{product_tag}" if product_tag else "", "#review", "#sanpham"):
+        if hashtag and len(hashtags) < 3 and hashtag.casefold() not in {item.casefold() for item in hashtags}:
+            hashtags.append(hashtag)
+    return "\n".join(part for part in (title, " ".join(hashtags[:3])) if part)
 
 
 def fallback_product_data(vietnamese_srt_content: str) -> dict[str, object]:
@@ -1110,6 +1137,7 @@ class GeminiSrtTranslator:
     def create_post_campaign(self, vietnamese_srt_content: str) -> str:
         prompt = (
             f"{GEMINI_POST_PROMPT}\n\n"
+            "Chỉ trả về tiêu đề ngắn và đúng 3 hashtag liên quan sản phẩm. Không có nhãn 'Tiêu đề:', không có nội dung bài đăng.\n\n"
             "SRT tiếng Việt để phân tích sản phẩm và insight:\n"
             f"{vietnamese_srt_content}"
         )
@@ -1117,7 +1145,7 @@ class GeminiSrtTranslator:
         campaign = self.generate_text(prompt, "caption dang bai")
         if not campaign:
             raise PipelineError("Gemini khong tra ve noi dung chien dich dang bai.")
-        return campaign
+        return normalize_post_campaign(campaign)
 
     def create_tts_chunks(self, vietnamese_srt_content: str) -> List[TtsChunk]:
         segments = parse_srt(vietnamese_srt_content)
@@ -1412,6 +1440,20 @@ class TimelineDubber:
         if overflow_ms > 0:
             final_end_ms = positions[-1] + len(rendered_chunks[-1]["audio"])
             required_ratio = final_end_ms / video_duration_ms
+            final_speedup_ratio = (
+                min(TTS_FINAL_SPEEDUP_RATIO, TTS_QUALITY_FINAL_SPEEDUP_RATIO)
+                if TTS_MODE == "quality"
+                else TTS_FINAL_SPEEDUP_RATIO
+            )
+            allowed_ratio = max(final_speedup_ratio, TTS_EMERGENCY_FINAL_SPEEDUP_RATIO)
+            if required_ratio <= allowed_ratio:
+                logging.warning(
+                    "Timeline voice dai hon video %.2fs; cho phep global-fit %.2fx (nguong %.2fx) de giu du chu.",
+                    overflow_ms / 1000,
+                    required_ratio,
+                    allowed_ratio,
+                )
+                return positions
             raise PipelineError(
                 "Voice day du dai hon video %.2fs (can speedup %.2fx). Pipeline dung de tranh cat mat chu; "
                 "hay rut gon script/SRT hoac tang TTS_TARGET_CHARS_PER_SECOND."
@@ -1457,9 +1499,7 @@ class TimelineDubber:
         final_speedup_ratio = min(TTS_FINAL_SPEEDUP_RATIO, TTS_QUALITY_FINAL_SPEEDUP_RATIO) if TTS_MODE == "quality" else TTS_FINAL_SPEEDUP_RATIO
         if allow_emergency:
             final_speedup_ratio = max(final_speedup_ratio, TTS_EMERGENCY_FINAL_SPEEDUP_RATIO)
-        if 1 < ratio < TTS_MIN_SPEEDUP_RATIO:
-            return audio[:target_duration_ms] if len(audio) > target_duration_ms else audio
-        if TTS_MIN_SPEEDUP_RATIO <= ratio <= final_speedup_ratio:
+        if 1 < ratio <= final_speedup_ratio:
             try:
                 from pydub.effects import speedup
 
@@ -1471,7 +1511,8 @@ class TimelineDubber:
                 )
                 chunk_size = 60 if ratio > 1.5 else 80
                 crossfade = 15 if ratio > 1.5 else 20
-                audio = speedup(audio, playback_speed=ratio, chunk_size=chunk_size, crossfade=crossfade)
+                playback_speed = min(final_speedup_ratio, ratio * 1.015)
+                audio = speedup(audio, playback_speed=playback_speed, chunk_size=chunk_size, crossfade=crossfade)
             except Exception as exc:
                 logging.warning("Khong speedup global duoc audio: %s", exc)
 
@@ -1571,7 +1612,7 @@ class VideoTranslationPipeline:
         except Exception as exc:
             logging.warning("Khong tao duoc chien dich bang Gemini, dung fallback: %s", exc)
             post_campaign = fallback_post_campaign(translated_content)
-        post_campaign_path.write_text(post_campaign, encoding="utf-8")
+        post_campaign_path.write_text(normalize_post_campaign(post_campaign), encoding="utf-8")
         logging.info("Da luu chien dich dang bai: %s", post_campaign_path)
 
         try:

@@ -1,0 +1,78 @@
+﻿[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,48,&H00FFFFFF,&H00FFFFFF,&H00160805,&HFF000000,-1,0,0,0,100,100,0,0,1,3,0,2,72,72,140,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.53,0:00:00.91,Default,,0,0,0,,{\1c&H15CCFA&}Đèo{\1c&HFFFFFF&} {\alpha&H88&}mẹ!{\alpha&H00&} {\alpha&H88&}Hè{\alpha&H00&} {\alpha&H88&}nóng,{\alpha&H00&} {\alpha&H88&}bồn{\alpha&H00&} {\alpha&H88&}cầu{\alpha&H00&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:00.91,0:00:01.33,Default,,0,0,0,,Đèo {\1c&H15CCFA&}mẹ!{\1c&HFFFFFF&} {\alpha&H88&}Hè{\alpha&H00&} {\alpha&H88&}nóng,{\alpha&H00&} {\alpha&H88&}bồn{\alpha&H00&} {\alpha&H88&}cầu{\alpha&H00&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:01.33,0:00:01.69,Default,,0,0,0,,Đèo mẹ! {\1c&H15CCFA&}Hè{\1c&HFFFFFF&} {\alpha&H88&}nóng,{\alpha&H00&} {\alpha&H88&}bồn{\alpha&H00&} {\alpha&H88&}cầu{\alpha&H00&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:01.69,0:00:02.15,Default,,0,0,0,,Đèo mẹ! Hè {\1c&H15CCFA&}nóng,{\1c&HFFFFFF&} {\alpha&H88&}bồn{\alpha&H00&} {\alpha&H88&}cầu{\alpha&H00&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:02.15,0:00:02.53,Default,,0,0,0,,Đèo mẹ! Hè nóng, {\1c&H15CCFA&}bồn{\1c&HFFFFFF&} {\alpha&H88&}cầu{\alpha&H00&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:02.53,0:00:02.91,Default,,0,0,0,,Đèo mẹ! Hè nóng, bồn {\1c&H15CCFA&}cầu{\1c&HFFFFFF&} {\alpha&H88&}bí,{\alpha&H00&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:02.91,0:00:03.33,Default,,0,0,0,,Đèo mẹ! Hè nóng, bồn cầu {\1c&H15CCFA&}bí,{\1c&HFFFFFF&} {\alpha&H88&}chịu{\alpha&H00&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:03.33,0:00:03.73,Default,,0,0,0,,Đèo mẹ! Hè nóng, bồn cầu bí, {\1c&H15CCFA&}chịu{\1c&HFFFFFF&} {\alpha&H88&}làm{\alpha&H00&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:03.73,0:00:04.11,Default,,0,0,0,,Đèo mẹ! Hè nóng, bồn cầu bí, chịu {\1c&H15CCFA&}làm{\1c&HFFFFFF&} {\alpha&H88&}gì!{\alpha&H00&}
+Dialogue: 0,0:00:04.11,0:00:04.53,Default,,0,0,0,,Đèo mẹ! Hè nóng, bồn cầu bí, chịu làm {\1c&H15CCFA&}gì!{\1c&HFFFFFF&}
+Dialogue: 0,0:00:04.53,0:00:05.08,Default,,0,0,0,,{\1c&H15CCFA&}Đổi{\1c&HFFFFFF&} {\alpha&H88&}lót{\alpha&H00&} {\alpha&H88&}silicon.{\alpha&H00&}
+Dialogue: 0,0:00:05.08,0:00:05.63,Default,,0,0,0,,Đổi {\1c&H15CCFA&}lót{\1c&HFFFFFF&} {\alpha&H88&}silicon.{\alpha&H00&}
+Dialogue: 0,0:00:05.63,0:00:06.37,Default,,0,0,0,,Đổi lót {\1c&H15CCFA&}silicon.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:06.37,0:00:06.68,Default,,0,0,0,,{\1c&H15CCFA&}Ngồi{\1c&HFFFFFF&} {\alpha&H88&}mát,{\alpha&H00&} {\alpha&H88&}thoáng,{\alpha&H00&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}bí{\alpha&H00&} {\alpha&H88&}mồ{\alpha&H00&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:06.68,0:00:07.01,Default,,0,0,0,,Ngồi {\1c&H15CCFA&}mát,{\1c&HFFFFFF&} {\alpha&H88&}thoáng,{\alpha&H00&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}bí{\alpha&H00&} {\alpha&H88&}mồ{\alpha&H00&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:07.01,0:00:07.39,Default,,0,0,0,,Ngồi mát, {\1c&H15CCFA&}thoáng,{\1c&HFFFFFF&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}bí{\alpha&H00&} {\alpha&H88&}mồ{\alpha&H00&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:07.39,0:00:07.72,Default,,0,0,0,,Ngồi mát, thoáng, {\1c&H15CCFA&}không{\1c&HFFFFFF&} {\alpha&H88&}bí{\alpha&H00&} {\alpha&H88&}mồ{\alpha&H00&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:07.72,0:00:07.99,Default,,0,0,0,,Ngồi mát, thoáng, không {\1c&H15CCFA&}bí{\1c&HFFFFFF&} {\alpha&H88&}mồ{\alpha&H00&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:07.99,0:00:08.27,Default,,0,0,0,,Ngồi mát, thoáng, không bí {\1c&H15CCFA&}mồ{\1c&HFFFFFF&} {\alpha&H88&}hôi.{\alpha&H00&}
+Dialogue: 0,0:00:08.27,0:00:08.61,Default,,0,0,0,,Ngồi mát, thoáng, không bí mồ {\1c&H15CCFA&}hôi.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:08.61,0:00:08.82,Default,,0,0,0,,{\1c&H15CCFA&}Hết{\1c&HFFFFFF&} {\alpha&H88&}dính{\alpha&H00&} {\alpha&H88&}mông{\alpha&H00&} {\alpha&H88&}luôn.{\alpha&H00&}
+Dialogue: 0,0:00:08.82,0:00:09.03,Default,,0,0,0,,Hết {\1c&H15CCFA&}dính{\1c&HFFFFFF&} {\alpha&H88&}mông{\alpha&H00&} {\alpha&H88&}luôn.{\alpha&H00&}
+Dialogue: 0,0:00:09.03,0:00:09.24,Default,,0,0,0,,Hết dính {\1c&H15CCFA&}mông{\1c&HFFFFFF&} {\alpha&H88&}luôn.{\alpha&H00&}
+Dialogue: 0,0:00:09.24,0:00:09.49,Default,,0,0,0,,Hết dính mông {\1c&H15CCFA&}luôn.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:09.49,0:00:09.88,Default,,0,0,0,,{\1c&H15CCFA&}Đế{\1c&HFFFFFF&} {\alpha&H88&}giác{\alpha&H00&} {\alpha&H88&}hút.{\alpha&H00&}
+Dialogue: 0,0:00:09.88,0:00:10.30,Default,,0,0,0,,Đế {\1c&H15CCFA&}giác{\1c&HFFFFFF&} {\alpha&H88&}hút.{\alpha&H00&}
+Dialogue: 0,0:00:10.30,0:00:10.77,Default,,0,0,0,,Đế giác {\1c&H15CCFA&}hút.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:10.77,0:00:11.12,Default,,0,0,0,,{\1c&H15CCFA&}Ngồi{\1c&HFFFFFF&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}xê{\alpha&H00&} {\alpha&H88&}dịch.{\alpha&H00&}
+Dialogue: 0,0:00:11.12,0:00:11.49,Default,,0,0,0,,Ngồi {\1c&H15CCFA&}không{\1c&HFFFFFF&} {\alpha&H88&}xê{\alpha&H00&} {\alpha&H88&}dịch.{\alpha&H00&}
+Dialogue: 0,0:00:11.49,0:00:11.81,Default,,0,0,0,,Ngồi không {\1c&H15CCFA&}xê{\1c&HFFFFFF&} {\alpha&H88&}dịch.{\alpha&H00&}
+Dialogue: 0,0:00:11.81,0:00:12.21,Default,,0,0,0,,Ngồi không xê {\1c&H15CCFA&}dịch.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:12.21,0:00:12.52,Default,,0,0,0,,{\1c&H15CCFA&}Tay{\1c&HFFFFFF&} {\alpha&H88&}cầm{\alpha&H00&} {\alpha&H88&}tiện.{\alpha&H00&}
+Dialogue: 0,0:00:12.52,0:00:12.84,Default,,0,0,0,,Tay {\1c&H15CCFA&}cầm{\1c&HFFFFFF&} {\alpha&H88&}tiện.{\alpha&H00&}
+Dialogue: 0,0:00:12.84,0:00:13.21,Default,,0,0,0,,Tay cầm {\1c&H15CCFA&}tiện.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:13.21,0:00:13.45,Default,,0,0,0,,{\1c&H15CCFA&}Nâng{\1c&HFFFFFF&} {\alpha&H88&}nắp{\alpha&H00&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}dơ{\alpha&H00&} {\alpha&H88&}tay.{\alpha&H00&}
+Dialogue: 0,0:00:13.45,0:00:13.68,Default,,0,0,0,,Nâng {\1c&H15CCFA&}nắp{\1c&HFFFFFF&} {\alpha&H88&}không{\alpha&H00&} {\alpha&H88&}dơ{\alpha&H00&} {\alpha&H88&}tay.{\alpha&H00&}
+Dialogue: 0,0:00:13.68,0:00:13.93,Default,,0,0,0,,Nâng nắp {\1c&H15CCFA&}không{\1c&HFFFFFF&} {\alpha&H88&}dơ{\alpha&H00&} {\alpha&H88&}tay.{\alpha&H00&}
+Dialogue: 0,0:00:13.93,0:00:14.15,Default,,0,0,0,,Nâng nắp không {\1c&H15CCFA&}dơ{\1c&HFFFFFF&} {\alpha&H88&}tay.{\alpha&H00&}
+Dialogue: 0,0:00:14.15,0:00:14.41,Default,,0,0,0,,Nâng nắp không dơ {\1c&H15CCFA&}tay.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:14.41,0:00:14.80,Default,,0,0,0,,{\1c&H15CCFA&}Silicon{\1c&HFFFFFF&} {\alpha&H88&}chống{\alpha&H00&} {\alpha&H88&}nước,{\alpha&H00&} {\alpha&H88&}dễ{\alpha&H00&} {\alpha&H88&}rửa.{\alpha&H00&}
+Dialogue: 0,0:00:14.80,0:00:15.16,Default,,0,0,0,,Silicon {\1c&H15CCFA&}chống{\1c&HFFFFFF&} {\alpha&H88&}nước,{\alpha&H00&} {\alpha&H88&}dễ{\alpha&H00&} {\alpha&H88&}rửa.{\alpha&H00&}
+Dialogue: 0,0:00:15.16,0:00:15.56,Default,,0,0,0,,Silicon chống {\1c&H15CCFA&}nước,{\1c&HFFFFFF&} {\alpha&H88&}dễ{\alpha&H00&} {\alpha&H88&}rửa.{\alpha&H00&}
+Dialogue: 0,0:00:15.56,0:00:15.87,Default,,0,0,0,,Silicon chống nước, {\1c&H15CCFA&}dễ{\1c&HFFFFFF&} {\alpha&H88&}rửa.{\alpha&H00&}
+Dialogue: 0,0:00:15.87,0:00:16.25,Default,,0,0,0,,Silicon chống nước, dễ {\1c&H15CCFA&}rửa.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:16.25,0:00:16.51,Default,,0,0,0,,{\1c&H15CCFA&}Xả{\1c&HFFFFFF&} {\alpha&H88&}nước{\alpha&H00&} {\alpha&H88&}là{\alpha&H00&} {\alpha&H88&}sạch.{\alpha&H00&}
+Dialogue: 0,0:00:16.51,0:00:16.79,Default,,0,0,0,,Xả {\1c&H15CCFA&}nước{\1c&HFFFFFF&} {\alpha&H88&}là{\alpha&H00&} {\alpha&H88&}sạch.{\alpha&H00&}
+Dialogue: 0,0:00:16.79,0:00:17.05,Default,,0,0,0,,Xả nước {\1c&H15CCFA&}là{\1c&HFFFFFF&} {\alpha&H88&}sạch.{\alpha&H00&}
+Dialogue: 0,0:00:17.05,0:00:17.37,Default,,0,0,0,,Xả nước là {\1c&H15CCFA&}sạch.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:17.37,0:00:17.61,Default,,0,0,0,,{\1c&H15CCFA&}Sạch{\1c&HFFFFFF&} {\alpha&H88&}ngay{\alpha&H00&} {\alpha&H88&}tức{\alpha&H00&} {\alpha&H88&}thì.{\alpha&H00&}
+Dialogue: 0,0:00:17.61,0:00:17.84,Default,,0,0,0,,Sạch {\1c&H15CCFA&}ngay{\1c&HFFFFFF&} {\alpha&H88&}tức{\alpha&H00&} {\alpha&H88&}thì.{\alpha&H00&}
+Dialogue: 0,0:00:17.84,0:00:18.07,Default,,0,0,0,,Sạch ngay {\1c&H15CCFA&}tức{\1c&HFFFFFF&} {\alpha&H88&}thì.{\alpha&H00&}
+Dialogue: 0,0:00:18.07,0:00:18.33,Default,,0,0,0,,Sạch ngay tức {\1c&H15CCFA&}thì.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:18.33,0:00:18.68,Default,,0,0,0,,{\1c&H15CCFA&}Kiểu{\1c&HFFFFFF&} {\alpha&H88&}dáng{\alpha&H00&} {\alpha&H88&}bền.{\alpha&H00&}
+Dialogue: 0,0:00:18.68,0:00:19.03,Default,,0,0,0,,Kiểu {\1c&H15CCFA&}dáng{\1c&HFFFFFF&} {\alpha&H88&}bền.{\alpha&H00&}
+Dialogue: 0,0:00:19.03,0:00:19.41,Default,,0,0,0,,Kiểu dáng {\1c&H15CCFA&}bền.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:19.41,0:00:19.60,Default,,0,0,0,,{\1c&H15CCFA&}Giá{\1c&HFFFFFF&} {\alpha&H88&}quá{\alpha&H00&} {\alpha&H88&}hạt{\alpha&H00&} {\alpha&H88&}dẻ.{\alpha&H00&}
+Dialogue: 0,0:00:19.60,0:00:19.80,Default,,0,0,0,,Giá {\1c&H15CCFA&}quá{\1c&HFFFFFF&} {\alpha&H88&}hạt{\alpha&H00&} {\alpha&H88&}dẻ.{\alpha&H00&}
+Dialogue: 0,0:00:19.80,0:00:20.00,Default,,0,0,0,,Giá quá {\1c&H15CCFA&}hạt{\1c&HFFFFFF&} {\alpha&H88&}dẻ.{\alpha&H00&}
+Dialogue: 0,0:00:20.00,0:00:20.21,Default,,0,0,0,,Giá quá hạt {\1c&H15CCFA&}dẻ.{\1c&HFFFFFF&}
+Dialogue: 0,0:00:20.21,0:00:20.41,Default,,0,0,0,,{\1c&H15CCFA&}Quá{\1c&HFFFFFF&} {\alpha&H88&}hời,{\alpha&H00&} {\alpha&H88&}mua{\alpha&H00&} {\alpha&H88&}vài{\alpha&H00&} {\alpha&H88&}cái{\alpha&H00&} {\alpha&H88&}nha!{\alpha&H00&}
+Dialogue: 0,0:00:20.41,0:00:20.65,Default,,0,0,0,,Quá {\1c&H15CCFA&}hời,{\1c&HFFFFFF&} {\alpha&H88&}mua{\alpha&H00&} {\alpha&H88&}vài{\alpha&H00&} {\alpha&H88&}cái{\alpha&H00&} {\alpha&H88&}nha!{\alpha&H00&}
+Dialogue: 0,0:00:20.65,0:00:20.85,Default,,0,0,0,,Quá hời, {\1c&H15CCFA&}mua{\1c&HFFFFFF&} {\alpha&H88&}vài{\alpha&H00&} {\alpha&H88&}cái{\alpha&H00&} {\alpha&H88&}nha!{\alpha&H00&}
+Dialogue: 0,0:00:20.85,0:00:21.05,Default,,0,0,0,,Quá hời, mua {\1c&H15CCFA&}vài{\1c&HFFFFFF&} {\alpha&H88&}cái{\alpha&H00&} {\alpha&H88&}nha!{\alpha&H00&}
+Dialogue: 0,0:00:21.05,0:00:21.26,Default,,0,0,0,,Quá hời, mua vài {\1c&H15CCFA&}cái{\1c&HFFFFFF&} {\alpha&H88&}nha!{\alpha&H00&}
+Dialogue: 0,0:00:21.26,0:00:21.49,Default,,0,0,0,,Quá hời, mua vài cái {\1c&H15CCFA&}nha!{\1c&HFFFFFF&}

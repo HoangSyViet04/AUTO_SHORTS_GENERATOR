@@ -67,20 +67,22 @@ const ui = {
   publishProjectBadge: $("#publishProjectBadge"),
   publishCaption: $("#publishCaption"),
   publishCaptionCount: $("#publishCaptionCount"),
-  tiktokPrivacy: $("#tiktokPrivacy"),
-  tiktokConfigStatus: $("#tiktokConfigStatus"),
   facebookConfigStatus: $("#facebookConfigStatus"),
-  publishTikTokBtn: $("#publishTikTokBtn"),
   publishFacebookBtn: $("#publishFacebookBtn"),
+  publishTikTokBtn: $("#publishTikTokBtn"),
+  tiktokRevealVideoBtn: $("#tiktokRevealVideoBtn"),
+  tiktokCopyCaptionBtn: $("#tiktokCopyCaptionBtn"),
+  publishDownloadVideo: $("#publishDownloadVideo"),
+  publishOutputPath: $("#publishOutputPath"),
+  publishRevealVideoBtn: $("#publishRevealVideoBtn"),
+  publishCopyCaptionBtn: $("#publishCopyCaptionBtn"),
   publishResult: $("#publishResult"),
   publishCenterStatus: $("#publishCenterStatus"),
   publishStep1Status: $("#publishStep1Status"),
   publishStep2Status: $("#publishStep2Status"),
   publishStep3Status: $("#publishStep3Status"),
   publishReadyBtn: $("#publishReadyBtn"),
-  tiktokConnectionBadge: $("#tiktokConnectionBadge"),
   facebookConnectionBadge: $("#facebookConnectionBadge"),
-  tiktokAccountSelect: $("#tiktokAccountSelect"),
   facebookPageSelect: $("#facebookPageSelect"),
   settingsSaveState: $("#settingsSaveState"),
   aiSettingsStatus: $("#aiSettingsStatus"),
@@ -99,7 +101,7 @@ const workflowLabels = {
   ready: "Chờ xử lý",
   running: "Đang xử lý...",
   done: "Hoàn thành",
-  capcutReady: "Sẵn sàng mở",
+  capcutReady: "Sẵn sàng dựng",
   error: "Có lỗi",
 };
 
@@ -136,6 +138,11 @@ async function api(url, options = {}) {
 }
 
 function showView(name) {
+  if (name === "editor" || name === "publish") {
+    window.ShortsStudio?.activatePane(name === "editor" ? "subtitle" : "publish");
+    name = "overview";
+  }
+  document.body.classList.toggle("studio-active", name === "overview");
   $$(".view").forEach((view) => view.classList.remove("active"));
   $(`#${name}View`)?.classList.add("active");
   $$("[data-view]").forEach((item) => {
@@ -146,7 +153,8 @@ function showView(name) {
   localStorage.setItem("active-view", name);
   if (name === "history") renderHistory();
   if (name === "voiceLibrary" && !state.voices.length) renderVoiceLibrary(defaultVoices);
-  if (name === "publish") renderPublishState();
+  if (name === "overview") renderPublishState();
+  document.dispatchEvent(new CustomEvent("shorts:view-change", { detail: { name } }));
 }
 
 function setWorkflowState(currentStep = "import", mode = "ready") {
@@ -171,6 +179,12 @@ function setWorkflowState(currentStep = "import", mode = "ready") {
         card.classList.add("done");
         if (status) status.textContent = workflowLabels.done;
       }
+      return;
+    }
+
+    if (mode === "finished") {
+      card.classList.add("done");
+      if (status) status.textContent = step === "capcut" ? "Đã render" : workflowLabels.done;
       return;
     }
 
@@ -249,13 +263,24 @@ function applyConfigToForm() {
   setFormValue("ttsVoiceStyle", settings.ttsVoiceStyle);
   setFormValue("capcutPath", settings.capcutPath);
   setFormValue("capcutProjectDir", settings.capcutProjectDir);
-  setFormValue("tiktokClientKey", settings.tiktokClientKey);
-  setFormValue("tiktokClientSecret", "");
-  setFormValue("tiktokAccessToken", "");
-  setFormValue("tiktokRefreshToken", "");
+  setFormValue("openCutUrl", settings.openCutUrl);
+  setFormValue("editorAutoRender", String(settings.editorAutoRender ?? true));
+  setFormValue("editorSubtitleTemplate", settings.editorSubtitleTemplate);
+  setFormValue("editorSubtitleFontSize", settings.editorSubtitleFontSize);
+  setFormValue("editorSubtitleMarginBottom", settings.editorSubtitleMarginBottom);
+  setFormValue("editorSubtitleColor", settings.editorSubtitleColor);
+  setFormValue("editorSubtitleAccentColor", settings.editorSubtitleAccentColor);
+  setFormValue("editorSubtitleOutlineColor", settings.editorSubtitleOutlineColor);
+  setFormValue("editorSubtitleBackground", settings.editorSubtitleBackground);
+  setFormValue("editorSubtitleBackgroundOpacity", settings.editorSubtitleBackgroundOpacity);
+  setFormValue("editorLogoPosition", settings.editorLogoPosition);
+  setFormValue("editorLogoWidth", settings.editorLogoWidth);
+  setFormValue("editorLogoOpacity", settings.editorLogoOpacity);
+  setFormValue("editorVoiceVolume", settings.editorVoiceVolume);
+  setFormValue("editorSourceVolume", settings.editorSourceVolume ?? 0);
+  setFormValue("editorRenderPreset", settings.editorRenderPreset);
   setFormValue("facebookPageId", settings.facebookPageId);
-  setFormValue("facebookPageAccessToken", "");
-  setFormValue("metaGraphVersion", settings.metaGraphVersion);
+  setFormValue("facebookPageUrl", settings.facebookPageUrl);
   renderPublishState();
   renderSettingsStatuses();
 }
@@ -270,6 +295,7 @@ function setSettingsStatus(element, label, ready) {
 function renderSettingsStatuses() {
   const apiStatus = state.config?.api || {};
   const settings = state.config?.settings || {};
+  const pageConfigured = Boolean(facebookPageUrl());
   setSettingsStatus(
     ui.aiSettingsStatus,
     apiStatus.gemini ? `${apiStatus.geminiKeyCount || 1} Gemini key` : "Thiếu Gemini key",
@@ -282,15 +308,14 @@ function renderSettingsStatuses() {
   );
   setSettingsStatus(
     ui.capcutSettingsStatus,
-    settings.capcutPath ? "Đã có đường dẫn" : "Thiếu đường dẫn",
-    Boolean(settings.capcutPath),
+    settings.editorAutoRender ? "Auto render đang bật" : "Đang chỉnh thủ công",
+    Boolean(settings.editorAutoRender),
   );
 
-  const publishingCount = Number(Boolean(apiStatus.tiktokConfigured)) + Number(Boolean(apiStatus.facebookConfigured));
   setSettingsStatus(
     ui.publishingSettingsStatus,
-    publishingCount === 2 ? "Đã cấu hình 2/2" : publishingCount === 1 ? "Đã cấu hình 1/2" : "Chưa cấu hình",
-    publishingCount === 2,
+    pageConfigured ? "Đã lưu Fanpage" : "Chưa lưu Fanpage",
+    pageConfigured,
   );
 }
 
@@ -333,65 +358,75 @@ function setPublishResult(message, tone = "") {
   ui.publishResult.classList.toggle("error", tone === "error");
 }
 
-function setConnectionBadge(element, connected) {
+function setPageBadge(element, configured) {
   if (!element) return;
-  element.classList.toggle("connected", connected);
+  element.classList.toggle("connected", configured);
   const dot = element.querySelector("i");
-  element.textContent = connected ? "Đã kết nối" : "Chưa kết nối";
+  element.textContent = configured ? "Đã lưu trang" : "Chưa lưu trang";
   if (dot) element.prepend(dot);
 }
 
-function setSingleSelectOption(select, label, enabled) {
-  if (!select) return;
-  select.options[0].textContent = label;
-  select.disabled = !enabled;
+function facebookPageUrl() {
+  const settings = state.config?.settings || {};
+  const configuredUrl = String(settings.facebookPageUrl || "").trim();
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl);
+      if (url.protocol === "https:" && ["facebook.com", "www.facebook.com", "web.facebook.com", "m.facebook.com"].includes(url.host) && url.pathname !== "/") {
+        url.host = "www.facebook.com";
+        return url.href;
+      }
+    } catch {}
+  }
+  const pageId = String(settings.facebookPageId || "").trim();
+  return /^\d+$/.test(pageId) ? `https://www.facebook.com/${pageId}` : "";
 }
 
 function renderPublishState() {
   if (!ui.publishProjectBadge) return;
   const finalVideo = selectedOutput("video_final.mp4");
-  const tiktokConfigured = Boolean(state.config?.api?.tiktokConfigured);
-  const facebookConfigured = Boolean(state.config?.api?.facebookConfigured);
-  const hasCaption = Boolean(ui.publishCaption?.value.trim());
-  const connectedCount = Number(tiktokConfigured) + Number(facebookConfigured);
-  const readyToPublish = Boolean(state.selected && finalVideo && hasCaption && connectedCount);
+  const missingComposition = Boolean(state.selected && (!state.selected.complete.subtitle || !state.selected.complete.audio));
+  const pageUrl = facebookPageUrl();
+  const facebookConfigured = Boolean(pageUrl);
+  const hasCaption = Boolean(postingCaption(ui.publishCaption?.value));
+  const readyToPublish = Boolean(state.selected && finalVideo && hasCaption && !missingComposition);
 
   ui.publishProjectBadge.textContent = state.selected ? state.selected.name : "Chưa chọn project";
   ui.finalVideoStatus.textContent = finalVideo
-    ? `✓ ${finalVideo.name} • ${formatBytes(finalVideo.size)} • sẵn sàng đăng`
-    : "Chưa có video final. Export từ CapCut rồi chọn file MP4 tại đây.";
-  ui.finalVideoStatus.classList.toggle("ready", Boolean(finalVideo));
-  ui.tiktokConfigStatus.textContent = tiktokConfigured ? "API đã cấu hình" : "Thiếu TIKTOK_ACCESS_TOKEN";
-  ui.facebookConfigStatus.textContent = facebookConfigured ? "Page API đã cấu hình" : "Thiếu Page ID hoặc Access Token";
-  ui.publishTikTokBtn.disabled = !state.selected || !finalVideo || !hasCaption || !tiktokConfigured;
-  ui.publishFacebookBtn.disabled = !state.selected || !finalVideo || !hasCaption || !facebookConfigured;
-  ui.publishReadyBtn.disabled = !readyToPublish;
+    ? missingComposition
+      ? `⚠ ${finalVideo.name} thiếu SRT Việt hoặc giọng lồng tiếng. Hãy kiểm tra trước khi đăng.`
+      : `✓ ${finalVideo.name} • ${formatBytes(finalVideo.size)} • sẵn sàng đăng`
+    : "Chưa có video final. Render trong Video Editor hoặc chọn file MP4 tại đây.";
+  ui.finalVideoStatus.classList.toggle("ready", Boolean(finalVideo && !missingComposition));
+  ui.facebookConfigStatus.textContent = facebookConfigured ? "Tự copy tiêu đề & hashtag khi mở · không gửi video qua API" : "Thêm link Fanpage hoặc Page ID trong Cài đặt";
+  ui.publishFacebookBtn.disabled = !facebookConfigured;
+  ui.publishReadyBtn.disabled = !facebookConfigured;
+  ui.publishCopyCaptionBtn.disabled = !hasCaption;
+  ui.tiktokCopyCaptionBtn.disabled = !hasCaption;
+  ui.publishDownloadVideo.hidden = !finalVideo;
+  if (finalVideo) ui.publishDownloadVideo.href = finalVideo.url;
+  else ui.publishDownloadVideo.removeAttribute("href");
+  const baseDir = state.config?.paths?.base || "";
+  const outputDir = state.selected?.outputDir || "";
+  const separator = baseDir.includes("\\") ? "\\" : "/";
+  ui.publishOutputPath.textContent = finalVideo && outputDir
+    ? [baseDir.replace(/[\\/]+$/, ""), outputDir.replace(/[\\/]/g, separator), finalVideo.name].filter(Boolean).join(separator)
+    : "Chưa có video_final.mp4";
+  ui.publishRevealVideoBtn.disabled = !finalVideo;
+  ui.tiktokRevealVideoBtn.disabled = !finalVideo;
 
-  ui.publishStep1Status.textContent = finalVideo ? "Video sẵn sàng" : "Chưa có video";
-  ui.publishStep1Status.classList.toggle("ready", Boolean(finalVideo));
+  ui.publishStep1Status.textContent = finalVideo ? missingComposition ? "Cần kiểm tra MP4" : "Video sẵn sàng" : "Chưa có video";
+  ui.publishStep1Status.classList.toggle("ready", Boolean(finalVideo && !missingComposition));
   ui.publishStep2Status.textContent = hasCaption ? "Đã có nội dung" : "Chưa có nội dung";
   ui.publishStep2Status.classList.toggle("ready", hasCaption);
-  ui.publishStep3Status.textContent = `${connectedCount}/2 đã kết nối`;
-  ui.publishStep3Status.classList.toggle("ready", connectedCount > 0);
+  ui.publishStep3Status.textContent = facebookConfigured ? "TikTok & Fanpage sẵn sàng" : "TikTok Studio sẵn sàng";
+  ui.publishStep3Status.classList.add("ready");
 
-  ui.publishCenterStatus.innerHTML = readyToPublish ? "<i></i> Sẵn sàng xuất bản" : "<i></i> Đang chuẩn bị";
-  setConnectionBadge(ui.tiktokConnectionBadge, tiktokConfigured);
-  setConnectionBadge(ui.facebookConnectionBadge, facebookConfigured);
-  setSingleSelectOption(
-    ui.tiktokAccountSelect,
-    tiktokConfigured ? "Tài khoản TikTok đã kết nối" : "Chưa kết nối tài khoản TikTok",
-    tiktokConfigured,
-  );
-  const pageId = state.config?.settings?.facebookPageId || state.config?.api?.facebookPageId || "";
-  setSingleSelectOption(
-    ui.facebookPageSelect,
-    facebookConfigured ? `Fanpage · ${pageId || "đã kết nối"}` : "Chưa kết nối Fanpage",
-    facebookConfigured,
-  );
-  $("#tiktokPublishCard")?.classList.toggle("connected", tiktokConfigured);
+  ui.publishCenterStatus.innerHTML = missingComposition ? "<i></i> Thiếu SRT/voice" : readyToPublish ? "<i></i> Sẵn sàng đăng thủ công" : "<i></i> Đang chuẩn bị";
+  setPageBadge(ui.facebookConnectionBadge, facebookConfigured);
+  ui.facebookPageSelect.textContent = pageUrl || "Chưa lưu Fanpage";
   $("#facebookPublishCard")?.classList.toggle("connected", facebookConfigured);
-  $$(".publish-platform-choice")[0]?.classList.toggle("connected", tiktokConfigured);
-  $$(".publish-platform-choice")[1]?.classList.toggle("connected", facebookConfigured);
+  $$(".publish-platform-choice")[0]?.classList.toggle("connected", facebookConfigured);
   if (ui.publishCaptionCount) {
     ui.publishCaptionCount.textContent = `${ui.publishCaption.value.length.toLocaleString("vi-VN")} / 2200`;
   }
@@ -409,7 +444,7 @@ async function uploadFinalVideo(file) {
   try {
     await api("/api/publish/final-video", { method: "POST", body: form });
     await loadVideos();
-    setPublishResult("Video final đã sẵn sàng. Kiểm tra caption rồi chọn nền tảng để đăng.", "success");
+    setPublishResult("Video final đã sẵn sàng. Copy caption rồi mở TikTok Studio hoặc Fanpage để đăng.", "success");
   } catch (error) {
     setPublishResult(error.message, "error");
     alert(error.message);
@@ -419,37 +454,86 @@ async function uploadFinalVideo(file) {
   }
 }
 
-async function publishToPlatform(platform) {
-  if (!state.selected) return;
-  const platformLabel = platform === "tiktok" ? "TikTok" : "Fanpage Facebook";
-  if (!window.confirm(`Xác nhận đăng video final của ${state.selected.name} lên ${platformLabel}?`)) return;
-  const button = platform === "tiktok" ? ui.publishTikTokBtn : ui.publishFacebookBtn;
-  const defaultText = button.textContent;
-  button.disabled = true;
-  button.textContent = "Đang upload...";
-  setPublishResult(`Đang gửi video lên ${platformLabel}. Không đóng ứng dụng...`);
+async function revealFinalVideo(platform = "nền tảng đăng video") {
+  if (!state.selected || !selectedOutput("video_final.mp4")) return false;
   try {
-    const payload = {
-      project: state.selected.stem,
-      caption: ui.publishCaption.value.trim(),
-    };
-    if (platform === "tiktok") {
-      payload.privacyLevel = ui.tiktokPrivacy.value;
-      payload.isAigc = true;
-    }
-    const result = await api(`/api/publish/${platform}`, {
+    await api("/api/open-output", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ project: state.selected.stem, file: "video_final.mp4" }),
     });
-    const publishId = result.publishId || result.videoId || "đã nhận";
-    setPublishResult(`${platformLabel}: upload thành công, mã ${publishId}. Nền tảng đang xử lý video.`, "success");
+    setPublishResult(`Đã chọn video_final.mp4 trong Explorer. Bạn có thể kéo file vào ${platform}.`, "success");
+    return true;
   } catch (error) {
-    setPublishResult(`${platformLabel}: ${error.message}`, "error");
-    alert(error.message);
-  } finally {
-    button.textContent = defaultText;
-    renderPublishState();
+    setPublishResult(`Không mở được file video: ${error.message}`, "error");
+    return false;
+  }
+}
+
+function openPublishPage(url, platform, copyButton) {
+  const hasCaption = Boolean(postingCaption(ui.publishCaption.value));
+  const hasVideo = Boolean(selectedOutput("video_final.mp4"));
+  const copyTask = hasCaption ? copyPublishCaption(copyButton) : Promise.resolve(false);
+  window.open(url, "_blank", "noopener,noreferrer");
+  const revealTask = hasVideo ? revealFinalVideo(platform) : Promise.resolve(false);
+  void Promise.all([copyTask, revealTask]).then(([copied, revealed]) => {
+    if (!copied) {
+      setPublishResult(hasCaption ? "Đã mở trang nhưng không copy được caption. Hãy bấm Copy caption thủ công."
+        : "Đã mở trang nhưng chưa có tiêu đề & hashtag để copy.", "error");
+    } else if (revealed) {
+      setPublishResult(`Đã copy tiêu đề & hashtag và hiện MP4 trong Explorer để kéo vào ${platform}.`, "success");
+    } else if (!hasVideo) {
+      setPublishResult(`Đã copy tiêu đề & hashtag. Hãy render video_final.mp4 trước khi đăng lên ${platform}.`, "success");
+    }
+  });
+}
+
+function openFacebookPage() {
+  const pageUrl = facebookPageUrl();
+  if (pageUrl) openPublishPage(pageUrl, "Facebook Reels", ui.publishCopyCaptionBtn);
+}
+
+function openTikTokStudio() {
+  openPublishPage("https://www.tiktok.com/tiktokstudio", "TikTok Studio", ui.tiktokCopyCaptionBtn);
+}
+
+function postingCaption(text) {
+  const lines = String(text || "").split(/\r?\n/).map((line) => line.trim().replace(/^\*+|\*+$/g, "")).filter(Boolean);
+  const titleLine = lines.find((line) => /^(?:tiêu đề|caption|title)\s*:/i.test(line));
+  const title = (titleLine || lines.find((line) => !line.startsWith("#") && !/^(?:hashtag|nội dung bài đăng)\s*:/i.test(line)) || "")
+    .replace(/^(?:tiêu đề|caption|title)\s*:\s*/i, "").trim();
+  if (!title) return "";
+  const hashtagLine = lines.find((line) => /^hashtag\s*:/i.test(line)) || lines.find((line) => line.startsWith("#")) || "";
+  const hashtags = [];
+  const addHashtag = (hashtag) => {
+    if (hashtag && hashtags.length < 3 && !hashtags.some((existing) => existing.toLocaleLowerCase("vi") === hashtag.toLocaleLowerCase("vi"))) {
+      hashtags.push(hashtag);
+    }
+  };
+  (hashtagLine.match(/#[\p{L}\p{N}_]+/gu) || []).forEach(addHashtag);
+  const productWords = title.match(/[\p{L}\p{N}]+/gu)?.slice(0, 4) || [];
+  const productTag = productWords.map((word) => word[0].toUpperCase() + word.slice(1).toLowerCase())
+    .join("").replace(/Đ/g, "D").replace(/đ/g, "d").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Za-z0-9]/g, "");
+  [productTag && `#${productTag}`, "#review", "#sanpham"].forEach(addHashtag);
+  return [title, hashtags.join(" ")].filter(Boolean).join("\n");
+}
+
+async function copyPublishCaption(button = ui.publishCopyCaptionBtn) {
+  const caption = postingCaption(ui.publishCaption.value);
+  if (!caption) return false;
+  try {
+    await navigator.clipboard.writeText(caption);
+    button.textContent = "Đã copy! ✓";
+    button.classList.add("copy-success", "spring-pop");
+    setTimeout(() => {
+      button.textContent = "Copy caption";
+      button.classList.remove("copy-success", "spring-pop");
+    }, 1500);
+    setPublishResult("Đã copy caption. Dán vào bài đăng trên TikTok hoặc Fanpage.", "success");
+    return true;
+  } catch {
+    setPublishResult("Không copy được tự động; hãy chọn và copy nội dung trong ô caption phía trên.", "error");
+    return false;
   }
 }
 
@@ -732,7 +816,7 @@ async function renderPreviews() {
 
   if (campaign) {
     try {
-      const campaignText = await fetch(campaign.url).then((response) => response.text());
+      const campaignText = postingCaption(await fetch(campaign.url).then((response) => response.text()));
       setPreviewText(ui.campaignPreview, campaignText, { animate: true });
       if (!state.publishCaptionDirty || state.publishCaptionProject !== state.selected.stem) {
         ui.publishCaption.value = campaignText.trim();
@@ -777,10 +861,11 @@ function renderOutputs() {
   }
 
   const complete = video.complete.video && video.complete.subtitle && video.complete.audio && video.complete.logo;
-  const readyCount = ["video", "subtitle", "audio", "logo"].filter((key) => video.complete[key]).length;
-  ui.outputStatus.textContent = complete ? "4/4 file đã sẵn sàng" : `${readyCount}/4 file đã sẵn sàng`;
-  if (complete) triggerOutputCelebration();
-  setWorkflowState(complete ? "capcut" : "import", complete ? "complete" : "ready");
+  const finalReady = Boolean(video.complete.finalVideo && complete);
+  const readyCount = ["video", "subtitle", "audio", "logo", "finalVideo"].filter((key) => video.complete[key]).length;
+  ui.outputStatus.textContent = finalReady ? "5/5 file · video final sẵn sàng" : complete ? "4/5 file · sẵn sàng dựng" : `${readyCount}/5 file đã sẵn sàng`;
+  if (finalReady) triggerOutputCelebration();
+  setWorkflowState(finalReady ? "capcut" : complete ? "capcut" : "import", finalReady ? "finished" : complete ? "complete" : "ready");
   ui.runBtn.disabled = Boolean(state.job?.running);
   ui.capcutBtn.disabled = !complete || Boolean(state.job?.running);
 
@@ -825,6 +910,7 @@ function chooseVideo(video) {
   state.selected = video;
   renderOutputs();
   renderPublishState();
+  document.dispatchEvent(new CustomEvent("shorts:selection-changed", { detail: { video } }));
 }
 
 function renderVideos() {
@@ -833,6 +919,7 @@ function renderVideos() {
     ui.videoSelect.innerHTML = `<option value="">Chưa có video</option>`;
     renderOutputs();
     renderBatchVideos();
+    document.dispatchEvent(new CustomEvent("shorts:selection-changed", { detail: { video: null } }));
     return;
   }
   if (state.selected && state.videos.some((video) => video.name === state.selected.name)) {
@@ -848,6 +935,9 @@ function renderVideos() {
   renderOutputs();
   renderBatchVideos();
   renderHistory();
+  if (state.selected) {
+    document.dispatchEvent(new CustomEvent("shorts:selection-changed", { detail: { video: state.selected } }));
+  }
 }
 
 function selectedBatchNames() {
@@ -898,6 +988,8 @@ function renderJob(job) {
     setWorkflowState(inferWorkflowStep(job.logs || []), "running");
   } else if (job.error) {
     setWorkflowState(inferWorkflowStep(job.logs || []), "error");
+  } else if (state.selected?.complete?.finalVideo && state.selected?.complete?.subtitle && state.selected?.complete?.audio && state.selected?.complete?.logo) {
+    setWorkflowState("capcut", "finished");
   } else if (state.selected?.status === "done") {
     setWorkflowState("capcut", "complete");
   }
@@ -951,13 +1043,24 @@ function optionsPayload() {
     ttsVoiceStyle: Number(form.get("ttsVoiceStyle")),
     capcutPath: form.get("capcutPath"),
     capcutProjectDir: form.get("capcutProjectDir"),
-    tiktokClientKey: form.get("tiktokClientKey"),
-    tiktokClientSecret: form.get("tiktokClientSecret"),
-    tiktokAccessToken: form.get("tiktokAccessToken"),
-    tiktokRefreshToken: form.get("tiktokRefreshToken"),
+    openCutUrl: form.get("openCutUrl"),
+    editorAutoRender: form.get("editorAutoRender"),
+    editorSubtitleTemplate: form.get("editorSubtitleTemplate"),
+    editorSubtitleFontSize: Number(form.get("editorSubtitleFontSize")),
+    editorSubtitleMarginBottom: Number(form.get("editorSubtitleMarginBottom")),
+    editorSubtitleColor: form.get("editorSubtitleColor"),
+    editorSubtitleAccentColor: form.get("editorSubtitleAccentColor"),
+    editorSubtitleOutlineColor: form.get("editorSubtitleOutlineColor"),
+    editorSubtitleBackground: form.get("editorSubtitleBackground"),
+    editorSubtitleBackgroundOpacity: Number(form.get("editorSubtitleBackgroundOpacity")) / 100,
+    editorLogoPosition: form.get("editorLogoPosition"),
+    editorLogoWidth: Number(form.get("editorLogoWidth")),
+    editorLogoOpacity: Number(form.get("editorLogoOpacity")) / 100,
+    editorVoiceVolume: Number(form.get("editorVoiceVolume")) / 100,
+    editorSourceVolume: Number(form.get("editorSourceVolume")) / 100,
+    editorRenderPreset: form.get("editorRenderPreset"),
     facebookPageId: form.get("facebookPageId"),
-    facebookPageAccessToken: form.get("facebookPageAccessToken"),
-    metaGraphVersion: form.get("metaGraphVersion"),
+    facebookPageUrl: form.get("facebookPageUrl"),
   };
 }
 
@@ -1145,13 +1248,13 @@ function wireEvents() {
     state.publishCaptionDirty = true;
     renderPublishState();
   });
-  ui.publishTikTokBtn?.addEventListener("click", () => publishToPlatform("tiktok"));
-  ui.publishFacebookBtn?.addEventListener("click", () => publishToPlatform("facebook"));
-  ui.publishReadyBtn?.addEventListener("click", () => {
-    const target = !ui.publishTikTokBtn.disabled ? ui.publishTikTokBtn : ui.publishFacebookBtn;
-    target?.closest(".publish-integration-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    setTimeout(() => target?.focus(), 350);
-  });
+  ui.publishFacebookBtn?.addEventListener("click", openFacebookPage);
+  ui.publishTikTokBtn?.addEventListener("click", openTikTokStudio);
+  ui.publishReadyBtn?.addEventListener("click", openFacebookPage);
+  ui.publishRevealVideoBtn?.addEventListener("click", () => revealFinalVideo("Facebook Reels"));
+  ui.tiktokRevealVideoBtn?.addEventListener("click", () => revealFinalVideo("TikTok Studio"));
+  ui.publishCopyCaptionBtn?.addEventListener("click", () => copyPublishCaption(ui.publishCopyCaptionBtn));
+  ui.tiktokCopyCaptionBtn?.addEventListener("click", () => copyPublishCaption(ui.tiktokCopyCaptionBtn));
   ui.openOutputBtn.addEventListener("click", openOutput);
   ui.clearSelectionBtn.addEventListener("click", () => {
     chooseVideo(null);
@@ -1216,7 +1319,11 @@ function wireEvents() {
       button.classList.add("active");
     });
   });
-  ui.capcutBtn.addEventListener("click", openCapCut);
+  ui.capcutBtn.addEventListener("click", () => showView("editor"));
+  document.addEventListener("shorts:editor-rendered", async () => {
+    await loadVideos();
+    renderPublishState();
+  });
   ui.batchList?.addEventListener("change", (event) => {
     if (event.target?.name !== "batchVideo") return;
     const selected = selectedBatchNames();

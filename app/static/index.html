@@ -36,8 +36,10 @@
         },
       };
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <script src="/assets/tailwindcss.js?v=20261007-stable"></script>
+    <link rel="stylesheet" href="/assets/styles.css?v=20261008-tiktok-studio" />
+    <link rel="stylesheet" href="/assets/editor.css?v=20261009-final-preview" />
+    <link rel="stylesheet" href="/assets/studio.css?v=20261008-tiktok-studio" />
   </head>
   <body class="min-w-[1280px] min-h-screen bg-[#0A071B] text-slate-100 antialiased">
     <div class="app-shell">
@@ -81,10 +83,6 @@
           <button class="side-nav-item" data-view="history" data-tooltip="Hàng chờ & Lịch sử" title="Hàng chờ & Lịch sử">
             <svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"/><path d="M3.05 11a9 9 0 1 1 2.64 6.36"/><path d="M3 17v-6h6"/></svg>
             <span>Hàng chờ & Lịch sử</span>
-          </button>
-          <button class="side-nav-item" data-view="publish" data-tooltip="Xuất bản" title="Xuất bản">
-            <svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
-            <span>Xuất bản</span>
           </button>
           <button class="side-nav-item" data-view="settings" data-tooltip="Cài đặt & API" title="Cài đặt & API">
             <svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8.92 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.48.52.86 1 1h.6a2 2 0 1 1 0 4h-.09c-.7 0-1.31.4-1.51 1Z"/></svg>
@@ -221,13 +219,13 @@
                 <div>
                   <div class="section-kicker">Pipeline</div>
                   <h2 class="section-title">5 bước xử lý</h2>
-                  <p class="section-subtitle">Theo dõi từng bước chạy từ import đến CapCut.</p>
+                  <p class="section-subtitle">Theo dõi từ import đến dựng và xuất video hoàn chỉnh.</p>
                 </div>
                 <button id="capcutBtn" class="secondary-action border-cyan-400/30 bg-cyan-400/10 text-cyan-200 hover:bg-cyan-400/20" disabled>
                   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 4h16l-6 8 6 8H4l6-8-6-8Z" />
                   </svg>
-                  Mở CapCut
+                  Mở Video Editor
                 </button>
               </div>
 
@@ -259,7 +257,7 @@
                 <article id="step-capcut" class="workflow-card capcut-step" data-step="capcut">
                   <span class="step-index">5</span>
                   <span class="step-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16l-6 8 6 8H4l6-8-6-8Z"/></svg></span>
-                  <div><h3>Mở CapCut</h3><p>Truyền video, SRT, MP3, logo</p></div>
+                  <div><h3>Dựng video</h3><p>Ghép video, SRT, MP3 và logo</p></div>
                   <strong class="step-status">Chờ xử lý</strong>
                 </article>
               </div>
@@ -297,7 +295,7 @@
                 </section>
                 <section class="output-pane">
                   <div class="pane-head">
-                    <div><p class="section-kicker">Caption</p><h3>Caption đăng bài</h3></div>
+                    <div><p class="section-kicker">Caption</p><h3>Tiêu đề & hashtag</h3></div>
                     <button id="copyCampaignBtn" class="secondary-action" disabled>Copy</button>
                   </div>
                   <pre id="campaignPreview">Chưa có caption. Chạy pipeline để tạo caption và hashtag.</pre>
@@ -489,6 +487,152 @@
           </div>
         </section>
 
+        <section id="editorView" class="view">
+          <div class="editor-shell">
+            <header class="editor-header">
+              <div class="editor-heading">
+                <span class="editor-kicker">OpenCut Bridge · Local Editor</span>
+                <h2>Shorts Composition Studio</h2>
+                <p>Tự dựng video 9:16 từ video, voice, subtitle và logo — không cần mở CapCut.</p>
+              </div>
+              <div class="editor-header-actions">
+                <span id="editorProjectBadge" class="editor-project-badge">Chưa chọn project</span>
+                <button id="editorOpenCutBtn" class="editor-button subtle" type="button" title="Mở OpenCut Labs trên localhost">
+                  <svg viewBox="0 0 24 24"><path d="M14 3h7v7"/><path d="m10 14 11-11"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+                  OpenCut Labs
+                </button>
+                <button id="editorManifestBtn" class="editor-button subtle" type="button" disabled>
+                  <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 11h2"/></svg>
+                  Manifest
+                </button>
+                <button id="editorRenderBtn" class="editor-button primary" type="button" disabled>
+                  <svg viewBox="0 0 24 24"><path d="m5 3 14 9-14 9V3Z"/></svg>
+                  Render video final
+                </button>
+              </div>
+            </header>
+
+            <div class="editor-workspace">
+              <aside class="editor-panel editor-assets-panel">
+                <div class="editor-panel-head">
+                  <div><span>MEDIA</span><h3>Project Assets</h3></div>
+                  <button id="editorReloadBtn" class="editor-icon-button" type="button" title="Tải lại project">
+                    <svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.34 5.66"/><path d="M20 4v7h-7"/></svg>
+                  </button>
+                </div>
+                <div id="editorEmpty" class="editor-empty-state">
+                  <span class="editor-empty-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m10 9 5 3-5 3V9Z"/></svg></span>
+                  <strong>Chọn project ở Workspace</strong>
+                  <p>Project cần đủ video, SRT, voice và logo.</p>
+                </div>
+                <div id="editorAssets" class="editor-assets hidden"></div>
+                <div class="editor-bridge-note">
+                  <span>BRIDGE</span>
+                  <strong>OpenCut-ready manifest</strong>
+                  <p>Project được lưu thành <code>editor_project.json</code> để sẵn sàng map sang Editor API/headless.</p>
+                </div>
+              </aside>
+
+              <main class="editor-stage-panel">
+                <div class="editor-stage-toolbar">
+                  <div class="editor-stage-status"><i></i><span id="editorStageStatus">Chờ project</span></div>
+                  <div class="editor-stage-tools">
+                    <button id="editorPreviewEditBtn" type="button" title="Xem canvas đang chỉnh" disabled>Bản dựng</button>
+                    <button id="editorPreviewFinalBtn" type="button" title="Xem video_final.mp4 đã xuất" disabled>Video final</button>
+                    <button id="editorFocusBtn" type="button" title="Phóng lớn/thu nhỏ vùng preview">
+                      <svg viewBox="0 0 24 24"><path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M8 21H3v-5"/><path d="M16 21h5v-5"/></svg>
+                    </button>
+                    <button id="editorFitBtn" type="button">Cover</button>
+                    <button id="editorMuteBtn" type="button" title="Tắt/mở audio preview"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                  </div>
+                </div>
+                <div class="editor-canvas-wrap">
+                  <div id="editorCanvas" class="editor-canvas">
+                    <video id="editorVideo" playsinline preload="metadata"></video>
+                    <img id="editorLogoOverlay" alt="Logo overlay" />
+                    <div id="editorSubtitleOverlay" class="editor-subtitle-overlay"></div>
+                    <div id="editorCanvasEmpty" class="editor-canvas-empty">
+                      <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="m10 9 5 3-5 3V9Z"/></svg>
+                      <span>Preview 9:16</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="editor-player-controls">
+                  <button id="editorPlayBtn" class="editor-play-button" type="button" disabled><svg viewBox="0 0 24 24"><path d="m7 4 13 8-13 8V4Z"/></svg></button>
+                  <span id="editorCurrentTime">00:00.0</span>
+                  <input id="editorScrubber" type="range" min="0" max="1000" value="0" disabled />
+                  <span id="editorDuration">00:00.0</span>
+                </div>
+              </main>
+
+              <aside class="editor-panel editor-inspector">
+                <div class="editor-panel-head"><div><span>INSPECTOR</span><h3>Auto Compose</h3><p>Thiết lập bố cục và âm thanh cho video</p></div></div>
+                <details class="editor-control-section" open>
+                  <summary><span>CC</span><strong>Phụ đề</strong><i></i></summary>
+                  <div class="editor-control-body">
+                    <label class="editor-switch-row"><span>Hiển thị phụ đề</span><input id="editorSubtitleEnabled" type="checkbox" checked /><i></i></label>
+                    <div>
+                      <span class="editor-control-label">Template phụ đề</span>
+                      <input id="editorSubtitleTemplate" type="hidden" value="classic" />
+                      <div id="editorSubtitleTemplates" class="editor-subtitle-templates">
+                        <button class="active" type="button" data-subtitle-template="classic"><i>Aa</i><span><strong>Classic</strong><small>Khung dễ đọc</small></span></button>
+                        <button type="button" data-subtitle-template="reveal"><i>A+</i><span><strong>Reveal</strong><small>Hiện từng từ</small></span></button>
+                        <button type="button" data-subtitle-template="karaoke"><i>KR</i><span><strong>Karaoke</strong><small>Highlight chạy</small></span></button>
+                        <button type="button" data-subtitle-template="pop"><i>POP</i><span><strong>Pop Punch</strong><small>Từ khoá bật nổi</small></span></button>
+                        <button type="button" data-subtitle-template="neon"><i>FX</i><span><strong>Neon</strong><small>Glow tím cyan</small></span></button>
+                      </div>
+                    </div>
+                    <div class="editor-control-grid">
+                      <label><span>Cỡ chữ</span><input id="editorSubtitleSize" type="number" min="24" max="84" value="48" /></label>
+                      <label><span>Vị trí</span><input id="editorSubtitleMargin" type="number" min="30" max="520" value="140" /></label>
+                      <label><span>Màu chữ chính</span><input id="editorSubtitleColor" type="color" value="#ffffff" /></label>
+                      <label><span>Màu từ nổi bật</span><input id="editorSubtitleAccentColor" type="color" value="#facc15" /></label>
+                      <label><span>Màu viền chữ</span><input id="editorSubtitleOutlineColor" type="color" value="#050816" /></label>
+                      <label><span>Màu nền</span><input id="editorSubtitleBackground" type="color" value="#000000" /></label>
+                    </div>
+                    <label class="editor-range-row"><span>Độ đậm nền <b id="editorSubtitleOpacityValue">58%</b></span><input id="editorSubtitleOpacity" type="range" min="0" max="100" value="58" /></label>
+                  </div>
+                </details>
+                <details class="editor-control-section" open>
+                  <summary><span>LG</span><strong>Logo</strong><i></i></summary>
+                  <div class="editor-control-body">
+                    <label class="editor-switch-row"><span>Chèn logo kênh</span><input id="editorLogoEnabled" type="checkbox" checked /><i></i></label>
+                    <label><span>Vị trí logo</span><select id="editorLogoPosition"><option value="top-right">Trên phải</option><option value="top-left">Trên trái</option><option value="bottom-right">Dưới phải</option><option value="bottom-left">Dưới trái</option></select></label>
+                    <label class="editor-range-row"><span>Kích thước <b id="editorLogoWidthValue">180px</b></span><input id="editorLogoWidth" type="range" min="60" max="480" value="180" /></label>
+                    <label class="editor-range-row"><span>Độ trong suốt <b id="editorLogoOpacityValue">95%</b></span><input id="editorLogoOpacity" type="range" min="10" max="100" value="95" /></label>
+                  </div>
+                </details>
+                <details class="editor-control-section" open>
+                  <summary><span>AU</span><strong>Âm thanh</strong><i></i></summary>
+                  <div class="editor-control-body">
+                    <label class="editor-range-row"><span>Giọng đọc <b id="editorVoiceVolumeValue">100%</b></span><input id="editorVoiceVolume" type="range" min="0" max="200" value="100" /></label>
+                    <label class="editor-range-row"><span>Âm thanh gốc <b id="editorSourceVolumeValue">0%</b></span><input id="editorSourceVolume" type="range" min="0" max="100" value="0" /></label>
+                  </div>
+                </details>
+                <div class="editor-export-card">
+                  <span>EXPORT</span>
+                  <div><strong>1080 × 1920</strong><small>H.264 · AAC · MP4</small></div>
+                  <select id="editorRenderQuality"><option value="veryfast">Nhanh</option><option value="medium" selected>Cân bằng</option><option value="slow">Chất lượng cao</option></select>
+                </div>
+              </aside>
+            </div>
+
+            <section class="editor-timeline-panel">
+              <header class="editor-timeline-head">
+                <div><span>TIMELINE</span><strong id="editorTimelineTitle">Chưa tải project</strong></div>
+                <div class="editor-timeline-legend"><i class="video"></i>Video <i class="voice"></i>Voice <i class="subtitle"></i>Subtitle <i class="logo"></i>Logo</div>
+              </header>
+              <div id="editorTimeline" class="editor-timeline"><div class="editor-timeline-empty">Timeline sẽ xuất hiện sau khi tải project.</div></div>
+            </section>
+
+            <footer id="editorRenderStatus" class="editor-render-status">
+              <div class="editor-render-copy"><i></i><span><strong>Sẵn sàng</strong><small>Render local bằng FFmpeg, không upload media lên dịch vụ ngoài.</small></span></div>
+              <div class="editor-render-progress"><span></span></div>
+            </footer>
+          </div>
+          <audio id="editorVoicePreview" preload="metadata"></audio>
+        </section>
+
         <section id="publishView" class="view">
           <div class="publish-center-shell">
             <article class="publish-workspace-card">
@@ -498,8 +642,8 @@
                     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="4"/><path d="m10 9 5 3-5 3V9Z"/></svg>
                     Video publishing
                   </span>
-                  <h2>Đăng video tự động</h2>
-                  <p>Hoàn tất ba bước để đưa video đã export lên các kênh mạng xã hội.</p>
+                   <h2>Chuẩn bị đăng video</h2>
+                   <p>Video và caption ở đây; mở TikTok Studio hoặc Fanpage để tự đăng, không cần token.</p>
                 </div>
                 <div class="publish-hero-meta">
                   <span id="publishCenterStatus" class="publish-live-badge"><i></i> Sẵn sàng</span>
@@ -511,7 +655,7 @@
                 <section class="publish-step-card" data-publish-step="video">
                   <div class="publish-step-heading">
                     <span class="publish-step-number">1</span>
-                    <div><h3>Chọn video hoàn chỉnh</h3><p>Chọn bản MP4 đã export từ CapCut.</p></div>
+                    <div><h3>Chọn video hoàn chỉnh</h3><p>Dùng bản render từ Video Editor hoặc MP4 export từ CapCut.</p></div>
                     <span id="publishStep1Status" class="publish-step-status">Chưa có video</span>
                   </div>
                   <label id="finalVideoDropZone" class="publish-drop-zone publish-drop-zone-v2">
@@ -531,11 +675,11 @@
                 <section class="publish-step-card" data-publish-step="caption">
                   <div class="publish-step-heading">
                     <span class="publish-step-number">2</span>
-                    <div><h3>Caption & hashtag</h3><p>Kiểm tra nội dung trước khi xuất bản.</p></div>
+                    <div><h3>Tiêu đề & hashtag</h3><p>Chỉ hai dòng để copy và đăng nhanh.</p></div>
                     <span id="publishStep2Status" class="publish-step-status">Chưa có nội dung</span>
                   </div>
                   <div class="publish-caption-wrap">
-                    <textarea id="publishCaption" class="publish-caption" maxlength="2200" placeholder="Nhập mô tả, tiêu đề và hashtag phù hợp cho video..."></textarea>
+                    <textarea id="publishCaption" class="publish-caption" maxlength="2200" placeholder="Tiêu đề ngắn có keyword SEO&#10;#sanpham #review #tensanpham"></textarea>
                     <div class="publish-caption-meta">
                       <span>
                         <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
@@ -549,20 +693,20 @@
                 <section class="publish-step-card publish-step-platforms" data-publish-step="platforms">
                   <div class="publish-step-heading">
                     <span class="publish-step-number">3</span>
-                    <div><h3>Chọn nền tảng</h3><p>Mở integration bên phải để kiểm tra và đăng.</p></div>
-                    <span id="publishStep3Status" class="publish-step-status">0/2 đã kết nối</span>
+                     <div><h3>Chọn nền tảng</h3><p>Tải video, copy caption rồi đăng thủ công.</p></div>
+                    <span id="publishStep3Status" class="publish-step-status">Chưa lưu Fanpage</span>
                   </div>
                   <div class="publish-platform-choices">
-                    <a class="publish-platform-choice" href="#tiktokPublishCard">
-                      <span class="platform-mark tiktok-mark"><svg viewBox="0 0 24 24"><path d="M15 4v10.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4c.8 2.5 2.3 4 5 4"/></svg></span>
-                      <span><strong>TikTok</strong><small>Direct Post</small></span>
-                      <svg class="publish-choice-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                    </a>
                     <a class="publish-platform-choice" href="#facebookPublishCard">
                       <span class="platform-mark facebook-mark">f</span>
                       <span><strong>Facebook</strong><small>Page Reels</small></span>
                       <svg class="publish-choice-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
                     </a>
+                     <a class="publish-platform-choice" href="#tiktokPublishCard">
+                       <span class="platform-mark tiktok-mark">♪</span>
+                       <span><strong>TikTok</strong><small>TikTok Studio</small></span>
+                       <svg class="publish-choice-arrow" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                     </a>
                   </div>
                 </section>
               </div>
@@ -570,10 +714,10 @@
               <footer class="publish-workspace-footer">
                 <div class="publish-safety-note">
                   <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
-                  <span>Không tự đăng khi chưa xác nhận. TikTok chưa audit chỉ hỗ trợ chế độ riêng tư.</span>
+                   <span>Ứng dụng không gửi video lên TikTok/Facebook. Bạn tự chọn MP4 và đăng trên nền tảng.</span>
                 </div>
                 <button id="publishReadyBtn" class="publish-primary-cta" type="button" disabled>
-                  Tiếp tục chọn nền tảng
+                   Copy & mở Fanpage
                   <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
                 </button>
               </footer>
@@ -581,54 +725,61 @@
 
             <aside class="publish-integrations">
               <div class="publish-integrations-heading">
-                <div><span>Integrations</span><h2>Kênh xuất bản</h2></div>
+                <div><span>Manual publish</span><h2>Đăng thủ công</h2></div>
                 <button class="publish-settings-link" type="button" data-view="settings" data-focus="publishingSettingsStatus">
                   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-2.83 2.83-.06-.06a1.65 1.65 0 0 0-1.82-.33A1.65 1.65 0 0 0 14 20.83V21h-4v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-2.83-2.83.06-.06A1.65 1.65 0 0 0 4.6 15 1.65 1.65 0 0 0 3.09 14H3v-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06 2.83-2.83.06.06A1.65 1.65 0 0 0 8.92 4.6 1.65 1.65 0 0 0 10 3.09V3h4v.09a1.65 1.65 0 0 0 1.08 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 2.83 2.83-.06.06A1.65 1.65 0 0 0 19.4 9c.14.48.52.86 1 1h.6v4h-.09c-.7 0-1.31.4-1.51 1Z"/></svg>
                   Cấu hình
                 </button>
               </div>
 
-              <article id="tiktokPublishCard" class="publish-integration-card tiktok-integration">
-                <div class="publish-integration-head">
-                  <span class="platform-mark tiktok-mark large"><svg viewBox="0 0 24 24"><path d="M15 4v10.5a4.5 4.5 0 1 1-4-4.47"/><path d="M15 4c.8 2.5 2.3 4 5 4"/></svg></span>
-                  <div><h3>TikTok Direct Post</h3><p>Đăng trực tiếp qua Content Posting API.</p></div>
-                  <span id="tiktokConnectionBadge" class="integration-status"><i></i> Chưa kết nối</span>
-                </div>
-                <div class="publish-integration-fields">
-                  <label><span>Tài khoản</span><select id="tiktokAccountSelect" class="publish-select" disabled><option>Chưa kết nối tài khoản TikTok</option></select></label>
-                  <label><span>Quyền riêng tư</span><select id="tiktokPrivacy" class="publish-select">
-                    <option value="SELF_ONLY">Chỉ mình tôi (an toàn để test)</option>
-                    <option value="PUBLIC_TO_EVERYONE">Công khai</option>
-                    <option value="FOLLOWER_OF_CREATOR">Người theo dõi</option>
-                    <option value="MUTUAL_FOLLOW_FRIENDS">Bạn bè</option>
-                  </select></label>
-                </div>
-                <p id="tiktokConfigStatus" class="integration-helper">Chưa kiểm tra cấu hình</p>
-                <button id="publishTikTokBtn" class="publish-platform-button" disabled>
-                  <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="m15 3 6 0 0 6"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/></svg>
-                  Đăng lên TikTok
-                </button>
-              </article>
-
               <article id="facebookPublishCard" class="publish-integration-card facebook-integration">
                 <div class="publish-integration-head">
                   <span class="platform-mark facebook-mark large">f</span>
-                  <div><h3>Facebook Page Reels</h3><p>Đăng Reel lên Fanpage đã kết nối.</p></div>
-                  <span id="facebookConnectionBadge" class="integration-status"><i></i> Chưa kết nối</span>
+                  <div><h3>Facebook Fanpage</h3><p>Mở đúng trang để bạn tự tải Reel lên.</p></div>
+                  <span id="facebookConnectionBadge" class="integration-status"><i></i> Chưa lưu trang</span>
                 </div>
                 <div class="publish-integration-fields one-column">
-                  <label><span>Fanpage</span><select id="facebookPageSelect" class="publish-select" disabled><option>Chưa kết nối Fanpage</option></select></label>
+                  <div><span class="publish-page-label">Fanpage sẽ mở</span><div id="facebookPageSelect" class="publish-select publish-page-address">Chưa lưu Fanpage</div></div>
                 </div>
                 <p id="facebookConfigStatus" class="integration-helper">Chưa kiểm tra cấu hình</p>
-                <button id="publishFacebookBtn" class="publish-platform-button" disabled>
+                <div class="publish-file-location">
+                  <span>Video vừa render nằm tại</span>
+                  <code id="publishOutputPath">Chưa có video_final.mp4</code>
+                  <button id="publishRevealVideoBtn" class="publish-manual-action" type="button" disabled>Hiện file trong Explorer</button>
+                </div>
+                <div class="publish-manual-actions">
+                  <a id="publishDownloadVideo" class="publish-manual-action" download hidden>Tải MP4</a>
+                  <button id="publishCopyCaptionBtn" class="publish-manual-action" type="button" disabled>Copy caption</button>
+                </div>
+                <button id="publishFacebookBtn" class="publish-platform-button" type="button" disabled>
                   <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="m15 3 6 0 0 6"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/></svg>
-                  Đăng lên Fanpage
+                   Copy & mở Fanpage
+                </button>
+              </article>
+
+              <article id="tiktokPublishCard" class="publish-integration-card tiktok-integration">
+                <div class="publish-integration-head">
+                  <span class="platform-mark tiktok-mark large">♪</span>
+                  <div><h3>TikTok Studio</h3><p>Mở trang đăng video và kéo MP4 từ Explorer vào.</p></div>
+                  <span class="integration-status"><i></i> Thủ công</span>
+                </div>
+                <div class="publish-integration-fields one-column">
+                  <div><span class="publish-page-label">Trang sẽ mở</span><div class="publish-select publish-page-address">tiktok.com/tiktokstudio</div></div>
+                </div>
+                <p class="integration-helper">Không cần API/token. Khi mở trang, app tự copy tiêu đề & hashtag.</p>
+                <div class="publish-manual-actions">
+                  <button id="tiktokRevealVideoBtn" class="publish-manual-action" type="button" disabled>Hiện MP4 trong Explorer</button>
+                  <button id="tiktokCopyCaptionBtn" class="publish-manual-action" type="button" disabled>Copy caption</button>
+                </div>
+                <button id="publishTikTokBtn" class="publish-platform-button" type="button">
+                  <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="m15 3 6 0 0 6"/><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"/></svg>
+                  Copy & mở TikTok Studio + MP4
                 </button>
               </article>
 
               <div id="publishResult" class="publish-result publish-result-v2">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-                <span>Sẵn sàng sau khi có video final và cấu hình API.</span>
+                 <span>Tải MP4, copy caption rồi mở TikTok Studio hoặc Fanpage để đăng thủ công.</span>
               </div>
             </aside>
           </div>
@@ -739,12 +890,46 @@
               <details class="settings-section" data-settings-panel="capcut">
                 <summary>
                   <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16l-6 8 6 8H4l6-8-6-8Z"/></svg></span>
-                  <span><strong>CapCut & thư mục</strong><small>Đường dẫn ứng dụng và nơi lưu project</small></span>
+                  <span><strong>Video Editor & CapCut</strong><small>OpenCut bridge, CapCut fallback và thư mục project</small></span>
                   <span id="capcutSettingsStatus" class="settings-status-badge">Cần kiểm tra</span>
                   <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
                 </summary>
                 <div class="settings-section-body">
+                  <div class="settings-subhead">
+                    <div><strong>Mặc định phụ đề</strong><small>Áp dụng tự động khi tạo project Video Editor mới.</small></div>
+                    <span class="settings-subhead-badge">Subtitle</span>
+                  </div>
                   <div class="settings-grid">
+                    <label><span>Template phụ đề</span><select name="editorSubtitleTemplate"><option value="classic">Classic</option><option value="reveal">Reveal từng từ</option><option value="karaoke">Karaoke highlight</option><option value="pop">Pop Punch</option><option value="neon">Neon Glow</option></select></label>
+                    <label><span>Cỡ chữ</span><input name="editorSubtitleFontSize" type="number" min="24" max="84" step="1" /></label>
+                    <label><span>Vị trí từ đáy (px)</span><input name="editorSubtitleMarginBottom" type="number" min="30" max="520" step="1" /></label>
+                    <label class="settings-color-field"><span>Màu chữ chính</span><input name="editorSubtitleColor" type="color" /></label>
+                    <label class="settings-color-field"><span>Màu từ nổi bật</span><input name="editorSubtitleAccentColor" type="color" /></label>
+                    <label class="settings-color-field"><span>Màu viền chữ</span><input name="editorSubtitleOutlineColor" type="color" /></label>
+                    <label class="settings-color-field"><span>Màu nền phụ đề</span><input name="editorSubtitleBackground" type="color" /></label>
+                    <label><span>Độ đậm nền (%)</span><input name="editorSubtitleBackgroundOpacity" type="number" min="0" max="100" step="1" /></label>
+                  </div>
+
+                  <div class="settings-subhead mt-5">
+                    <div><strong>Logo & âm thanh</strong><small>Giá trị khởi tạo cho logo, voice và âm thanh video gốc.</small></div>
+                    <span class="settings-subhead-badge">Compose</span>
+                  </div>
+                  <div class="settings-grid">
+                    <label><span>Vị trí logo</span><select name="editorLogoPosition"><option value="top-right">Trên phải</option><option value="top-left">Trên trái</option><option value="bottom-right">Dưới phải</option><option value="bottom-left">Dưới trái</option></select></label>
+                    <label><span>Kích thước logo (px)</span><input name="editorLogoWidth" type="number" min="60" max="480" step="1" /></label>
+                    <label><span>Độ trong suốt logo (%)</span><input name="editorLogoOpacity" type="number" min="10" max="100" step="1" /></label>
+                    <label><span>Âm lượng giọng đọc (%)</span><input name="editorVoiceVolume" type="number" min="0" max="200" step="1" /></label>
+                    <label><span>Âm thanh gốc (%)</span><input name="editorSourceVolume" type="number" min="0" max="100" step="1" /></label>
+                    <label><span>Chất lượng render</span><select name="editorRenderPreset"><option value="veryfast">Nhanh</option><option value="faster">Nhanh hơn</option><option value="fast">Ưu tiên tốc độ</option><option value="medium">Cân bằng</option><option value="slow">Chất lượng cao</option></select></label>
+                  </div>
+
+                  <div class="settings-subhead mt-5">
+                    <div><strong>Tích hợp & fallback</strong><small>Render local, OpenCut bridge và CapCut dự phòng.</small></div>
+                    <span class="settings-subhead-badge">System</span>
+                  </div>
+                  <div class="settings-grid">
+                    <label><span>Tự render sau pipeline</span><select name="editorAutoRender"><option value="true">Bật</option><option value="false">Tắt</option></select></label>
+                    <label class="span-3"><span>OpenCut Labs URL</span><input name="openCutUrl" placeholder="http://localhost:5173" /></label>
                     <label class="span-3"><span>CapCut executable path</span><input name="capcutPath" /></label>
                     <label class="span-3"><span>CapCut project directory</span><input name="capcutProjectDir" /></label>
                   </div>
@@ -754,43 +939,22 @@
               <details class="settings-section" data-settings-panel="publishing">
                 <summary>
                   <span class="settings-section-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg></span>
-                  <span><strong>Đăng TikTok & Facebook</strong><small>OAuth, access token và Fanpage</small></span>
+                  <span><strong>Fanpage Facebook</strong><small>Mở trang để đăng thủ công · không cần token</small></span>
                   <span id="publishingSettingsStatus" class="settings-status-badge">Chưa cấu hình</span>
                   <svg class="settings-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
                 </summary>
                 <div class="settings-section-body">
                   <div class="settings-subhead">
-                    <div><strong>TikTok Content Posting API</strong><small>Cần app Developer và scope video.publish.</small></div>
-                    <a href="https://developers.tiktok.com/apps/" target="_blank" rel="noreferrer">Mở TikTok Developer ↗</a>
+                    <div><strong>Fanpage của bạn</strong><small>Nhập link Fanpage hoặc giữ Page ID hiện có.</small></div>
                   </div>
                   <div class="settings-help-callout">
-                    <strong>Cách lấy thông tin:</strong>
-                    <span>1. Tạo app và thêm Login Kit + Content Posting API.</span>
-                    <span>2. Bật Direct Post, xin quyền <code>video.publish</code> và khai báo redirect URI desktop.</span>
-                    <span>3. Đăng nhập TikTok qua OAuth để nhận Access Token + Refresh Token.</span>
-                    <a href="https://developers.tiktok.com/docs/en/login-kit-desktop" target="_blank" rel="noreferrer">Xem hướng dẫn OAuth Desktop chính thức ↗</a>
+                    <strong>Không cần API hay token:</strong>
+                    <span>Mở Fanpage trên Facebook, copy link trên thanh địa chỉ rồi dán vào ô dưới đây. Page ID hiện tại vẫn dùng được nếu chưa nhập link.</span>
+                    <span>Sau khi render, tải MP4 và copy caption tại tab Xuất bản; ứng dụng chỉ mở Fanpage, không tự đăng.</span>
                   </div>
                   <div class="settings-grid">
-                    <label><span>TikTok Client Key</span><input name="tiktokClientKey" /></label>
-                    <label><span>TikTok Client Secret</span><input name="tiktokClientSecret" type="password" placeholder="Để trống để giữ nguyên" /></label>
-                    <label><span>TikTok Access Token</span><input name="tiktokAccessToken" type="password" placeholder="Token có scope video.publish" /></label>
-                    <label><span>TikTok Refresh Token</span><input name="tiktokRefreshToken" type="password" placeholder="Dùng để tự gia hạn access token" /></label>
-                  </div>
-                  <div class="settings-subhead mt-5">
-                    <div><strong>Facebook Page Reels API</strong><small>Cần Page ID và Page Access Token.</small></div>
-                    <a href="https://developers.facebook.com/apps/" target="_blank" rel="noreferrer">Mở Meta Developer ↗</a>
-                  </div>
-                  <div class="settings-help-callout">
-                    <strong>Cách lấy thông tin:</strong>
-                    <span>1. Tạo Meta app và cấp quyền quản lý nội dung cho Fanpage.</span>
-                    <span>2. Tạo User Access Token, sau đó gọi <code>/me/accounts?fields=name,access_token,tasks</code>.</span>
-                    <span>3. Copy <code>id</code> và <code>access_token</code> của đúng Fanpage vào hai ô bên dưới.</span>
-                    <a href="https://www.postman.com/meta/facebook/documentation/r56bjfd/facebook-api" target="_blank" rel="noreferrer">Xem tài liệu Facebook API chính thức ↗</a>
-                  </div>
-                  <div class="settings-grid">
-                    <label><span>Facebook Page ID</span><input name="facebookPageId" /></label>
-                    <label><span>Facebook Page Access Token</span><input name="facebookPageAccessToken" type="password" placeholder="Để trống để giữ nguyên" /></label>
-                    <label><span>Meta Graph version</span><input name="metaGraphVersion" placeholder="v26.0" /></label>
+                    <label><span>Facebook Page ID (dự phòng)</span><input name="facebookPageId" inputmode="numeric" /></label>
+                    <label class="span-3"><span>Link Fanpage (ưu tiên)</span><input name="facebookPageUrl" type="url" placeholder="https://www.facebook.com/ten-fanpage" /></label>
                   </div>
                 </div>
               </details>
@@ -828,7 +992,9 @@
       </main>
       </div>
     </div>
-    <script src="/assets/voice-modules.js"></script>
-    <script src="/assets/app.js"></script>
+    <script src="/assets/studio.js?v=20261008-publish-layout"></script>
+    <script src="/assets/voice-modules.js?v=20261007-stable"></script>
+    <script src="/assets/app.js?v=20261009-publish-copy"></script>
+    <script src="/assets/editor.js?v=20261009-final-preview"></script>
   </body>
 </html>

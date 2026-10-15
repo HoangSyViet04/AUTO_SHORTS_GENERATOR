@@ -7,20 +7,24 @@ import threading
 import os
 import shlex
 import re
+import json
+import mimetypes
 import requests
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import pipeline, publishers
+from app import editor, pipeline
 
 STATIC_DIR = pipeline.BASE_DIR / "app" / "static"
 ENV_PATH = pipeline.BASE_DIR / ".env"
+PIPELINE_LOG_PATH = pipeline.BASE_DIR / "logs" / "pipeline_latest.log"
 SETTING_ENV_KEYS = {
     "whisperModel": "WHISPER_MODEL",
     "whisperDevice": "WHISPER_DEVICE",
@@ -70,13 +74,24 @@ SETTING_ENV_KEYS = {
     "ttsLeadInMs": "TTS_LEAD_IN_MS",
     "capcutPath": "CAPCUT_PATH",
     "capcutProjectDir": "CAPCUT_PROJECT_DIR",
-    "tiktokClientKey": "TIKTOK_CLIENT_KEY",
-    "tiktokClientSecret": "TIKTOK_CLIENT_SECRET",
-    "tiktokAccessToken": "TIKTOK_ACCESS_TOKEN",
-    "tiktokRefreshToken": "TIKTOK_REFRESH_TOKEN",
+    "openCutUrl": "OPENCUT_URL",
+    "editorAutoRender": "EDITOR_AUTO_RENDER",
+    "editorSubtitleTemplate": "EDITOR_SUBTITLE_TEMPLATE",
+    "editorSubtitleFontSize": "EDITOR_SUBTITLE_FONT_SIZE",
+    "editorSubtitleMarginBottom": "EDITOR_SUBTITLE_MARGIN_BOTTOM",
+    "editorSubtitleColor": "EDITOR_SUBTITLE_COLOR",
+    "editorSubtitleAccentColor": "EDITOR_SUBTITLE_ACCENT_COLOR",
+    "editorSubtitleOutlineColor": "EDITOR_SUBTITLE_OUTLINE_COLOR",
+    "editorSubtitleBackground": "EDITOR_SUBTITLE_BACKGROUND",
+    "editorSubtitleBackgroundOpacity": "EDITOR_SUBTITLE_BACKGROUND_OPACITY",
+    "editorLogoPosition": "EDITOR_LOGO_POSITION",
+    "editorLogoWidth": "EDITOR_LOGO_WIDTH",
+    "editorLogoOpacity": "EDITOR_LOGO_OPACITY",
+    "editorVoiceVolume": "EDITOR_VOICE_VOLUME",
+    "editorSourceVolume": "EDITOR_SOURCE_VOLUME",
+    "editorRenderPreset": "EDITOR_RENDER_PRESET",
     "facebookPageId": "FACEBOOK_PAGE_ID",
-    "facebookPageAccessToken": "FACEBOOK_PAGE_ACCESS_TOKEN",
-    "metaGraphVersion": "META_GRAPH_VERSION",
+    "facebookPageUrl": "FACEBOOK_PAGE_URL",
 }
 
 
@@ -155,8 +170,17 @@ def write_env_settings(values: dict[str, Any]) -> None:
             text_value = ",".join(str(item).strip() for item in value if str(item).strip())
         else:
             text_value = str(value).strip()
+        if ui_key in {"facebookPageId", "facebookPageUrl"} and not text_value:
+            updates[env_key] = ""
         if text_value:
             text_value = text_value.replace("\r\n", "\n").replace("\r", "\n").replace("\n", "\\n")
+            if env_key in {
+                "EDITOR_SUBTITLE_COLOR",
+                "EDITOR_SUBTITLE_ACCENT_COLOR",
+                "EDITOR_SUBTITLE_OUTLINE_COLOR",
+                "EDITOR_SUBTITLE_BACKGROUND",
+            }:
+                text_value = f'"{text_value}"'
             updates[env_key] = text_value
 
     if not updates:
@@ -223,6 +247,61 @@ def validate_settings_payload(values: dict[str, Any]) -> None:
     if "ttsLeadInMs" in values and int(values["ttsLeadInMs"]) < 0:
         raise HTTPException(status_code=400, detail="TTS_LEAD_IN_MS phai >= 0")
 
+    if "editorSubtitleTemplate" in values and str(values["editorSubtitleTemplate"]) not in editor.SUBTITLE_TEMPLATES:
+        raise HTTPException(status_code=400, detail="EDITOR_SUBTITLE_TEMPLATE khong hop le")
+    if "editorLogoPosition" in values and str(values["editorLogoPosition"]) not in {
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right",
+    }:
+        raise HTTPException(status_code=400, detail="EDITOR_LOGO_POSITION khong hop le")
+    if "editorRenderPreset" in values and str(values["editorRenderPreset"]) not in {
+        "veryfast",
+        "faster",
+        "fast",
+        "medium",
+        "slow",
+    }:
+        raise HTTPException(status_code=400, detail="EDITOR_RENDER_PRESET khong hop le")
+
+    editor_ranges = {
+        "editorSubtitleFontSize": (24, 84),
+        "editorSubtitleMarginBottom": (30, 520),
+        "editorSubtitleBackgroundOpacity": (0, 1),
+        "editorLogoWidth": (60, 480),
+        "editorLogoOpacity": (0.1, 1),
+        "editorVoiceVolume": (0, 2),
+        "editorSourceVolume": (0, 1),
+    }
+    for key, (minimum, maximum) in editor_ranges.items():
+        if key in values and not minimum <= float(values[key]) <= maximum:
+            raise HTTPException(
+                status_code=400,
+                detail=f"{SETTING_ENV_KEYS[key]} phai trong khoang {minimum}-{maximum}",
+            )
+
+    for key in (
+        "editorSubtitleColor",
+        "editorSubtitleAccentColor",
+        "editorSubtitleOutlineColor",
+        "editorSubtitleBackground",
+    ):
+        if key in values and not re.fullmatch(r"#[0-9A-Fa-f]{6}", str(values[key]).strip()):
+            raise HTTPException(status_code=400, detail=f"{SETTING_ENV_KEYS[key]} khong phai ma mau HEX hop le")
+
+    if "facebookPageId" in values and str(values["facebookPageId"]).strip():
+        if not re.fullmatch(r"\d+", str(values["facebookPageId"]).strip()):
+            raise HTTPException(status_code=400, detail="FACEBOOK_PAGE_ID phai la day so")
+    if "facebookPageUrl" in values and str(values["facebookPageUrl"]).strip():
+        page_url = urlparse(str(values["facebookPageUrl"]).strip())
+        if (
+            page_url.scheme != "https"
+            or page_url.netloc not in {"facebook.com", "www.facebook.com", "web.facebook.com", "m.facebook.com"}
+            or not page_url.path.strip("/")
+        ):
+            raise HTTPException(status_code=400, detail="FACEBOOK_PAGE_URL phai la link https://www.facebook.com/...")
+
 
 def selected_output_dir(project: str | None) -> Path:
     if project:
@@ -237,21 +316,6 @@ def selected_output_dir(project: str | None) -> Path:
     return latest_dirs[0] if latest_dirs else pipeline.OUTPUT_DIR
 
 
-def selected_final_video(project: str | None) -> Path:
-    if not project:
-        raise HTTPException(status_code=400, detail="Chua chon project de xuat ban.")
-    output_dir = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project)
-    if not output_dir.exists():
-        raise HTTPException(status_code=404, detail="Khong tim thay output cua project.")
-    final_video = output_dir / "video_final.mp4"
-    if not final_video.exists() or not final_video.is_file():
-        raise HTTPException(
-            status_code=409,
-            detail="Chua co video_final.mp4. Hay export video tu CapCut roi tai vao tab Xuat ban.",
-        )
-    return final_video
-
-
 def open_path(path: Path) -> None:
     if sys.platform.startswith("win"):
         os.startfile(str(path))
@@ -259,6 +323,13 @@ def open_path(path: Path) -> None:
         subprocess.Popen(["open", str(path)])
     else:
         subprocess.Popen(["xdg-open", str(path)])
+
+
+def reveal_file(path: Path) -> None:
+    if sys.platform.startswith("win"):
+        subprocess.Popen(["explorer.exe", "/select,", str(path)])
+    else:
+        open_path(path.parent)
 
 
 def split_windows_command(raw_command: str) -> tuple[Path, list[str]]:
@@ -308,6 +379,19 @@ def append_job_log(line: str) -> None:
         job_state.logs = job_state.logs[-600:]
         if "Bat dau xu ly:" in line:
             job_state.current_video = line.rsplit(":", 1)[-1].strip()
+        try:
+            PIPELINE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with PIPELINE_LOG_PATH.open("a", encoding="utf-8") as log_file:
+                log_file.write(line + "\n")
+        except OSError:
+            pass
+
+
+def environment_flag(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def run_pipeline_worker(video_names: list[str]) -> None:
@@ -318,6 +402,8 @@ def run_pipeline_worker(video_names: list[str]) -> None:
             job_state.finished_at = None
             job_state.error = None
             job_state.logs.clear()
+        PIPELINE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        PIPELINE_LOG_PATH.write_text("", encoding="utf-8")
 
         command = [sys.executable, "-m", "app.pipeline", "--videos", *video_names]
         append_job_log("[INFO] Khoi dong subprocess pipeline...")
@@ -338,10 +424,22 @@ def run_pipeline_worker(video_names: list[str]) -> None:
         return_code = process.wait()
         if return_code != 0:
             raise pipeline.PipelineError(f"Pipeline subprocess ket thuc voi ma loi {return_code}")
+        if environment_flag("EDITOR_AUTO_RENDER", True):
+            for video_name in video_names:
+                project = Path(video_name).stem
+                append_job_log(f"[EDITOR] Auto compose project: {project}")
+                manifest = editor.build_editor_manifest(project)
+                editor.render_editor_project(project, manifest.get("settings"), append_job_log)
+        else:
+            append_job_log("[EDITOR] Auto render dang tat; project san sang de chinh trong Video Editor.")
     except Exception as exc:
         append_job_log(f"[ERROR] Pipeline loi: {exc}")
         with job_lock:
-            job_state.error = str(exc)
+            job_state.error = next(
+                (line.removeprefix("[ERROR] ") for line in reversed(job_state.logs)
+                 if line.startswith("[ERROR]") and "Pipeline loi:" not in line),
+                str(exc),
+            )
     finally:
         with job_lock:
             job_state.running = False
@@ -366,6 +464,7 @@ def health() -> dict[str, str]:
 
 @app.get("/api/config")
 def config() -> dict[str, Any]:
+    editor_defaults = editor.default_editor_settings()
     return {
         "paths": {
             "base": str(pipeline.BASE_DIR),
@@ -377,7 +476,9 @@ def config() -> dict[str, Any]:
             "gemini": bool(pipeline.GEMINI_API_KEY),
             "geminiKeyCount": len(pipeline.GEMINI_API_KEYS),
             "tts": bool(pipeline.API_KEY),
-            **publishers.publishing_config(),
+            "facebookPageConfigured": bool(
+                os.getenv("FACEBOOK_PAGE_URL", "").strip() or os.getenv("FACEBOOK_PAGE_ID", "").strip()
+            ),
         },
         "settings": {
             "whisperModel": pipeline.WHISPER_MODEL_NAME,
@@ -426,9 +527,24 @@ def config() -> dict[str, Any]:
             "ttsLeadInMs": pipeline.TTS_LEAD_IN_MS,
             "capcutPath": os.getenv("CAPCUT_PATH", "").strip(),
             "capcutProjectDir": os.getenv("CAPCUT_PROJECT_DIR", "").strip(),
-            "tiktokClientKey": os.getenv("TIKTOK_CLIENT_KEY", "").strip(),
+            "openCutUrl": os.getenv("OPENCUT_URL", "http://localhost:5173").strip() or "http://localhost:5173",
+            "editorAutoRender": environment_flag("EDITOR_AUTO_RENDER", True),
+            "editorSubtitleTemplate": editor_defaults["subtitle"]["template"],
+            "editorSubtitleFontSize": editor_defaults["subtitle"]["fontSize"],
+            "editorSubtitleMarginBottom": editor_defaults["subtitle"]["marginBottom"],
+            "editorSubtitleColor": editor_defaults["subtitle"]["color"],
+            "editorSubtitleAccentColor": editor_defaults["subtitle"]["accentColor"],
+            "editorSubtitleOutlineColor": editor_defaults["subtitle"]["outlineColor"],
+            "editorSubtitleBackground": editor_defaults["subtitle"]["background"],
+            "editorSubtitleBackgroundOpacity": round(editor_defaults["subtitle"]["backgroundOpacity"] * 100),
+            "editorLogoPosition": editor_defaults["logo"]["position"],
+            "editorLogoWidth": editor_defaults["logo"]["width"],
+            "editorLogoOpacity": round(editor_defaults["logo"]["opacity"] * 100),
+            "editorVoiceVolume": round(editor_defaults["audio"]["voiceVolume"] * 100),
+            "editorSourceVolume": round(editor_defaults["audio"]["sourceVolume"] * 100),
+            "editorRenderPreset": editor_defaults["export"]["preset"],
             "facebookPageId": os.getenv("FACEBOOK_PAGE_ID", "").strip(),
-            "metaGraphVersion": os.getenv("META_GRAPH_VERSION", "v26.0").strip() or "v26.0",
+            "facebookPageUrl": os.getenv("FACEBOOK_PAGE_URL", "").strip(),
         },
     }
 
@@ -447,6 +563,44 @@ def update_config(payload: dict[str, Any]) -> dict[str, Any]:
 def videos() -> dict[str, Any]:
     pipeline.ensure_directories()
     return {"videos": [video_payload(path) for path in pipeline.discover_videos()]}
+
+
+@app.get("/api/editor/project/{project}")
+def editor_project(project: str) -> dict[str, Any]:
+    try:
+        return editor.build_editor_manifest(project)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except (subprocess.SubprocessError, ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=500, detail=f"Khong doc duoc media project: {exc}") from exc
+
+
+@app.get("/api/editor/media/{project}/{filename}")
+def editor_media(project: str, filename: str) -> FileResponse:
+    output_dir = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project)
+    file_path = output_dir / Path(filename).name
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Khong tim thay media editor")
+    media_type = mimetypes.guess_type(file_path.name)[0] or "application/octet-stream"
+    return FileResponse(file_path, media_type=media_type)
+
+
+@app.post("/api/editor/render")
+def editor_render(payload: dict[str, Any]) -> dict[str, Any]:
+    project = str(payload.get("project") or "").strip()
+    if not project:
+        raise HTTPException(status_code=400, detail="Chua chon project de render")
+    try:
+        return editor.start_editor_render(project, payload.get("settings") or {})
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@app.get("/api/editor/render")
+def editor_render_status() -> dict[str, Any]:
+    return editor.render_snapshot()
 
 
 @app.post("/api/upload")
@@ -490,79 +644,6 @@ async def upload_final_video(project: str = Form(...), file: UploadFile = File(.
         "size": target_path.stat().st_size,
         "url": f"/api/output/{pipeline.sanitize_folder_name(project)}/{target_path.name}",
     }
-
-
-@app.get("/api/publish/config")
-def publish_config() -> dict[str, Any]:
-    return publishers.publishing_config()
-
-
-@app.post("/api/publish/tiktok")
-def publish_tiktok(payload: dict[str, Any]) -> dict[str, Any]:
-    video_path = selected_final_video(payload.get("project"))
-    title = str(payload.get("caption") or "").strip()
-    if not title:
-        raise HTTPException(status_code=400, detail="Caption TikTok khong duoc de trong")
-    privacy_level = str(payload.get("privacyLevel") or "SELF_ONLY").strip()
-    try:
-        def execute(access_token: str) -> dict[str, Any]:
-            publisher = publishers.TikTokPublisher(access_token)
-            return publisher.publish_video(
-                video_path,
-                title=title,
-                privacy_level=privacy_level,
-                is_aigc=bool(payload.get("isAigc", True)),
-            )
-
-        access_token = os.getenv("TIKTOK_ACCESS_TOKEN", "").strip()
-        try:
-            return execute(access_token)
-        except publishers.PublishError as exc:
-            if exc.status_code != 401:
-                raise
-            refreshed = publishers.refresh_tiktok_access_token(
-                client_key=os.getenv("TIKTOK_CLIENT_KEY", "").strip(),
-                client_secret=os.getenv("TIKTOK_CLIENT_SECRET", "").strip(),
-                refresh_token=os.getenv("TIKTOK_REFRESH_TOKEN", "").strip(),
-            )
-            write_env_settings(
-                {
-                    "tiktokAccessToken": refreshed["access_token"],
-                    "tiktokRefreshToken": refreshed["refresh_token"],
-                }
-            )
-            return execute(refreshed["access_token"])
-    except publishers.PublishError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@app.post("/api/publish/tiktok/status")
-def publish_tiktok_status(payload: dict[str, Any]) -> dict[str, Any]:
-    publish_id = str(payload.get("publishId") or "").strip()
-    if not publish_id:
-        raise HTTPException(status_code=400, detail="Thieu publishId")
-    try:
-        publisher = publishers.TikTokPublisher(os.getenv("TIKTOK_ACCESS_TOKEN", "").strip())
-        return publisher.fetch_status(publish_id)
-    except publishers.PublishError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-@app.post("/api/publish/facebook")
-def publish_facebook(payload: dict[str, Any]) -> dict[str, Any]:
-    video_path = selected_final_video(payload.get("project"))
-    caption = str(payload.get("caption") or "").strip()
-    if not caption:
-        raise HTTPException(status_code=400, detail="Caption Facebook khong duoc de trong")
-    try:
-        publisher = publishers.FacebookReelsPublisher(
-            page_id=os.getenv("FACEBOOK_PAGE_ID", "").strip(),
-            page_access_token=os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "").strip(),
-            graph_version=os.getenv("META_GRAPH_VERSION", "v26.0").strip() or "v26.0",
-        )
-        return publisher.publish_video(video_path, description=caption, title=str(payload.get("title") or "").strip())
-    except publishers.PublishError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @app.post("/api/run")
@@ -692,6 +773,19 @@ def job() -> dict[str, Any]:
 
 @app.post("/api/open-output")
 def open_output(payload: dict[str, Any]) -> dict[str, str]:
+    if payload.get("file"):
+        project = payload.get("project")
+        if not isinstance(project, str) or not project or payload["file"] != "video_final.mp4":
+            raise HTTPException(status_code=400, detail="Chi co the mo video_final.mp4 cua project da chon")
+        target = pipeline.OUTPUT_DIR / pipeline.sanitize_folder_name(project) / "video_final.mp4"
+        if not target.is_file():
+            raise HTTPException(status_code=404, detail="Chua co video_final.mp4 trong project da chon")
+        try:
+            reveal_file(target)
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"Khong hien duoc file video: {exc}") from exc
+        return {"status": "opened", "path": str(target)}
+
     output_dir = selected_output_dir(payload.get("project"))
     if not output_dir.exists():
         raise HTTPException(status_code=404, detail="Khong tim thay thu muc output")
